@@ -194,49 +194,26 @@ export async function criarAnuncio(
     };
   }
 
-  // Insere anúncio
-  const { data: novoAnuncio, error: erroAnuncio } = await supabase
-    .from("anuncios")
-    .insert({
-      empresa_id: sessao.empresa_id,
-      tipo,
-      valor_total,
-      valor_remanescente: valor_total,
-      permite_parcial,
-      aceita_local_proprio,
-      rotulo_regiao,
-      disponibilidade_texto,
-      expira_em: expira_em ? new Date(expira_em).toISOString() : null,
-      status: "ativo",
-    })
-    .select("id")
-    .single();
+  const { data: resultadoCriacao, error: erroCriacao } = await supabase.rpc(
+    "criar_anuncio_atomico",
+    {
+      p_tipo: tipo,
+      p_valor_total: valor_total,
+      p_permite_parcial: permite_parcial,
+      p_aceita_local_proprio: aceita_local_proprio,
+      p_rotulo_regiao: rotulo_regiao,
+      p_disponibilidade_texto: disponibilidade_texto,
+      p_expira_em: expira_em ? new Date(expira_em).toISOString() : null,
+      p_itens: itens,
+    },
+  );
 
-  if (erroAnuncio || !novoAnuncio) {
-    return { ok: false, erro: "Erro ao criar anúncio. Tente novamente." };
-  }
+  const anuncioCriado = Array.isArray(resultadoCriacao)
+    ? resultadoCriacao[0]
+    : resultadoCriacao;
 
-  // Insere itens de composição
-  const itensParaInserir = itens.map((item, idx) => ({
-    anuncio_id: novoAnuncio.id,
-    tipo_item: item.tipo_item,
-    valor_unitario: item.valor_unitario,
-    quantidade: item.quantidade,
-    subtotal_valor: item.valor_unitario * item.quantidade,
-    ordem_exibicao: idx + 1,
-  }));
-
-  const { error: erroItens } = await supabase
-    .from("itens_composicao_anuncio")
-    .insert(itensParaInserir);
-
-  if (erroItens) {
-    // Rollback manual: remove anúncio criado
-    await supabase.from("anuncios").delete().eq("id", novoAnuncio.id);
-    return {
-      ok: false,
-      erro: "Erro ao salvar composição do anúncio. Tente novamente.",
-    };
+  if (erroCriacao || !anuncioCriado?.anuncio_id) {
+    return { ok: false, erro: erroCriacao?.message ?? "Erro ao criar anúncio. Tente novamente." };
   }
 
   revalidatePath(ROTAS.MEUS_ANUNCIOS);
