@@ -106,6 +106,7 @@ export default async function PaginaNegociacao({
 
   const status = neg.status as string;
   const statusMod = neg.status_moderacao as string;
+  const podeAvaliar = (status === "operacao_encerrada" || status === "finalizada") && !jaAvaliou;
 
   return (
     <main className="min-h-screen bg-stone-50 px-4 py-8">
@@ -232,19 +233,26 @@ export default async function PaginaNegociacao({
             )}
 
             {/* Avaliação */}
-            {status === "operacao_encerrada" && !jaAvaliou && (
+            {podeAvaliar && (
               <div className="rounded-2xl border border-stone-200 bg-white p-5">
                 <h3 className="mb-4 text-base font-semibold text-stone-900">
                   Avalie a outra parte
                 </h3>
+                <p className="mb-4 text-sm text-stone-500">
+                  {status === "finalizada"
+                    ? "A negociação já foi concluída e o chat está em modo leitura. Sua avaliação ainda pode ser enviada."
+                    : "Envie sua avaliação para concluir este ciclo da negociação."}
+                </p>
                 <FormAvaliacao negociacaoId={neg.id} />
               </div>
             )}
 
-            {status === "operacao_encerrada" && jaAvaliou && (
+            {(status === "operacao_encerrada" || status === "finalizada") && jaAvaliou && (
               <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4">
                 <p className="text-sm text-emerald-700">
-                  Você já enviou sua avaliação. Aguardando avaliação da outra parte.
+                  {status === "finalizada"
+                    ? "Você já enviou sua avaliação. O histórico da negociação segue disponível no chat em modo leitura."
+                    : "Você já enviou sua avaliação. Aguardando avaliação da outra parte."}
                 </p>
               </div>
             )}
@@ -252,7 +260,7 @@ export default async function PaginaNegociacao({
             {status === "finalizada" && (
               <div className="rounded-2xl border border-stone-100 bg-stone-50 px-5 py-4">
                 <p className="text-sm text-stone-500">
-                  Negociação finalizada. Ambas as partes avaliaram.
+                  Negociação concluída. O chat permanece disponível apenas para consulta.
                 </p>
                 <Link
                   href={ROTAS.MEUS_ANUNCIOS}

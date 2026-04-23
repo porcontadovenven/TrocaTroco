@@ -82,6 +82,8 @@ async function verificarParticipante(negociacaoId: string) {
        valor_negociado, meio_pagamento, local_troca,
        anuncio_id,
        anuncios ( tipo ),
+       empresa_autora:empresas!negociacoes_empresa_autora_id_fkey ( id, razao_social ),
+       empresa_contraparte:empresas!negociacoes_empresa_contraparte_id_fkey ( id, razao_social ),
        solicitacao_id`,
     )
     .eq("id", negociacaoId)
@@ -381,6 +383,17 @@ export async function encerrarOperacaoNegociacao(
     return { ok: false, erro: "A negociação não pôde ser encerrada. Atualize a tela e tente novamente." };
   }
 
+  const { error: erroMensagemSistema } = await registrarMensagemSistemaNegociacao(
+    negociacaoId,
+    resultado.sessao.id,
+    resultado.sessao.papel as TipoAtorMensagem,
+    "A operação foi marcada como concluída. O chat permanecerá aberto até a avaliação.",
+  );
+
+  if (erroMensagemSistema) {
+    return { ok: false, erro: "Erro ao registrar o encerramento da operação no chat." };
+  }
+
   revalidatePath(ROTAS.NEGOCIACAO(negociacaoId));
   return { ok: true };
 }
@@ -412,12 +425,31 @@ export async function enviarAvaliacao(
 
   const { neg, sessao } = resultado;
 
-  if (neg.status !== "operacao_encerrada") {
+  if (neg.status !== "operacao_encerrada" && neg.status !== "finalizada") {
     return {
       ok: false,
       erro: "A avaliação só pode ser enviada após o encerramento operacional.",
     };
   }
+
+  const empresaAutoraRaw = (neg as unknown as {
+    empresa_autora?: { id: string; razao_social: string }[] | { id: string; razao_social: string } | null;
+  }).empresa_autora;
+  const empresaContraparteRaw = (neg as unknown as {
+    empresa_contraparte?: { id: string; razao_social: string }[] | { id: string; razao_social: string } | null;
+  }).empresa_contraparte;
+
+  const empresaAutora = Array.isArray(empresaAutoraRaw)
+    ? empresaAutoraRaw[0] ?? null
+    : empresaAutoraRaw ?? null;
+
+  const empresaContraparte = Array.isArray(empresaContraparteRaw)
+    ? empresaContraparteRaw[0] ?? null
+    : empresaContraparteRaw ?? null;
+
+  const nomeEmpresaAvaliadora = sessao.empresa_id === neg.empresa_autora_id
+    ? (empresaAutora?.razao_social ?? "A empresa anunciante")
+    : (empresaContraparte?.razao_social ?? "A empresa solicitante");
 
   // Empresa avaliada = a contraparte
   const empresaAvaliada =
@@ -448,21 +480,14 @@ export async function enviarAvaliacao(
     return { ok: false, erro: "Erro ao enviar avaliação." };
   }
 
-  // Verifica se ambas as empresas da negociação já avaliaram antes de finalizar
-  const { data: avaliadores } = await supabase
-    .from("avaliacoes")
-    .select("empresa_avaliadora_id")
-    .eq("negociacao_id", negociacaoId);
-
-  const avaliadoresUnicos = new Set(
-    (avaliadores ?? []).map((item) => item.empresa_avaliadora_id),
+  await registrarMensagemSistemaNegociacao(
+    negociacaoId,
+    sessao.id,
+    sessao.papel as TipoAtorMensagem,
+    `${nomeEmpresaAvaliadora} registrou a avaliação desta negociação.`,
   );
 
-  const ambasEmpresasAvaliaram =
-    avaliadoresUnicos.has(neg.empresa_autora_id) &&
-    avaliadoresUnicos.has(neg.empresa_contraparte_id);
-
-  if (ambasEmpresasAvaliaram) {
+  if (neg.status !== "finalizada") {
     await supabase
       .from("negociacoes")
       .update({
@@ -473,6 +498,13 @@ export async function enviarAvaliacao(
         atualizada_em: agora,
       })
       .eq("id", negociacaoId);
+
+    await registrarMensagemSistemaNegociacao(
+      negociacaoId,
+      sessao.id,
+      sessao.papel as TipoAtorMensagem,
+      "A negociação foi concluída. O chat agora está somente para leitura.",
+    );
 
     await recalcularStatusAnuncio(neg.anuncio_id, agora);
   }
