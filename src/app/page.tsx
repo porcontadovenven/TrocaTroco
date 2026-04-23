@@ -162,7 +162,7 @@ export default async function Home() {
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 shadow-sm">
               <BadgeCheck className="h-3.5 w-3.5 text-emerald-600" />
               <span className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
-                Plataforma B2B · Exclusivo para CNPJs
+                Plataforma B2B · CNPJs e MEIs
               </span>
             </div>
             <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-stone-900 sm:text-5xl lg:text-6xl">
@@ -222,9 +222,9 @@ export default async function Home() {
               {[
                 {
                   icon: <BadgeCheck className="h-5 w-5 text-emerald-600" />,
-                  titulo: "Exclusivo para CNPJs",
+                  titulo: "Aberto a CNPJs e MEIs",
                   texto:
-                    "Acesso restrito a empresas com CNPJ ativo e cadastro aprovado pela nossa equipe de análise.",
+                    "Acesso restrito a empresas e MEIs com CNPJ ativo, mediante cadastro aprovado pela nossa equipe de análise.",
                 },
                 {
                   icon: <Zap className="h-5 w-5 text-emerald-600" />,
@@ -345,8 +345,8 @@ export default async function Home() {
               {[
                 {
                   icon: <BadgeCheck className="h-5 w-5 text-emerald-600" />,
-                  titulo: "Verificação de CNPJ",
-                  texto: "Todos os cadastros passam por análise manual antes de operar na plataforma.",
+                  titulo: "Verificação Cadastral",
+                  texto: "Todos os cadastros — CNPJs e MEIs — passam por análise manual antes de operar na plataforma.",
                 },
                 {
                   icon: <ShieldCheck className="h-5 w-5 text-emerald-600" />,
@@ -505,8 +505,8 @@ export default async function Home() {
             <div className="flex flex-col gap-4 lg:col-span-2">
               <LogoBranca />
               <p className="max-w-xs text-sm leading-6 text-stone-400">
-                Plataforma B2B de intermediação de troco entre empresas com
-                CNPJ ativo. Conexão direta, sem custódia de valores.
+                Plataforma B2B de intermediação de troco entre empresas e MEIs
+                com CNPJ ativo. Conexão direta, sem custódia de valores.
               </p>
               <p className="text-xs text-stone-600">
                 Não processa pagamentos · Não faz custódia · Não garante operações
@@ -568,7 +568,7 @@ export default async function Home() {
             </p>
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" />
-              <span className="text-xs text-stone-600">Plataforma segura · Exclusivo para CNPJs</span>
+              <span className="text-xs text-stone-600">Plataforma segura · CNPJs e MEIs</span>
             </div>
           </div>
         </div>
