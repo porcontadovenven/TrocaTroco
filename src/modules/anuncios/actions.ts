@@ -60,6 +60,62 @@ export type ResultadoAcao =
   | { ok: true; anuncio_id?: string }
   | { ok: false; erro: string };
 
+const EPSILON_VALOR = 0.000001;
+
+export async function recalcularStatusAnuncio(anuncioId: string, agora = new Date().toISOString()) {
+  const supabase = await getSupabaseServerClient();
+
+  const { data: anuncio, error: anuncioError } = await supabase
+    .from("anuncios")
+    .select("id, status, valor_remanescente, concluido_em")
+    .eq("id", anuncioId)
+    .single();
+
+  if (anuncioError || !anuncio) {
+    return { ok: false as const, error: "Anúncio não encontrado." };
+  }
+
+  const { count: negociacoesAbertas, error: negError } = await supabase
+    .from("negociacoes")
+    .select("id", { count: "exact", head: true })
+    .eq("anuncio_id", anuncioId)
+    .in("status", ["em_andamento", "operacao_encerrada"]);
+
+  if (negError) {
+    return { ok: false as const, error: "Erro ao recalcular status do anúncio." };
+  }
+
+  const remanescente = Number(anuncio.valor_remanescente ?? 0);
+  const semRemanescente = remanescente <= EPSILON_VALOR;
+  const possuiNegociacoesAbertas = (negociacoesAbertas ?? 0) > 0;
+
+  const novoStatus: StatusAnuncio = semRemanescente
+    ? possuiNegociacoesAbertas
+      ? "em_negociacao"
+      : "concluido"
+    : possuiNegociacoesAbertas
+      ? "em_negociacao"
+      : "ativo";
+
+  const concluidoEm = novoStatus === "concluido"
+    ? anuncio.concluido_em ?? agora
+    : null;
+
+  const { error: updateError } = await supabase
+    .from("anuncios")
+    .update({
+      status: novoStatus,
+      concluido_em: concluidoEm,
+    })
+    .eq("id", anuncioId);
+
+  if (updateError) {
+    return { ok: false as const, error: "Erro ao atualizar anúncio." };
+  }
+
+  return { ok: true as const, status: novoStatus };
+}
+
 // ---------------------------------------------------------------------------
 // criar_anuncio
 // Fase 5 — Matriz Operacional, seção 6
@@ -183,11 +239,15 @@ export async function criarAnuncio(
 //   - apenas anúncios com status ativo ou em_negociacao
 //   - ordenado por publicado_em desc
 // ---------------------------------------------------------------------------
-export async function listarAnunciosPublicos(pagina = 1, porPagina = 20) {
+export async function listarAnunciosPublicos(
+  pagina = 1,
+  porPagina = 20,
+  tipo?: TipoAnuncio,
+) {
   const supabase = await getSupabaseServerClient();
   const offset = (pagina - 1) * porPagina;
 
-  const { data, error, count } = await supabase
+  let query = supabase
     .from("anuncios")
     .select(
       `id, tipo, status, valor_total, valor_remanescente, permite_parcial,
@@ -197,8 +257,13 @@ export async function listarAnunciosPublicos(pagina = 1, porPagina = 20) {
       { count: "exact" },
     )
     .in("status", ["ativo", "em_negociacao"])
-    .order("publicado_em", { ascending: false })
-    .range(offset, offset + porPagina - 1);
+    .order("publicado_em", { ascending: false });
+
+  if (tipo) {
+    query = query.eq("tipo", tipo);
+  }
+
+  const { data, error, count } = await query.range(offset, offset + porPagina - 1);
 
   return { anuncios: (data ?? []) as unknown as AnuncioResumo[], total: count ?? 0, error };
 }

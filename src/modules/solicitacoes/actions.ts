@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
 import { ROTAS } from "@/constants/rotas";
+import { recalcularStatusAnuncio } from "@/modules/anuncios/actions";
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -192,12 +193,10 @@ export async function aceitarSolicitacao(
     0,
     anuncio.valor_remanescente - sol.valor_solicitado,
   );
-  const novoStatusAnuncio =
-    novoRemanescente === 0 ? "em_negociacao" : "ativo";
 
   await supabase
     .from("anuncios")
-    .update({ valor_remanescente: novoRemanescente, status: novoStatusAnuncio })
+    .update({ valor_remanescente: novoRemanescente })
     .eq("id", anuncio.id);
 
   // Cria negociação (aceite cria negociação — Fase 5, 2.1)
@@ -218,6 +217,8 @@ export async function aceitarSolicitacao(
     .single();
 
   if (erroNeg || !negociacao) return { ok: false, erro: "Erro ao criar negociação." };
+
+  await recalcularStatusAnuncio(anuncio.id, agora);
 
   revalidatePath(ROTAS.SOLICITACOES);
   redirect(ROTAS.NEGOCIACAO(negociacao.id));

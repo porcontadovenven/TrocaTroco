@@ -6,6 +6,7 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
 import { ROTAS } from "@/constants/rotas";
 import { isAdmin } from "@/constants/papeis";
+import { recalcularStatusAnuncio } from "@/modules/anuncios/actions";
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -300,22 +301,7 @@ export async function enviarAvaliacao(
       })
       .eq("id", negociacaoId);
 
-    const { data: anuncio } = await supabase
-      .from("anuncios")
-      .select("id, valor_remanescente")
-      .eq("id", neg.anuncio_id)
-      .single();
-
-    if (anuncio) {
-      await supabase
-        .from("anuncios")
-        .update({
-          status: anuncio.valor_remanescente === 0 ? "concluido" : "ativo",
-          concluido_em: anuncio.valor_remanescente === 0 ? agora : null,
-          atualizada_em: agora,
-        })
-        .eq("id", anuncio.id);
-    }
+    await recalcularStatusAnuncio(neg.anuncio_id, agora);
   }
 
   revalidatePath(ROTAS.NEGOCIACAO(negociacaoId));

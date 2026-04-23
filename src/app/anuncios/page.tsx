@@ -23,9 +23,22 @@ const STATUS_LABEL: Record<StatusAnuncio, string> = {
   expirado: "Expirado",
 };
 
-export default async function PaginaAnuncios() {
+const FILTROS_TIPO: Array<{ label: string; value?: TipoAnuncio }> = [
+  { label: "Todos" },
+  { label: "Ofertas", value: "oferta" },
+  { label: "Necessidades", value: "necessidade" },
+];
+
+export default async function PaginaAnuncios({
+  searchParams,
+}: {
+  searchParams: Promise<{ tipo?: string }>;
+}) {
+  const { tipo } = await searchParams;
+  const tipoSelecionado = tipo === "oferta" || tipo === "necessidade" ? tipo : undefined;
+
   const [{ anuncios, total, error }, sessao] = await Promise.all([
-    listarAnunciosPublicos(1, 20),
+    listarAnunciosPublicos(1, 20, tipoSelecionado),
     getSessao(),
   ]);
 
@@ -37,6 +50,25 @@ export default async function PaginaAnuncios() {
           <p className="mt-1 text-sm text-stone-500">
             {total} anúncio{total !== 1 ? "s" : ""} disponíveis na plataforma
           </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {FILTROS_TIPO.map((filtro) => {
+              const ativo = filtro.value === tipoSelecionado || (!filtro.value && !tipoSelecionado);
+
+              return (
+                <Link
+                  key={filtro.label}
+                  href={filtro.value ? `${ROTAS.ANUNCIOS}?tipo=${filtro.value}` : ROTAS.ANUNCIOS}
+                  className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                    ativo
+                      ? "border-stone-900 bg-stone-900 text-white"
+                      : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                  }`}
+                >
+                  {filtro.label}
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
         {error && (
@@ -48,7 +80,9 @@ export default async function PaginaAnuncios() {
         {!error && anuncios.length === 0 && (
           <div className="flex flex-col items-center gap-4 rounded-3xl border border-stone-200 bg-white py-20 text-center">
             <p className="text-stone-400">
-              Nenhum anúncio disponível no momento.
+              {tipoSelecionado
+                ? `Nenhum anúncio de ${tipoSelecionado === "oferta" ? "oferta" : "necessidade"} disponível no momento.`
+                : "Nenhum anúncio disponível no momento."}
             </p>
             <Link href={ROTAS.HOME} className="text-sm text-stone-500 underline-offset-4 hover:underline">
               ← Voltar para a home
