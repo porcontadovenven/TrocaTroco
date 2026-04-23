@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
-import { isAdmin } from "@/constants/papeis";
+import { isAdmin, type PapelUsuario } from "@/constants/papeis";
 import { ROTAS } from "@/constants/rotas";
 
 // ---------------------------------------------------------------------------
@@ -401,19 +401,28 @@ export async function registrarMensagemTicket(
   }
 
   if (!isAdmin(sessao.papel)) {
-    const { data: eventos } = await supabase
+    const { data: eventos, error: eventosError } = await supabase
       .from("eventos_ticket_moderacao")
       .select("tipo_evento, ator_usuario_id, usuarios:ator_usuario_id ( papel )")
       .eq("ticket_moderacao_id", ticket_id)
       .order("criado_em", { ascending: false })
       .limit(1);
 
+    if (eventosError) {
+      return { ok: false, erro: "Erro ao validar permissão de resposta do ticket." };
+    }
+
     const ultimoEvento = Array.isArray(eventos) ? eventos[0] : null;
-    const ultimoAtor = Array.isArray(ultimoEvento?.usuarios)
-      ? ultimoEvento?.usuarios[0]
-      : ultimoEvento?.usuarios;
+    const usuariosRelacionados = ultimoEvento?.usuarios;
+    const ultimoAtor = Array.isArray(usuariosRelacionados)
+      ? usuariosRelacionados[0]
+      : usuariosRelacionados;
+    const papelUltimoAtor =
+      typeof ultimoAtor?.papel === "string" ? (ultimoAtor.papel as PapelUsuario) : null;
     const adminSolicitouMaisInfo =
-      ultimoEvento?.tipo_evento === "mensagem" && !!ultimoAtor?.papel && isAdmin(ultimoAtor.papel);
+      ultimoEvento?.tipo_evento === "mensagem" &&
+      !!papelUltimoAtor &&
+      isAdmin(papelUltimoAtor);
 
     if (!adminSolicitouMaisInfo) {
       return {

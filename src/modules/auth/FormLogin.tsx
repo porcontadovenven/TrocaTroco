@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { APP_NAME } from "@/constants/app";
+import { ROTAS } from "@/constants/rotas";
 import { loginAction } from "@/modules/auth/actions";
 
 type Estado = { erro?: string } | undefined;
@@ -42,6 +44,15 @@ export function FormLogin() {
           className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
           placeholder="••••••••"
         />
+
+        <div className="pt-1 text-right">
+          <Link
+            href={ROTAS.RECUPERAR_SENHA}
+            className="text-xs font-medium text-stone-600 underline-offset-4 hover:text-stone-900 hover:underline"
+          >
+            Esqueci minha senha
+          </Link>
+        </div>
       </div>
 
       {estado?.erro && (
@@ -60,12 +71,12 @@ export function FormLogin() {
 
       <p className="text-center text-sm text-stone-500">
         Ainda não tem conta?{" "}
-        <a
-          href="/cadastro"
+        <Link
+          href={ROTAS.CADASTRO}
           className="font-medium text-stone-800 underline-offset-4 hover:underline"
         >
           Cadastre sua empresa
-        </a>
+        </Link>
       </p>
 
       <p className="text-center text-xs text-stone-400">

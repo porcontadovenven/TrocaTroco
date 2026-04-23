@@ -32,6 +32,8 @@ export type ResultadoAcao =
 
 // Janela de cancelamento pela solicitante: 15 minutos (Fase 4, seção 5.3)
 const JANELA_CANCELAMENTO_MS = 15 * 60 * 1000;
+// Prazo de resposta da solicitação: até 12 horas (US-025)
+const PRAZO_RESPOSTA_MS = 12 * 60 * 60 * 1000;
 
 // ---------------------------------------------------------------------------
 // criar_solicitacao
@@ -98,6 +100,7 @@ export async function criarSolicitacao(
 
   const agora = new Date();
   const prazoCancelamento = new Date(agora.getTime() + JANELA_CANCELAMENTO_MS);
+  const expiraEm = new Date(agora.getTime() + PRAZO_RESPOSTA_MS);
 
   const { data: novaSol, error: erroSol } = await supabase
     .from("solicitacoes")
@@ -109,6 +112,7 @@ export async function criarSolicitacao(
       meio_pagamento,
       local_troca,
       status: "pendente",
+      expira_em: expiraEm.toISOString(),
       prazo_cancelamento_em: prazoCancelamento.toISOString(),
     })
     .select("id")
@@ -157,71 +161,28 @@ export async function aceitarSolicitacao(
   const solicitacaoId = String(formData.get("solicitacao_id") ?? "");
   if (!solicitacaoId) return { ok: false, erro: "Solicitação não identificada." };
 
-  // Busca solicitação + anúncio
-  const { data: sol } = await supabase
-    .from("solicitacoes")
-    .select(
-      `id, status, valor_solicitado, meio_pagamento, local_troca,
-       empresa_solicitante_id,
-       anuncios ( id, empresa_id, valor_remanescente, status )`,
-    )
-    .eq("id", solicitacaoId)
-    .single();
-
-  if (!sol) return { ok: false, erro: "Solicitação não encontrada." };
-  if (sol.status !== "pendente") return { ok: false, erro: "Solicitação não está mais pendente." };
-
-  const anuncio = Array.isArray(sol.anuncios) ? sol.anuncios[0] : sol.anuncios as unknown as {
-    id: string; empresa_id: string; valor_remanescente: number; status: string;
-  };
-
-  if (!anuncio || anuncio.empresa_id !== sessao.empresa_id)
-    return { ok: false, erro: "Sem permissão para aceitar esta solicitação." };
-
   const agora = new Date().toISOString();
 
-  // Atualiza solicitação para aceita
-  const { error: erroAceite } = await supabase
-    .from("solicitacoes")
-    .update({ status: "aceita", aceita_em: agora, atualizada_em: agora })
-    .eq("id", solicitacaoId);
-
-  if (erroAceite) return { ok: false, erro: "Erro ao aceitar solicitação." };
-
-  // Atualiza remanescente do anúncio
-  const novoRemanescente = Math.max(
-    0,
-    anuncio.valor_remanescente - sol.valor_solicitado,
+  const { data: resultadoRpc, error: erroAceite } = await supabase.rpc(
+    "aceitar_solicitacao_atomica",
+    {
+      p_solicitacao_id: solicitacaoId,
+      p_empresa_autora_id: sessao.empresa_id,
+    },
   );
 
-  await supabase
-    .from("anuncios")
-    .update({ valor_remanescente: novoRemanescente })
-    .eq("id", anuncio.id);
+  const resultado = Array.isArray(resultadoRpc) ? resultadoRpc[0] : resultadoRpc;
 
-  // Cria negociação (aceite cria negociação — Fase 5, 2.1)
-  const { data: negociacao, error: erroNeg } = await supabase
-    .from("negociacoes")
-    .insert({
-      solicitacao_id: solicitacaoId,
-      anuncio_id: anuncio.id,
-      empresa_autora_id: anuncio.empresa_id,
-      empresa_contraparte_id: (sol as unknown as { empresa_solicitante_id: string }).empresa_solicitante_id,
-      valor_negociado: sol.valor_solicitado,
-      meio_pagamento: sol.meio_pagamento,
-      local_troca: sol.local_troca,
-      status: "em_andamento",
-      status_moderacao: "nao_acionada",
-    })
-    .select("id")
-    .single();
+  if (erroAceite || !resultado?.negociacao_id || !resultado?.anuncio_id) {
+    return { ok: false, erro: erroAceite?.message ?? "Erro ao aceitar solicitação." };
+  }
 
-  if (erroNeg || !negociacao) return { ok: false, erro: "Erro ao criar negociação." };
-
-  await recalcularStatusAnuncio(anuncio.id, agora);
+  await recalcularStatusAnuncio(resultado.anuncio_id, agora);
 
   revalidatePath(ROTAS.SOLICITACOES);
-  redirect(ROTAS.NEGOCIACAO(negociacao.id));
+  revalidatePath(ROTAS.MEUS_ANUNCIOS);
+  revalidatePath(ROTAS.ANUNCIO_DETALHE(resultado.anuncio_id));
+  redirect(ROTAS.NEGOCIACAO(resultado.negociacao_id));
 }
 
 // ---------------------------------------------------------------------------

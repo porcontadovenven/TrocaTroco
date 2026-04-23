@@ -34,7 +34,7 @@ export default async function PaginaModeracaoNegociacoes() {
               Moderação de negociações
             </h1>
             <p className="mt-1 text-sm text-stone-500">
-              {negociacoes.length} negociação{negociacoes.length !== 1 ? "ões" : ""} com moderação acionada
+              {negociacoes.length} negociação{negociacoes.length !== 1 ? "ões" : ""} com moderação ativa
             </p>
           </div>
           <Link
@@ -121,7 +121,13 @@ export default async function PaginaModeracaoNegociacoes() {
               </Link>
 
               <div className="mt-4">
-                <BotaoEncerrarModeracao negociacaoId={negociacao.id} />
+                {negociacao.status_moderacao === "acionada" ? (
+                  <p className="text-sm text-amber-700">
+                    Abra a negociação e envie uma mensagem no chat para iniciar o acompanhamento.
+                  </p>
+                ) : (
+                  <BotaoEncerrarModeracao negociacaoId={negociacao.id} />
+                )}
               </div>
             </li>
           ))}

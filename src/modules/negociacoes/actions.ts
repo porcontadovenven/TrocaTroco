@@ -125,6 +125,18 @@ export async function enviarMensagem(
 
   const supabase = await getSupabaseServerClient();
 
+  if (isAdmin(sessao.papel) && neg.status_moderacao === "acionada") {
+    const { error: erroModeracao } = await supabase
+      .from("negociacoes")
+      .update({ status_moderacao: "em_acompanhamento", atualizada_em: new Date().toISOString() })
+      .eq("id", negociacaoId)
+      .eq("status_moderacao", "acionada");
+
+    if (erroModeracao) {
+      return { ok: false, erro: "Erro ao iniciar o acompanhamento da moderação." };
+    }
+  }
+
   const { error } = await supabase.from("mensagens_negociacao").insert({
     negociacao_id: negociacaoId,
     tipo_ator: sessao.papel as TipoAtorMensagem,
@@ -135,6 +147,12 @@ export async function enviarMensagem(
   if (error) return { ok: false, erro: "Erro ao enviar mensagem." };
 
   revalidatePath(ROTAS.NEGOCIACAO(negociacaoId));
+
+  if (isAdmin(sessao.papel)) {
+    revalidatePath(ROTAS.ADMIN);
+    revalidatePath(ROTAS.ADMIN_MODERACAO_NEGOCIACOES);
+  }
+
   return { ok: true };
 }
 
@@ -211,6 +229,13 @@ export async function encerrarModeracaoNegociacao(
 
   if (neg.status_moderacao === "encerrada") {
     return { ok: false, erro: "A moderação desta negociação já foi encerrada." };
+  }
+
+  if (neg.status_moderacao !== "em_acompanhamento") {
+    return {
+      ok: false,
+      erro: "A moderação só pode ser encerrada após o acompanhamento ser iniciado no chat.",
+    };
   }
 
   const { error } = await supabase
@@ -332,13 +357,21 @@ export async function enviarAvaliacao(
     return { ok: false, erro: "Erro ao enviar avaliação." };
   }
 
-  // Verifica se ambas as partes avaliaram — finaliza negociação
-  const { count } = await supabase
+  // Verifica se ambas as empresas da negociação já avaliaram antes de finalizar
+  const { data: avaliadores } = await supabase
     .from("avaliacoes")
-    .select("id", { count: "exact", head: true })
+    .select("empresa_avaliadora_id")
     .eq("negociacao_id", negociacaoId);
 
-  if ((count ?? 0) >= 2) {
+  const avaliadoresUnicos = new Set(
+    (avaliadores ?? []).map((item) => item.empresa_avaliadora_id),
+  );
+
+  const ambasEmpresasAvaliaram =
+    avaliadoresUnicos.has(neg.empresa_autora_id) &&
+    avaliadoresUnicos.has(neg.empresa_contraparte_id);
+
+  if (ambasEmpresasAvaliaram) {
     await supabase
       .from("negociacoes")
       .update({

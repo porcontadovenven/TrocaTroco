@@ -248,7 +248,15 @@ export default async function PaginaNegociacao({
           </div>
         )}
 
-        {!participa && isAdmin(sessao.papel) && statusMod !== "nao_acionada" && statusMod !== "encerrada" && (
+        {!participa && isAdmin(sessao.papel) && statusMod === "acionada" && (
+          <div className="mt-4 rounded-2xl border border-amber-100 bg-amber-50 p-4">
+            <p className="text-sm text-amber-800">
+              A moderação foi acionada. Envie uma mensagem no chat para iniciar o acompanhamento.
+            </p>
+          </div>
+        )}
+
+        {!participa && isAdmin(sessao.papel) && statusMod === "em_acompanhamento" && (
           <div className="mt-4 rounded-2xl border border-stone-200 bg-white p-4">
             <p className="mb-3 text-sm text-stone-600">
               Encerrar o acompanhamento administrativo remove esta negociação das pendências do painel.

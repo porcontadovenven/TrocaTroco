@@ -7,6 +7,8 @@ export const ROTAS = {
   // Públicas
   HOME: "/",
   LOGIN: "/login",
+  RECUPERAR_SENHA: "/recuperar-senha",
+  REDEFINIR_SENHA: "/redefinir-senha",
   CADASTRO: "/cadastro",
   ANUNCIOS: "/anuncios",
   ANUNCIO_DETALHE: (id: string) => `/anuncios/${id}`,
