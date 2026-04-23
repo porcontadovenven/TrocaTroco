@@ -157,8 +157,18 @@ export async function criarAnuncio(
     String(formData.get("disponibilidade_texto") ?? "") || null;
   const expira_em = String(formData.get("expira_em") ?? "") || null;
 
+  if (rotulo_regiao && rotulo_regiao.length > 200) {
+    return { ok: false, erro: "Rótulo de região muito longo (máximo 200 caracteres)." };
+  }
+  if (disponibilidade_texto && disponibilidade_texto.length > 500) {
+    return { ok: false, erro: "Disponibilidade muito longa (máximo 500 caracteres)." };
+  }
+
   // Itens de composição — enviados como JSON serializado
   const itensRaw = String(formData.get("itens_composicao") ?? "[]");
+  if (itensRaw.length > 10000) {
+    return { ok: false, erro: "Composição inválida." };
+  }
   let itens: ItemComposicao[] = [];
   try {
     itens = JSON.parse(itensRaw);

@@ -66,6 +66,7 @@ export async function criarSolicitacao(
   if (!valorSolicitado || valorSolicitado <= 0)
     return { ok: false, erro: "Valor solicitado deve ser maior que zero." };
   if (!meio_pagamento) return { ok: false, erro: "Informe o meio de pagamento." };
+  if (meio_pagamento.length > 200) return { ok: false, erro: "Meio de pagamento inválido." };
   if (!["empresa_autora", "empresa_solicitante"].includes(local_troca))
     return { ok: false, erro: "Local da troca inválido." };
 
@@ -88,6 +89,9 @@ export async function criarSolicitacao(
 
   // Itens de composição (se parcial, são obrigatórios)
   const itensRaw = String(formData.get("itens_composicao") ?? "[]");
+  if (itensRaw.length > 10000) {
+    return { ok: false, erro: "Dados de composição inválidos." };
+  }
   let itens: ItemComposicaoSol[] = [];
   try {
     itens = JSON.parse(itensRaw);

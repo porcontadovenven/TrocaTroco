@@ -30,7 +30,9 @@ export async function abrirTicket(
   const origem_id = (formData.get("origem_id") as string)?.trim();
 
   if (!assunto) return { ok: false, erro: "Informe o assunto." };
+  if (assunto.length > 200) return { ok: false, erro: "Assunto deve ter no máximo 200 caracteres." };
   if (!descricao) return { ok: false, erro: "Descreva o problema." };
+  if (descricao.length > 3000) return { ok: false, erro: "Descrição deve ter no máximo 3000 caracteres." };
   if (!origem_id) return { ok: false, erro: "Referência inválida." };
 
   const supabase = await getSupabaseServerClient();

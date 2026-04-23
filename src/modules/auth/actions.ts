@@ -50,8 +50,20 @@ export async function loginAction(
   _estado: { erro?: string } | undefined,
   formData: FormData,
 ) {
-  const email = formData.get("email") as string;
-  const senha = formData.get("senha") as string;
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const senha = String(formData.get("senha") ?? "");
+
+  if (!email || !senha) {
+    return { erro: "Informe email e senha." };
+  }
+
+  if (!validarEmail(email)) {
+    return { erro: "Email inválido." };
+  }
+
+  if (senha.length > 128) {
+    return { erro: "Senha inválida." };
+  }
 
   const supabase = await getSupabaseServerClient();
 

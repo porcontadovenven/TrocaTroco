@@ -113,6 +113,7 @@ export async function enviarMensagem(
   const texto = String(formData.get("texto_mensagem") ?? "").trim();
 
   if (!texto) return { ok: false, erro: "Mensagem não pode ser vazia." };
+  if (texto.length > 2000) return { ok: false, erro: "Mensagem muito longa (máximo 2000 caracteres)." };
 
   const resultado = await verificarAcessoChat(negociacaoId);
   if (!resultado.ok) return { ok: false, erro: resultado.erro };
