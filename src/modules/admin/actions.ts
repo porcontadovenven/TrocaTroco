@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
 import { isAdmin, type PapelUsuario } from "@/constants/papeis";
@@ -14,6 +15,8 @@ export interface ResultadoAcao {
   erro?: string;
 }
 
+type TipoOrigemTicket = "perfil_empresa" | "administrativo" | "outro_contexto";
+
 // ---------------------------------------------------------------------------
 // abrirTicket — ação do usuário empresa para abrir denúncia/ticket
 // ---------------------------------------------------------------------------
@@ -26,7 +29,10 @@ export async function abrirTicket(
 
   const assunto = (formData.get("assunto") as string)?.trim();
   const descricao = (formData.get("descricao") as string)?.trim();
-  const tipo_origem = (formData.get("tipo_origem") as string) || "perfil_empresa";
+  const tipoOrigemInformado = (formData.get("tipo_origem") as string) || "perfil_empresa";
+  const tipo_origem: TipoOrigemTicket = ["perfil_empresa", "administrativo", "outro_contexto"].includes(tipoOrigemInformado)
+    ? (tipoOrigemInformado as TipoOrigemTicket)
+    : "perfil_empresa";
   const origem_id = (formData.get("origem_id") as string)?.trim();
 
   if (!assunto) return { ok: false, erro: "Informe o assunto." };
@@ -35,18 +41,22 @@ export async function abrirTicket(
   if (descricao.length > 3000) return { ok: false, erro: "Descrição deve ter no máximo 3000 caracteres." };
   if (!origem_id) return { ok: false, erro: "Referência inválida." };
 
-  const supabase = await getSupabaseServerClient();
+  const supabaseAdmin = getSupabaseAdminClient();
 
-  const { data: ticketCriado, error } = await supabase.from("tickets_moderacao").insert({
-    tipo_origem,
-    origem_id,
-    aberto_por_empresa_id: sessao.empresa_id,
-    aberto_por_usuario_id: sessao.id,
-    assunto,
-    descricao,
-    status: "aberto",
-    aberto_em: new Date().toISOString(),
-  }).select("id").single();
+  const { data: ticketCriado, error } = await supabaseAdmin
+    .from("tickets_moderacao")
+    .insert({
+      tipo_origem,
+      origem_id,
+      aberto_por_empresa_id: sessao.empresa_id,
+      aberto_por_usuario_id: sessao.id,
+      assunto,
+      descricao,
+      status: "aberto",
+      aberto_em: new Date().toISOString(),
+    })
+    .select("id")
+    .single();
 
   if (error || !ticketCriado) return { ok: false, erro: "Erro ao abrir ticket." };
 
