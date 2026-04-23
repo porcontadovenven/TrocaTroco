@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
 import { isAdmin, type PapelUsuario } from "@/constants/papeis";
@@ -24,6 +23,7 @@ export async function abrirTicket(
   _state: ResultadoAcao | undefined,
   formData: FormData,
 ): Promise<ResultadoAcao> {
+  const supabase = await getSupabaseServerClient();
   const sessao = await getSessao();
   if (!sessao?.empresa_id) return { ok: false, erro: "Sessão inválida." };
 
@@ -41,27 +41,21 @@ export async function abrirTicket(
   if (descricao.length > 3000) return { ok: false, erro: "Descrição deve ter no máximo 3000 caracteres." };
   if (!origem_id) return { ok: false, erro: "Referência inválida." };
 
-  const supabaseAdmin = getSupabaseAdminClient();
+  const { data: resultadoAbertura, error } = await supabase.rpc("abrir_ticket_atomico", {
+    p_tipo_origem: tipo_origem,
+    p_origem_id: origem_id,
+    p_assunto: assunto,
+    p_descricao: descricao,
+  });
 
-  const { data: ticketCriado, error } = await supabaseAdmin
-    .from("tickets_moderacao")
-    .insert({
-      tipo_origem,
-      origem_id,
-      aberto_por_empresa_id: sessao.empresa_id,
-      aberto_por_usuario_id: sessao.id,
-      assunto,
-      descricao,
-      status: "aberto",
-      aberto_em: new Date().toISOString(),
-    })
-    .select("id")
-    .single();
+  const ticketCriado = Array.isArray(resultadoAbertura) ? resultadoAbertura[0] : resultadoAbertura;
 
-  if (error || !ticketCriado) return { ok: false, erro: "Erro ao abrir ticket." };
+  if (error || !ticketCriado?.ticket_id) {
+    return { ok: false, erro: error?.message ?? "Erro ao abrir ticket." };
+  }
 
-  await registrarEventoTicket(ticketCriado.id, sessao.id, "abertura", descricao);
-
+  revalidatePath(ROTAS.TICKETS);
+  revalidatePath(ROTAS.ADMIN_TICKETS);
   return { ok: true };
 }
 
