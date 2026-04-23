@@ -108,7 +108,7 @@ export async function criarSolicitacao(
   const prazoCancelamento = new Date(agora.getTime() + JANELA_CANCELAMENTO_MS);
   const expiraEm = new Date(agora.getTime() + PRAZO_RESPOSTA_MS);
 
-  const { data: novaSol, error: erroSol } = await supabase
+  const { data: novaSol, error: erroSol } = await supabaseAdmin
     .from("solicitacoes")
     .insert({
       anuncio_id: anuncioId,
@@ -130,7 +130,7 @@ export async function criarSolicitacao(
 
   // Insere itens de composição, se houver
   if (itens.length > 0) {
-    await supabase.from("itens_composicao_solicitacao").insert(
+    await supabaseAdmin.from("itens_composicao_solicitacao").insert(
       itens.map((item, idx) => ({
         solicitacao_id: novaSol.id,
         tipo_item: item.tipo_item,
