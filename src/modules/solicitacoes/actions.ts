@@ -22,6 +22,7 @@ export type StatusSolicitacao =
   | "expirada";
 
 export type ItemComposicaoSol = {
+  item_anuncio_id?: string;
   tipo_item: "cedula" | "moeda";
   valor_unitario: number;
   quantidade: number;
@@ -75,7 +76,9 @@ export async function criarSolicitacao(
   // Verifica que a empresa solicitante não é a autora do anúncio
   const { data: anuncio } = await supabaseAdmin
     .from("anuncios")
-    .select("id, empresa_id, status, valor_remanescente, permite_parcial")
+    .select(
+      "id, empresa_id, status, valor_remanescente, permite_parcial, itens_composicao_anuncio ( id, tipo_item, valor_unitario, quantidade )",
+    )
     .eq("id", anuncioId)
     .single();
 
@@ -103,6 +106,46 @@ export async function criarSolicitacao(
 
   if (parcial && itens.length === 0)
     return { ok: false, erro: "Informe a composição desejada para solicitação parcial." };
+
+  if (parcial) {
+    const itensAnuncio = Array.isArray(anuncio.itens_composicao_anuncio)
+      ? anuncio.itens_composicao_anuncio
+      : [];
+    const itensPorId = new Map(itensAnuncio.map((item) => [item.id, item]));
+    let subtotalItens = 0;
+
+    for (const item of itens) {
+      if (!item.item_anuncio_id) {
+        return { ok: false, erro: "Composição desejada inválida." };
+      }
+
+      const itemAnuncio = itensPorId.get(item.item_anuncio_id);
+      if (!itemAnuncio) {
+        return { ok: false, erro: "Composição desejada inválida." };
+      }
+
+      if (!Number.isInteger(item.quantidade) || item.quantidade <= 0) {
+        return { ok: false, erro: "Quantidade inválida na composição desejada." };
+      }
+
+      if (item.quantidade > itemAnuncio.quantidade) {
+        return { ok: false, erro: "A composição desejada excede a disponibilidade do anúncio." };
+      }
+
+      if (
+        item.tipo_item !== itemAnuncio.tipo_item ||
+        Math.abs(item.valor_unitario - itemAnuncio.valor_unitario) > 0.009
+      ) {
+        return { ok: false, erro: "Composição desejada inválida." };
+      }
+
+      subtotalItens += item.valor_unitario * item.quantidade;
+    }
+
+    if (Math.abs(subtotalItens - valorSolicitado) > 0.009) {
+      return { ok: false, erro: "A composição desejada deve corresponder ao valor solicitado." };
+    }
+  }
 
   const agora = new Date();
   const prazoCancelamento = new Date(agora.getTime() + JANELA_CANCELAMENTO_MS);

@@ -201,6 +201,7 @@ export default async function PaginaDetalheAnuncio({
                   valorMaximo={anuncio.valor_remanescente}
                   permiteParcial={anuncio.permite_parcial}
                   aceita_local_proprio={anuncio.aceita_local_proprio ?? null}
+                  itensAnuncio={itens}
                 />
               </div>
             )}
