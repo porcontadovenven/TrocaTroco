@@ -53,12 +53,6 @@ export async function criarEmpresaESubmissao(
 ): Promise<ResultadoAcao> {
   const supabase = await getSupabaseServerClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { ok: false, erro: "Sessão inválida." };
-
   const empresa: DadosEmpresa = {
     cnpj: String(formData.get("cnpj") ?? "").replace(/\D/g, ""),
     razao_social: String(formData.get("razao_social") ?? ""),
@@ -83,6 +77,12 @@ export async function criarEmpresaESubmissao(
     vinculo_empresa: String(formData.get("vinculo_empresa") ?? ""),
   };
 
+  const senha = String(formData.get("senha") ?? "");
+
+  let {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   // Verifica CNPJ duplicado
   const { data: cnpjExistente } = await supabase
     .from("empresas")
@@ -92,6 +92,31 @@ export async function criarEmpresaESubmissao(
 
   if (cnpjExistente) {
     return { ok: false, erro: "CNPJ já cadastrado na plataforma." };
+  }
+
+  if (!user) {
+    if (!senha) {
+      return { ok: false, erro: "Senha de acesso é obrigatória para concluir o cadastro." };
+    }
+
+    const { data: cadastroAuth, error: erroAuth } = await supabase.auth.signUp({
+      email: responsavel.email,
+      password: senha,
+    });
+
+    if (erroAuth) {
+      if (erroAuth.message.toLowerCase().includes("already registered")) {
+        return { ok: false, erro: "Já existe uma conta com este e-mail. Faça login para continuar." };
+      }
+
+      return { ok: false, erro: "Erro ao criar conta de acesso. Tente novamente." };
+    }
+
+    user = cadastroAuth.user;
+
+    if (!user) {
+      return { ok: false, erro: "Conta criada sem sessão ativa. Faça login para concluir o cadastro." };
+    }
   }
 
   // Cria empresa

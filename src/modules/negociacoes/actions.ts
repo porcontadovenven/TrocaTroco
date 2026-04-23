@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
 import { ROTAS } from "@/constants/rotas";
+import { isAdmin } from "@/constants/papeis";
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -64,6 +65,37 @@ async function verificarParticipante(negociacaoId: string) {
   return { ok: true as const, neg, sessao };
 }
 
+async function verificarAcessoChat(negociacaoId: string) {
+  const supabase = await getSupabaseServerClient();
+  const sessao = await getSessao();
+  if (!sessao) return { ok: false as const, erro: "Sessão inválida." };
+
+  const { data: neg } = await supabase
+    .from("negociacoes")
+    .select(
+      `id, status, status_moderacao,
+       empresa_autora_id, empresa_contraparte_id,
+       valor_negociado, meio_pagamento, local_troca,
+       anuncio_id,
+       anuncios ( tipo ),
+       solicitacao_id`,
+    )
+    .eq("id", negociacaoId)
+    .single();
+
+  if (!neg) return { ok: false as const, erro: "Negociação não encontrada." };
+
+  const participa =
+    sessao.empresa_id === neg.empresa_autora_id ||
+    sessao.empresa_id === neg.empresa_contraparte_id;
+
+  if (!participa && !isAdmin(sessao.papel)) {
+    return { ok: false as const, erro: "Sem permissão para acessar esta negociação." };
+  }
+
+  return { ok: true as const, neg, sessao };
+}
+
 // ---------------------------------------------------------------------------
 // enviar_mensagem_negociacao
 // Fase 5 — Matriz Operacional, seção 6
@@ -81,7 +113,7 @@ export async function enviarMensagem(
 
   if (!texto) return { ok: false, erro: "Mensagem não pode ser vazia." };
 
-  const resultado = await verificarParticipante(negociacaoId);
+  const resultado = await verificarAcessoChat(negociacaoId);
   if (!resultado.ok) return { ok: false, erro: resultado.erro };
 
   const { neg, sessao } = resultado;
@@ -141,6 +173,8 @@ export async function chamarModerador(
   if (error) return { ok: false, erro: "Erro ao acionar moderação." };
 
   revalidatePath(ROTAS.NEGOCIACAO(negociacaoId));
+  revalidatePath(ROTAS.ADMIN);
+  revalidatePath(ROTAS.ADMIN_MODERACAO_NEGOCIACOES);
   return { ok: true };
 }
 
@@ -257,11 +291,39 @@ export async function enviarAvaliacao(
   if ((count ?? 0) >= 2) {
     await supabase
       .from("negociacoes")
-      .update({ status: "finalizada", finalizada_em: agora, atualizada_em: agora })
+      .update({
+        status: "finalizada",
+        finalizada_em: agora,
+        status_moderacao:
+          neg.status_moderacao !== "nao_acionada" ? "encerrada" : neg.status_moderacao,
+        atualizada_em: agora,
+      })
       .eq("id", negociacaoId);
+
+    const { data: anuncio } = await supabase
+      .from("anuncios")
+      .select("id, valor_remanescente")
+      .eq("id", neg.anuncio_id)
+      .single();
+
+    if (anuncio) {
+      await supabase
+        .from("anuncios")
+        .update({
+          status: anuncio.valor_remanescente === 0 ? "concluido" : "ativo",
+          concluido_em: anuncio.valor_remanescente === 0 ? agora : null,
+          atualizada_em: agora,
+        })
+        .eq("id", anuncio.id);
+    }
   }
 
   revalidatePath(ROTAS.NEGOCIACAO(negociacaoId));
+  revalidatePath(ROTAS.MEUS_ANUNCIOS);
+  revalidatePath(ROTAS.ANUNCIOS);
+  revalidatePath(ROTAS.ANUNCIO_DETALHE(neg.anuncio_id));
+  revalidatePath(ROTAS.ADMIN);
+  revalidatePath(ROTAS.ADMIN_MODERACAO_NEGOCIACOES);
   return { ok: true };
 }
 

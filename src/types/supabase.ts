@@ -180,6 +180,7 @@ export type Database = {
           id: string
           nome_fantasia: string | null
           razao_social: string
+          slug_publico: string
           reprovada_em: string | null
           status: Database["public"]["Enums"]["status_empresa"]
           telefone: string
@@ -201,6 +202,7 @@ export type Database = {
           id?: string
           nome_fantasia?: string | null
           razao_social: string
+          slug_publico?: string
           reprovada_em?: string | null
           status?: Database["public"]["Enums"]["status_empresa"]
           telefone: string
@@ -222,6 +224,7 @@ export type Database = {
           id?: string
           nome_fantasia?: string | null
           razao_social?: string
+          slug_publico?: string
           reprovada_em?: string | null
           status?: Database["public"]["Enums"]["status_empresa"]
           telefone?: string

@@ -122,6 +122,11 @@ export default async function PaginaAdmin() {
               titulo="Moderação de avaliações"
               descricao="Aprovar ou barrar comentários pendentes"
             />
+            <LinkAdmin
+              href={ROTAS.ADMIN_MODERACAO_NEGOCIACOES}
+              titulo="Moderação de negociações"
+              descricao="Acompanhar negociações com moderação acionada"
+            />
           </div>
         </section>
 

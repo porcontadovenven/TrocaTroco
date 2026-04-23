@@ -1,17 +1,29 @@
 "use client";
 
+import { useEffect } from "react";
 import { useActionState } from "react";
-import { encerrarTicket, assumirTicket, aprovarComentario, barrarComentario } from "@/modules/admin/actions";
+import { useRouter } from "next/navigation";
+import {
+  encerrarTicket,
+  assumirTicket,
+  aprovarComentario,
+  barrarComentario,
+} from "@/modules/admin/actions";
 import type { ResultadoAcao } from "@/modules/admin/actions";
 
 // ---------------------------------------------------------------------------
 // Botão assumir ticket
 // ---------------------------------------------------------------------------
 export function BotaoAssumirTicket({ ticketId }: { ticketId: string }) {
+  const router = useRouter();
   const [estado, action, pendente] = useActionState<ResultadoAcao | undefined, FormData>(
     assumirTicket,
     undefined,
   );
+
+  useEffect(() => {
+    if (estado?.ok) router.refresh();
+  }, [estado, router]);
 
   return (
     <form action={action} className="inline">
@@ -34,10 +46,15 @@ export function BotaoAssumirTicket({ ticketId }: { ticketId: string }) {
 // Formulário encerrar ticket
 // ---------------------------------------------------------------------------
 export function FormEncerrarTicket({ ticketId }: { ticketId: string }) {
+  const router = useRouter();
   const [estado, action, pendente] = useActionState<ResultadoAcao | undefined, FormData>(
     encerrarTicket,
     undefined,
   );
+
+  useEffect(() => {
+    if (estado?.ok) router.refresh();
+  }, [estado, router]);
 
   if (estado?.ok) {
     return (
@@ -75,6 +92,7 @@ export function FormEncerrarTicket({ ticketId }: { ticketId: string }) {
 // Botões moderação de avaliação
 // ---------------------------------------------------------------------------
 export function BotoesModeracao({ avaliacaoId }: { avaliacaoId: string }) {
+  const router = useRouter();
   const [estadoAprovar, actionAprovar, pendenteAprovar] = useActionState<
     ResultadoAcao | undefined,
     FormData
@@ -84,6 +102,10 @@ export function BotoesModeracao({ avaliacaoId }: { avaliacaoId: string }) {
     ResultadoAcao | undefined,
     FormData
   >(barrarComentario, undefined);
+
+  useEffect(() => {
+    if (estadoAprovar?.ok || estadoBarrar?.ok) router.refresh();
+  }, [estadoAprovar, estadoBarrar, router]);
 
   if (estadoAprovar?.ok) {
     return (

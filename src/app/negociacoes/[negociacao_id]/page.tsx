@@ -70,6 +70,7 @@ export default async function PaginaNegociacao({
   const mensagensIniciais = (
     (neg.mensagens_negociacao as unknown as {
       id: string;
+      ator_usuario_id: string;
       texto_mensagem: string;
       tipo_ator: string;
       criada_em: string;
@@ -81,6 +82,7 @@ export default async function PaginaNegociacao({
       const usuario = Array.isArray(msg.usuarios) ? msg.usuarios[0] : msg.usuarios;
       return {
         id: msg.id,
+        ator_usuario_id: msg.usuarios && !Array.isArray(msg.usuarios) ? msg.usuarios.id : Array.isArray(msg.usuarios) ? (msg.usuarios[0]?.id ?? "") : "",
         texto_mensagem: msg.texto_mensagem,
         tipo_ator: msg.tipo_ator,
         criada_em: msg.criada_em,
@@ -173,9 +175,10 @@ export default async function PaginaNegociacao({
 
           <div className="flex max-h-[400px] flex-col gap-3 overflow-y-auto px-5 py-4">
             <ChatMensagens
+              key={`${neg.id}:${mensagensIniciais.length}:${mensagensIniciais.at(-1)?.id ?? "vazio"}`}
               negociacaoId={neg.id}
               mensagensIniciais={mensagensIniciais}
-              empresaId={sessao.empresa_id ?? ""}
+              usuarioId={sessao.id}
             />
           </div>
 

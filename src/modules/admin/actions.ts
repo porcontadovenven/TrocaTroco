@@ -35,17 +35,20 @@ export async function abrirTicket(
 
   const supabase = await getSupabaseServerClient();
 
-  const { error } = await supabase.from("tickets_moderacao").insert({
+  const { data: ticketCriado, error } = await supabase.from("tickets_moderacao").insert({
     tipo_origem,
     origem_id,
     aberto_por_empresa_id: sessao.empresa_id,
+    aberto_por_usuario_id: sessao.id,
     assunto,
     descricao,
     status: "aberto",
     aberto_em: new Date().toISOString(),
-  });
+  }).select("id").single();
 
-  if (error) return { ok: false, erro: "Erro ao abrir ticket." };
+  if (error || !ticketCriado) return { ok: false, erro: "Erro ao abrir ticket." };
+
+  await registrarEventoTicket(ticketCriado.id, sessao.id, "abertura", descricao);
 
   return { ok: true };
 }
@@ -62,6 +65,16 @@ export interface TicketResumo {
   encerrado_em: string | null;
   resumo_resolucao: string | null;
   empresa_origem: { razao_social: string } | null;
+  eventos: TicketEvento[];
+  empresa_pode_responder?: boolean;
+}
+
+export interface TicketEvento {
+  id: string;
+  tipo_evento: string;
+  corpo_evento: string | null;
+  criado_em: string;
+  ator: { nome_completo: string; papel: string } | null;
 }
 
 export interface AvaliacaoPendente {
@@ -73,6 +86,34 @@ export interface AvaliacaoPendente {
   empresa_avaliadora: { id: string; razao_social: string } | null;
   empresa_avaliada: { id: string; razao_social: string } | null;
   negociacao_id: string;
+}
+
+export interface NegociacaoModeracaoResumo {
+  id: string;
+  status: string;
+  status_moderacao: string;
+  valor_negociado: number;
+  meio_pagamento: string;
+  local_troca: string;
+  criada_em: string;
+  empresa_autora: { id: string; razao_social: string } | null;
+  empresa_contraparte: { id: string; razao_social: string } | null;
+}
+
+async function registrarEventoTicket(
+  ticketId: string,
+  atorUsuarioId: string,
+  tipoEvento: string,
+  corpoEvento?: string | null,
+) {
+  const supabase = await getSupabaseServerClient();
+
+  return supabase.from("eventos_ticket_moderacao").insert({
+    ticket_moderacao_id: ticketId,
+    ator_usuario_id: atorUsuarioId,
+    tipo_evento: tipoEvento,
+    corpo_evento: corpoEvento ?? null,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -104,12 +145,63 @@ export async function listarTickets(status?: string): Promise<{
 
   if (error) return { tickets: [], error: error.message };
 
+  const ticketIds = (tickets ?? []).map((ticket) => ticket.id);
+
+  const { data: eventos } = ticketIds.length
+    ? await supabase
+        .from("eventos_ticket_moderacao")
+        .select("id, ticket_moderacao_id, tipo_evento, corpo_evento, criado_em, ator_usuario_id")
+        .in("ticket_moderacao_id", ticketIds)
+        .order("criado_em", { ascending: true })
+    : {
+        data: [] as Array<{
+          id: string;
+          ticket_moderacao_id: string;
+          tipo_evento: string;
+          corpo_evento: string | null;
+          criado_em: string;
+          ator_usuario_id: string;
+        }>,
+      };
+
+  const usuarioIds = Array.from(
+    new Set((eventos ?? []).map((evento) => evento.ator_usuario_id).filter(Boolean)),
+  );
+
+  const usuarios: Record<string, { nome_completo: string; papel: string }> = {};
+  if (usuarioIds.length > 0) {
+    const { data: usuariosData } = await supabase
+      .from("usuarios")
+      .select("id, nome_completo, papel")
+      .in("id", usuarioIds);
+
+    for (const usuario of usuariosData ?? []) {
+      usuarios[usuario.id] = {
+        nome_completo: usuario.nome_completo,
+        papel: usuario.papel,
+      };
+    }
+  }
+
+  const eventosPorTicket = new Map<string, TicketEvento[]>();
+  for (const evento of eventos ?? []) {
+    const lista = eventosPorTicket.get(evento.ticket_moderacao_id) ?? [];
+    lista.push({
+      id: evento.id,
+      tipo_evento: evento.tipo_evento,
+      corpo_evento: evento.corpo_evento,
+      criado_em: evento.criado_em,
+      ator: usuarios[evento.ator_usuario_id] ?? null,
+    });
+    eventosPorTicket.set(evento.ticket_moderacao_id, lista);
+  }
+
   // Busca nome das empresas
   const empresa_ids = (tickets ?? [])
     .map((t) => t.aberto_por_empresa_id)
     .filter(Boolean) as string[];
 
-  let empresas: Record<string, string> = {};
+  const empresas: Record<string, string> = {};
   if (empresa_ids.length > 0) {
     const { data: emps } = await supabase
       .from("empresas")
@@ -134,7 +226,107 @@ export async function listarTickets(status?: string): Promise<{
       empresa_origem: t.aberto_por_empresa_id
         ? { razao_social: empresas[t.aberto_por_empresa_id] ?? "—" }
         : null,
+      eventos: eventosPorTicket.get(t.id) ?? [],
     })),
+    error: null,
+  };
+}
+
+export async function listarTicketsDaEmpresa(): Promise<{
+  tickets: TicketResumo[];
+  error: string | null;
+}> {
+  const sessao = await getSessao();
+  if (!sessao?.empresa_id) {
+    return { tickets: [], error: "Sessão inválida." };
+  }
+
+  const supabase = await getSupabaseServerClient();
+  const { data: tickets, error } = await supabase
+    .from("tickets_moderacao")
+    .select(
+      "id, tipo_origem, origem_id, assunto, descricao, status, aberto_em, encerrado_em, resumo_resolucao, aberto_por_empresa_id",
+    )
+    .eq("aberto_por_empresa_id", sessao.empresa_id)
+    .order("aberto_em", { ascending: false })
+    .limit(100);
+
+  if (error) return { tickets: [], error: error.message };
+
+  const ticketIds = (tickets ?? []).map((ticket) => ticket.id);
+  const { data: eventos } = ticketIds.length
+    ? await supabase
+        .from("eventos_ticket_moderacao")
+        .select("id, ticket_moderacao_id, tipo_evento, corpo_evento, criado_em, ator_usuario_id")
+        .in("ticket_moderacao_id", ticketIds)
+        .order("criado_em", { ascending: true })
+    : {
+        data: [] as Array<{
+          id: string;
+          ticket_moderacao_id: string;
+          tipo_evento: string;
+          corpo_evento: string | null;
+          criado_em: string;
+          ator_usuario_id: string;
+        }>,
+      };
+
+  const usuarioIds = Array.from(
+    new Set((eventos ?? []).map((evento) => evento.ator_usuario_id).filter(Boolean)),
+  );
+  const usuarios: Record<string, { nome_completo: string; papel: string }> = {};
+
+  if (usuarioIds.length > 0) {
+    const { data: usuariosData } = await supabase
+      .from("usuarios")
+      .select("id, nome_completo, papel")
+      .in("id", usuarioIds);
+
+    for (const usuario of usuariosData ?? []) {
+      usuarios[usuario.id] = {
+        nome_completo: usuario.nome_completo,
+        papel: usuario.papel,
+      };
+    }
+  }
+
+  const eventosPorTicket = new Map<string, TicketEvento[]>();
+  for (const evento of eventos ?? []) {
+    const lista = eventosPorTicket.get(evento.ticket_moderacao_id) ?? [];
+    lista.push({
+      id: evento.id,
+      tipo_evento: evento.tipo_evento,
+      corpo_evento: evento.corpo_evento,
+      criado_em: evento.criado_em,
+      ator: usuarios[evento.ator_usuario_id] ?? null,
+    });
+    eventosPorTicket.set(evento.ticket_moderacao_id, lista);
+  }
+
+  return {
+    tickets: (tickets ?? []).map((t) => {
+      const eventosTicket = eventosPorTicket.get(t.id) ?? [];
+      const ultimoEvento = eventosTicket.at(-1) ?? null;
+      const ultimaInteracaoFoiDaModeração =
+        ultimoEvento?.tipo_evento === "mensagem" &&
+        !!ultimoEvento.ator &&
+        isAdmin(ultimoEvento.ator.papel as Parameters<typeof isAdmin>[0]);
+
+      return {
+        id: t.id,
+        tipo_origem: t.tipo_origem,
+        origem_id: t.origem_id,
+        assunto: t.assunto ?? null,
+        descricao: t.descricao ?? null,
+        status: t.status,
+        aberto_em: t.aberto_em,
+        encerrado_em: t.encerrado_em ?? null,
+        resumo_resolucao: t.resumo_resolucao ?? null,
+        empresa_origem: null,
+        eventos: eventosTicket,
+        empresa_pode_responder: t.status !== "encerrado" && ultimaInteracaoFoiDaModeração,
+      };
+    }),
     error: null,
   };
 }
@@ -169,7 +361,73 @@ export async function encerrarTicket(
 
   if (error) return { ok: false, erro: error.message };
 
+  await registrarEventoTicket(ticket_id, sessao.id, "encerramento", resumo_resolucao);
+
   revalidatePath(ROTAS.ADMIN_TICKETS);
+  return { ok: true };
+}
+
+export async function registrarMensagemTicket(
+  _state: ResultadoAcao | undefined,
+  formData: FormData,
+): Promise<ResultadoAcao> {
+  const sessao = await getSessao();
+  if (!sessao) return { ok: false, erro: "Acesso negado." };
+
+  const ticket_id = formData.get("ticket_id") as string;
+  const mensagem = (formData.get("mensagem") as string)?.trim();
+
+  if (!ticket_id) return { ok: false, erro: "ID do ticket inválido." };
+  if (!mensagem) return { ok: false, erro: "Informe a mensagem do histórico." };
+
+  const supabase = await getSupabaseServerClient();
+  const { data: ticket, error: ticketError } = await supabase
+    .from("tickets_moderacao")
+    .select("id, status, aberto_por_empresa_id")
+    .eq("id", ticket_id)
+    .maybeSingle();
+
+  if (ticketError || !ticket) return { ok: false, erro: "Ticket não encontrado." };
+  const podeResponder =
+    isAdmin(sessao.papel) ||
+    (!!sessao.empresa_id && ticket.aberto_por_empresa_id === sessao.empresa_id);
+
+  if (!podeResponder) {
+    return { ok: false, erro: "Sem permissão para responder este ticket." };
+  }
+
+  if (ticket.status === "encerrado") {
+    return { ok: false, erro: "Não é possível registrar mensagens em ticket encerrado." };
+  }
+
+  if (!isAdmin(sessao.papel)) {
+    const { data: eventos } = await supabase
+      .from("eventos_ticket_moderacao")
+      .select("tipo_evento, ator_usuario_id, usuarios:ator_usuario_id ( papel )")
+      .eq("ticket_moderacao_id", ticket_id)
+      .order("criado_em", { ascending: false })
+      .limit(1);
+
+    const ultimoEvento = Array.isArray(eventos) ? eventos[0] : null;
+    const ultimoAtor = Array.isArray(ultimoEvento?.usuarios)
+      ? ultimoEvento?.usuarios[0]
+      : ultimoEvento?.usuarios;
+    const adminSolicitouMaisInfo =
+      ultimoEvento?.tipo_evento === "mensagem" && !!ultimoAtor?.papel && isAdmin(ultimoAtor.papel);
+
+    if (!adminSolicitouMaisInfo) {
+      return {
+        ok: false,
+        erro: "A resposta fica liberada quando a moderação solicitar mais informações.",
+      };
+    }
+  }
+
+  const { error } = await registrarEventoTicket(ticket_id, sessao.id, "mensagem", mensagem);
+  if (error) return { ok: false, erro: "Erro ao registrar mensagem." };
+
+  revalidatePath(ROTAS.ADMIN_TICKETS);
+  revalidatePath(ROTAS.TICKETS);
   return { ok: true };
 }
 
@@ -195,6 +453,8 @@ export async function assumirTicket(
     .eq("status", "aberto");
 
   if (error) return { ok: false, erro: error.message };
+
+  await registrarEventoTicket(ticket_id, sessao.id, "assuncao", "Ticket assumido para análise.");
 
   revalidatePath(ROTAS.ADMIN_TICKETS);
   return { ok: true };
@@ -232,7 +492,7 @@ export async function listarAvaliacoesPendentes(): Promise<{
     ids.add(a.empresa_avaliadora_id);
     ids.add(a.empresa_avaliada_id);
   }
-  let empresas: Record<string, string> = {};
+  const empresas: Record<string, string> = {};
   if (ids.size > 0) {
     const { data: emps } = await supabase
       .from("empresas")
@@ -262,6 +522,68 @@ export async function listarAvaliacoesPendentes(): Promise<{
         },
         negociacao_id: a.negociacao_id,
       })),
+    error: null,
+  };
+}
+
+export async function listarNegociacoesModeracao(): Promise<{
+  negociacoes: NegociacaoModeracaoResumo[];
+  error: string | null;
+}> {
+  const sessao = await getSessao();
+  if (!sessao || !isAdmin(sessao.papel)) {
+    return { negociacoes: [], error: "Acesso negado." };
+  }
+
+  const supabase = await getSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("negociacoes")
+    .select(
+      "id, status, status_moderacao, valor_negociado, meio_pagamento, local_troca, criada_em, empresa_autora_id, empresa_contraparte_id",
+    )
+    .neq("status_moderacao", "nao_acionada")
+    .order("criada_em", { ascending: false })
+    .limit(100);
+
+  if (error) return { negociacoes: [], error: error.message };
+
+  const ids = new Set<string>();
+  for (const negociacao of data ?? []) {
+    ids.add(negociacao.empresa_autora_id);
+    ids.add(negociacao.empresa_contraparte_id);
+  }
+
+  const empresas: Record<string, string> = {};
+  if (ids.size > 0) {
+    const { data: emps } = await supabase
+      .from("empresas")
+      .select("id, razao_social")
+      .in("id", Array.from(ids));
+
+    if (emps) {
+      for (const empresa of emps) empresas[empresa.id] = empresa.razao_social;
+    }
+  }
+
+  return {
+    negociacoes: (data ?? []).map((negociacao) => ({
+      id: negociacao.id,
+      status: negociacao.status,
+      status_moderacao: negociacao.status_moderacao,
+      valor_negociado: negociacao.valor_negociado,
+      meio_pagamento: negociacao.meio_pagamento,
+      local_troca: negociacao.local_troca,
+      criada_em: negociacao.criada_em,
+      empresa_autora: {
+        id: negociacao.empresa_autora_id,
+        razao_social: empresas[negociacao.empresa_autora_id] ?? "—",
+      },
+      empresa_contraparte: {
+        id: negociacao.empresa_contraparte_id,
+        razao_social: empresas[negociacao.empresa_contraparte_id] ?? "—",
+      },
+    })),
     error: null,
   };
 }

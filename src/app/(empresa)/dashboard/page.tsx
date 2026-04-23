@@ -32,19 +32,6 @@ function LinkAcao({
   );
 }
 
-function Badge({ n, alerta }: { n: number; alerta?: boolean }) {
-  if (n === 0) return null;
-  return (
-    <span
-      className={`ml-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
-        alerta ? "bg-amber-400 text-amber-900" : "bg-stone-100 text-stone-600"
-      }`}
-    >
-      {n}
-    </span>
-  );
-}
-
 export default async function PaginaDashboard() {
   const sessao = await getSessao();
   if (!sessao) redirect(ROTAS.LOGIN);
@@ -194,6 +181,11 @@ export default async function PaginaDashboard() {
               titulo={`Solicitações`}
               descricao="Veja enviadas e recebidas"
             />
+            <LinkAcao
+              href={ROTAS.TICKETS}
+              titulo="Minhas denúncias"
+              descricao="Acompanhe tickets e respostas da moderação"
+            />
           </div>
         </div>
 
@@ -211,7 +203,7 @@ export default async function PaginaDashboard() {
             descricao="Veja ofertas e necessidades de outras empresas"
           />
           <LinkAcao
-            href={ROTAS.EMPRESA_PERFIL(empresaId)}
+            href={ROTAS.EMPRESA_PERFIL(sessao.empresa_slug_publico ?? empresaId)}
             titulo="Meu perfil público"
             descricao="Como outras empresas te veem"
           />

@@ -1,16 +1,23 @@
 "use client";
 
+import { useEffect } from "react";
 import { useActionState } from "react";
+import { useRouter } from "next/navigation";
 import { aceitarSolicitacao, recusarSolicitacao, cancelarSolicitacao } from "@/modules/solicitacoes/actions";
 import type { ResultadoAcao } from "@/modules/solicitacoes/actions";
 
 export function BotoesRecebida({ solicitacaoId }: { solicitacaoId: string }) {
+  const router = useRouter();
   const [estadoAceite, actionAceite, pendAceite] = useActionState<ResultadoAcao | undefined, FormData>(
     aceitarSolicitacao, undefined,
   );
   const [estadoRecusa, actionRecusa, pendRecusa] = useActionState<ResultadoAcao | undefined, FormData>(
     recusarSolicitacao, undefined,
   );
+
+  useEffect(() => {
+    if (estadoRecusa?.ok) router.refresh();
+  }, [estadoRecusa, router]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -56,9 +63,14 @@ export function BotaoCancelar({
   solicitacaoId: string;
   prazoCancelamento: string;
 }) {
+  const router = useRouter();
   const [estado, action, pendente] = useActionState<ResultadoAcao | undefined, FormData>(
     cancelarSolicitacao, undefined,
   );
+
+  useEffect(() => {
+    if (estado?.ok) router.refresh();
+  }, [estado, router]);
 
   const dentroPrazo = new Date() < new Date(prazoCancelamento);
   if (!dentroPrazo) return null;

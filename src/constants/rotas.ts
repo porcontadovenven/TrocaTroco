@@ -18,6 +18,7 @@ export const ROTAS = {
   ANUNCIAR: "/anunciar",
   MEUS_ANUNCIOS: "/meus-anuncios",
   SOLICITACOES: "/solicitacoes",
+  TICKETS: "/tickets",
   NEGOCIACAO: (id: string) => `/negociacoes/${id}`,
 
   // Admin
@@ -25,6 +26,7 @@ export const ROTAS = {
   ADMIN_ANALISE_CADASTRAL: "/admin/analise-cadastral",
   ADMIN_TICKETS: "/admin/tickets",
   ADMIN_MODERACAO_AVALIACOES: "/admin/moderacao-avaliacoes",
+  ADMIN_MODERACAO_NEGOCIACOES: "/admin/moderacao-negociacoes",
 } as const;
 
 /** Prefixos protegidos que exigem sessão autenticada */
@@ -34,6 +36,7 @@ export const PREFIXOS_AUTENTICADOS = [
   "/anunciar",
   "/meus-anuncios",
   "/solicitacoes",
+  "/tickets",
   "/negociacoes",
   "/admin",
 ] as const;

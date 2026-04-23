@@ -28,7 +28,7 @@ export default async function PaginaDetalheAnuncio({
   if (error || !anuncio) notFound();
 
   const empresa = Array.isArray(anuncio.empresa)
-    ? (anuncio.empresa as unknown as { id: string; razao_social: string; cidade: string; estado: string }[])[0]
+    ? (anuncio.empresa as unknown as { id: string; slug_publico?: string | null; razao_social: string; cidade: string; estado: string }[])[0]
     : anuncio.empresa;
 
   const isAutora = sessao?.empresa_id === empresa?.id;
@@ -83,7 +83,7 @@ export default async function PaginaDetalheAnuncio({
                 )}
               </div>
               <Link
-                href={ROTAS.EMPRESA_PERFIL(empresa.id)}
+                href={ROTAS.EMPRESA_PERFIL(empresa.slug_publico ?? empresa.id)}
                 className="text-xs text-stone-500 underline-offset-4 hover:underline"
               >
                 Ver perfil

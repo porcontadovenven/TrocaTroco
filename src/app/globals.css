@@ -24,3 +24,36 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), sans-serif;
 }
+
+@layer base {
+  input,
+  textarea,
+  select {
+    color: #1c1917;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #78716c;
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  .text-stone-300 {
+    color: #78716c !important;
+  }
+
+  .text-stone-400 {
+    color: #57534e !important;
+  }
+
+  .text-stone-500 {
+    color: #44403c !important;
+  }
+
+  .placeholder\:text-stone-400::placeholder {
+    color: #78716c !important;
+    opacity: 1;
+  }
+}

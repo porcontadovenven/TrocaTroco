@@ -1,7 +1,6 @@
 "use server";
 
 import { getSupabaseServerClient as createClient } from "@/lib/supabase/server";
-import { ROTAS } from "@/constants/rotas";
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -26,6 +25,7 @@ export interface AvaliacaoPublica {
 
 export interface PerfilEmpresa {
   id: string;
+  slug_publico: string;
   razao_social: string;
   nome_fantasia: string | null;
   cidade: string;
@@ -40,18 +40,29 @@ export interface PerfilEmpresa {
 // ---------------------------------------------------------------------------
 // obterPerfilEmpresa
 // ---------------------------------------------------------------------------
-export async function obterPerfilEmpresa(empresaId: string): Promise<{
+export async function obterPerfilEmpresa(empresaIdentificador: string): Promise<{
   perfil: PerfilEmpresa | null;
   error: string | null;
 }> {
   const supabase = await createClient();
 
   // Dados da empresa
-  const { data: empresa, error: errEmpresa } = await supabase
+  let { data: empresa, error: errEmpresa } = await supabase
     .from("empresas")
-    .select("id, razao_social, nome_fantasia, cidade, estado, foto_perfil_url, status")
-    .eq("id", empresaId)
-    .single();
+    .select("id, slug_publico, razao_social, nome_fantasia, cidade, estado, foto_perfil_url, status")
+    .eq("slug_publico", empresaIdentificador)
+    .maybeSingle();
+
+  if (!empresa) {
+    const fallback = await supabase
+      .from("empresas")
+      .select("id, slug_publico, razao_social, nome_fantasia, cidade, estado, foto_perfil_url, status")
+      .eq("id", empresaIdentificador)
+      .maybeSingle();
+
+    empresa = fallback.data;
+    errEmpresa = fallback.error;
+  }
 
   if (errEmpresa || !empresa) {
     return { perfil: null, error: "Empresa não encontrada." };
@@ -68,7 +79,7 @@ export async function obterPerfilEmpresa(empresaId: string): Promise<{
     .select(
       "id, tipo, valor_total, valor_remanescente, permite_parcial, rotulo_regiao, publicado_em",
     )
-    .eq("empresa_id", empresaId)
+    .eq("empresa_id", empresa.id)
     .in("status", ["ativo", "em_negociacao"])
     .order("publicado_em", { ascending: false })
     .limit(20);
@@ -79,14 +90,14 @@ export async function obterPerfilEmpresa(empresaId: string): Promise<{
     .select(
       "id, nota, texto_comentario, criada_em, empresa_avaliadora_id",
     )
-    .eq("empresa_avaliada_id", empresaId)
+    .eq("empresa_avaliada_id", empresa.id)
     .or("status_comentario.eq.aprovado,texto_comentario.is.null")
     .order("criada_em", { ascending: false })
     .limit(50);
 
   // Busca razao_social das avaliadoras
   const avaliadoras_ids = (avaliacoes ?? []).map((a) => a.empresa_avaliadora_id);
-  let avaliadoras: Record<string, string> = {};
+  const avaliadoras: Record<string, string> = {};
   if (avaliadoras_ids.length > 0) {
     const { data: emp } = await supabase
       .from("empresas")
@@ -109,11 +120,12 @@ export async function obterPerfilEmpresa(empresaId: string): Promise<{
     .select("id", { count: "exact", head: true })
     .eq("status", "finalizada")
     .or(
-      `empresa_autora_id.eq.${empresaId},empresa_contraparte_id.eq.${empresaId}`,
+      `empresa_autora_id.eq.${empresa.id},empresa_contraparte_id.eq.${empresa.id}`,
     );
 
   const perfil: PerfilEmpresa = {
     id: empresa.id,
+    slug_publico: empresa.slug_publico,
     razao_social: empresa.razao_social,
     nome_fantasia: empresa.nome_fantasia ?? null,
     cidade: empresa.cidade,

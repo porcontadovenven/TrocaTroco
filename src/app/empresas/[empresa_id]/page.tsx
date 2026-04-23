@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { obterPerfilEmpresa } from "@/modules/empresas/actions";
 import { getSessao } from "@/lib/sessao";
 import { FormDenuncia } from "@/modules/tickets/FormDenuncia";
@@ -34,6 +35,9 @@ export default async function PaginaPerfilEmpresa({
   ]);
 
   if (error || !perfil) notFound();
+  if (empresa_id !== perfil.slug_publico) {
+    redirect(ROTAS.EMPRESA_PERFIL(perfil.slug_publico));
+  }
 
   return (
     <main className="min-h-screen bg-stone-50 px-4 py-10">
@@ -42,9 +46,11 @@ export default async function PaginaPerfilEmpresa({
         <div className="mb-6 rounded-3xl border border-stone-200 bg-white p-6">
           <div className="flex items-start gap-4">
             {perfil.foto_perfil_url ? (
-              <img
+              <Image
                 src={perfil.foto_perfil_url}
                 alt={perfil.razao_social}
+                width={64}
+                height={64}
                 className="h-16 w-16 rounded-2xl border border-stone-100 object-cover"
               />
             ) : (
@@ -186,7 +192,7 @@ export default async function PaginaPerfilEmpresa({
         </section>
 
         {/* Denúncia — só para empresa autenticada e diferente do perfil */}
-        {sessao?.empresa_id && sessao.empresa_id !== empresa_id && (
+        {sessao?.empresa_id && sessao.empresa_id !== perfil.id && (
           <section className="mt-8">
             <details className="rounded-2xl border border-stone-200 bg-white">
               <summary className="cursor-pointer px-5 py-4 text-sm font-medium text-stone-500 hover:text-stone-700 select-none">
@@ -196,7 +202,7 @@ export default async function PaginaPerfilEmpresa({
                 <p className="mb-4 text-xs text-stone-400">
                   Use apenas para casos reais. Denúncias falsas podem resultar em suspensão.
                 </p>
-                <FormDenuncia origemId={empresa_id} tipoOrigem="perfil_empresa" />
+                <FormDenuncia origemId={perfil.id} tipoOrigem="perfil_empresa" />
               </div>
             </details>
           </section>

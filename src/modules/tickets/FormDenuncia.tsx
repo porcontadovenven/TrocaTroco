@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { abrirTicket } from "@/modules/admin/actions";
+import { ROTAS } from "@/constants/rotas";
 import type { ResultadoAcao } from "@/modules/admin/actions";
 
 interface Props {
@@ -23,6 +25,12 @@ export function FormDenuncia({ origemId, tipoOrigem = "perfil_empresa" }: Props)
         <p className="text-sm text-emerald-700">
           Ticket enviado com sucesso. Nossa equipe irá analisar em breve.
         </p>
+        <Link
+          href={ROTAS.TICKETS}
+          className="mt-3 inline-block text-sm font-medium text-emerald-800 underline underline-offset-4"
+        >
+          Acompanhar denúncia
+        </Link>
       </div>
     );
   }

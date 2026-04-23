@@ -2,6 +2,8 @@ import Link from "next/link";
 import { listarAnunciosPublicos } from "@/modules/anuncios/actions";
 import { ROTAS } from "@/constants/rotas";
 import { APP_NAME } from "@/constants/app";
+import { getSessao } from "@/lib/sessao";
+import { isAdmin } from "@/constants/papeis";
 
 const TIPO_LABEL: Record<string, string> = {
   oferta: "Oferta de troco",
@@ -9,7 +11,22 @@ const TIPO_LABEL: Record<string, string> = {
 };
 
 export default async function Home() {
-  const { anuncios } = await listarAnunciosPublicos(1, 6);
+  const [{ anuncios }, sessao] = await Promise.all([
+    listarAnunciosPublicos(1, 6),
+    getSessao(),
+  ]);
+
+  const ctaPrincipal = !sessao
+    ? { href: ROTAS.CADASTRO, label: "Cadastrar minha empresa" }
+    : isAdmin(sessao.papel)
+    ? { href: ROTAS.ADMIN, label: "Ir para painel admin" }
+    : sessao.status_empresa === "aprovada"
+    ? { href: ROTAS.DASHBOARD, label: "Ir para meu dashboard" }
+    : { href: ROTAS.STATUS_CADASTRAL, label: "Ver status do cadastro" };
+
+  const ctaSecundaria = !sessao
+    ? { href: ROTAS.LOGIN, label: "Entrar" }
+    : { href: ROTAS.ANUNCIOS, label: "Explorar anúncios" };
 
   return (
     <main className="min-h-screen bg-stone-50 text-stone-950">
@@ -28,16 +45,16 @@ export default async function Home() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
-              href={ROTAS.CADASTRO}
+              href={ctaPrincipal.href}
               className="rounded-2xl bg-stone-900 px-6 py-3 text-sm font-semibold text-white hover:bg-stone-700 transition-colors"
             >
-              Cadastrar minha empresa
+              {ctaPrincipal.label}
             </Link>
             <Link
-              href={ROTAS.LOGIN}
+              href={ctaSecundaria.href}
               className="rounded-2xl border border-stone-200 bg-white px-6 py-3 text-sm font-semibold text-stone-700 hover:bg-stone-50 transition-colors"
             >
-              Entrar
+              {ctaSecundaria.label}
             </Link>
           </div>
         </div>

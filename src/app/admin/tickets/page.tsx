@@ -5,6 +5,7 @@ import { isAdmin } from "@/constants/papeis";
 import { ROTAS } from "@/constants/rotas";
 import { listarTickets } from "@/modules/admin/actions";
 import { BotaoAssumirTicket, FormEncerrarTicket } from "@/modules/admin/AcoesAdmin";
+import { FormMensagemTicket } from "@/modules/tickets/FormMensagemTicket";
 
 const STATUS_LABEL: Record<string, string> = {
   aberto: "Aberto",
@@ -127,12 +128,54 @@ export default async function PaginaTickets() {
                         </div>
                       )}
 
+                      {ticket.eventos.length > 0 && (
+                        <div className="mb-4 rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3">
+                          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-500">
+                            Histórico do caso
+                          </p>
+                          <div className="flex flex-col gap-3">
+                            {ticket.eventos.map((evento) => (
+                              <div key={evento.id} className="border-l-2 border-stone-200 pl-3">
+                                <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
+                                  <span className="font-medium text-stone-700">
+                                    {evento.ator?.nome_completo ?? "Sistema"}
+                                  </span>
+                                  <span>
+                                    {evento.ator?.papel === "usuario_admin"
+                                      ? "Admin"
+                                      : evento.ator?.papel === "usuario_moderador" || evento.ator?.papel === "moderador"
+                                        ? "Moderador"
+                                        : "Usuário"}
+                                  </span>
+                                  <span className="rounded-full bg-white px-2 py-0.5 text-[11px] text-stone-500">
+                                    {evento.tipo_evento.replaceAll("_", " ")}
+                                  </span>
+                                  <span className="ml-auto">
+                                    {new Date(evento.criado_em).toLocaleString("pt-BR")}
+                                  </span>
+                                </div>
+                                {evento.corpo_evento && (
+                                  <p className="mt-1 text-sm text-stone-700">{evento.corpo_evento}</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Ações */}
                       {ticket.status !== "encerrado" && (
                         <div className="flex flex-wrap items-start gap-3 border-t border-stone-100 pt-4">
                           {ticket.status === "aberto" && (
                             <BotaoAssumirTicket ticketId={ticket.id} />
                           )}
+                          <div className="min-w-[240px] flex-1">
+                            <FormMensagemTicket
+                              ticketId={ticket.id}
+                              placeholder="Solicitar mais informações, registrar andamento ou resposta da moderação..."
+                              botaoLabel="Enviar mensagem"
+                            />
+                          </div>
                           <div className="flex-1 min-w-[200px]">
                             <FormEncerrarTicket ticketId={ticket.id} />
                           </div>

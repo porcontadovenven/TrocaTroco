@@ -1,7 +1,13 @@
 import { APP_NAME } from "@/constants/app";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { FormCadastro } from "@/modules/cadastro/FormCadastro";
 
-export default function PaginaCadastro() {
+export default async function PaginaCadastro() {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <main className="flex min-h-screen items-start justify-center bg-[linear-gradient(135deg,#f7f1e7_0%,#fffdf7_45%,#e8f1ea_100%)] px-4 py-12">
       <div className="w-full max-w-xl">
@@ -15,7 +21,7 @@ export default function PaginaCadastro() {
         </div>
 
         <div className="rounded-3xl border border-stone-900/10 bg-white/90 p-8 shadow-[0_16px_48px_rgba(29,29,27,0.08)] backdrop-blur">
-          <FormCadastro />
+          <FormCadastro requerCredenciais={!user} />
         </div>
       </div>
     </main>

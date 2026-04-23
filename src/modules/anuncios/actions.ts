@@ -39,6 +39,7 @@ export type AnuncioResumo = {
   publicado_em: string;
   empresa: {
     id: string;
+    slug_publico?: string | null;
     razao_social: string;
     cidade: string | null;
     estado: string | null;
@@ -191,7 +192,7 @@ export async function listarAnunciosPublicos(pagina = 1, porPagina = 20) {
     .select(
       `id, tipo, status, valor_total, valor_remanescente, permite_parcial,
        rotulo_regiao, disponibilidade_texto, expira_em, publicado_em,
-       empresas ( id, razao_social, cidade, estado ),
+       empresas ( id, slug_publico, razao_social, cidade, estado ),
        itens_composicao_anuncio ( id, tipo_item, valor_unitario, quantidade, subtotal_valor, ordem_exibicao )`,
       { count: "exact" },
     )
@@ -243,7 +244,7 @@ export async function obterDetalheAnuncio(anuncioId: string) {
     .select(
       `id, tipo, status, valor_total, valor_remanescente, permite_parcial,
        aceita_local_proprio, rotulo_regiao, disponibilidade_texto, expira_em, publicado_em,
-       empresas ( id, razao_social, cidade, estado ),
+       empresas ( id, slug_publico, razao_social, cidade, estado ),
        itens_composicao_anuncio ( id, tipo_item, valor_unitario, quantidade, subtotal_valor, ordem_exibicao )`,
     )
     .eq("id", anuncioId)

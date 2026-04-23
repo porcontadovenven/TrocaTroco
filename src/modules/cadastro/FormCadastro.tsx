@@ -33,6 +33,8 @@ type Campos = {
   email_responsavel: string;
   cargo_funcao: string;
   vinculo_empresa: string;
+  senha: string;
+  confirmar_senha: string;
 };
 
 const vazio: Campos = {
@@ -53,9 +55,11 @@ const vazio: Campos = {
   email_responsavel: "",
   cargo_funcao: "",
   vinculo_empresa: "",
+  senha: "",
+  confirmar_senha: "",
 };
 
-export function FormCadastro() {
+export function FormCadastro({ requerCredenciais }: { requerCredenciais: boolean }) {
   const [etapa, setEtapa] = useState<Etapa>(1);
   const [campos, setCampos] = useState<Campos>(vazio);
   const [estado, action, pendente] = useActionState<
@@ -85,6 +89,13 @@ export function FormCadastro() {
     if (!campos.email_responsavel) return "E-mail é obrigatório.";
     if (!campos.cargo_funcao) return "Cargo / função é obrigatório.";
     if (!campos.vinculo_empresa) return "Vínculo com a empresa é obrigatório.";
+    if (requerCredenciais && !campos.senha) return "Senha de acesso é obrigatória.";
+    if (requerCredenciais && campos.senha.length < 6) {
+      return "A senha deve ter ao menos 6 caracteres.";
+    }
+    if (requerCredenciais && campos.senha !== campos.confirmar_senha) {
+      return "A confirmação de senha não confere.";
+    }
     return null;
   }
 
@@ -172,6 +183,24 @@ export function FormCadastro() {
             <Campo label="E-mail" name="email_responsavel" type="email" value={campos.email_responsavel} onChange={atualizar} />
             <Campo label="Cargo / função" name="cargo_funcao" value={campos.cargo_funcao} onChange={atualizar} />
             <Campo label="Vínculo atual com a empresa" name="vinculo_empresa" value={campos.vinculo_empresa} onChange={atualizar} placeholder="Sócio, funcionário, representante..." />
+            {requerCredenciais && (
+              <>
+                <Campo
+                  label="Senha de acesso"
+                  name="senha"
+                  type="password"
+                  value={campos.senha}
+                  onChange={atualizar}
+                />
+                <Campo
+                  label="Confirmar senha"
+                  name="confirmar_senha"
+                  type="password"
+                  value={campos.confirmar_senha}
+                  onChange={atualizar}
+                />
+              </>
+            )}
           </div>
         )}
 

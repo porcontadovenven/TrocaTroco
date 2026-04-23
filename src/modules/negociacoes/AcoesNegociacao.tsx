@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   enviarMensagem,
   chamarModerador,
@@ -52,10 +53,15 @@ export function ChatInput({ negociacaoId }: { negociacaoId: string }) {
 // Botão chamar moderador
 // ---------------------------------------------------------------------------
 export function BotaoChamarModerador({ negociacaoId }: { negociacaoId: string }) {
+  const router = useRouter();
   const [estado, action, pendente] = useActionState<ResultadoAcao | undefined, FormData>(
     chamarModerador,
     undefined,
   );
+
+  useEffect(() => {
+    if (estado?.ok) router.refresh();
+  }, [estado, router]);
 
   return (
     <form action={action} className="flex flex-col gap-1">
@@ -77,10 +83,15 @@ export function BotaoChamarModerador({ negociacaoId }: { negociacaoId: string })
 // Botão encerrar operação
 // ---------------------------------------------------------------------------
 export function BotaoEncerrarOperacao({ negociacaoId }: { negociacaoId: string }) {
+  const router = useRouter();
   const [estado, action, pendente] = useActionState<ResultadoAcao | undefined, FormData>(
     encerrarOperacaoNegociacao,
     undefined,
   );
+
+  useEffect(() => {
+    if (estado?.ok) router.refresh();
+  }, [estado, router]);
 
   return (
     <form action={action} className="flex flex-col gap-1">
@@ -101,10 +112,15 @@ export function BotaoEncerrarOperacao({ negociacaoId }: { negociacaoId: string }
 // Formulário de avaliação
 // ---------------------------------------------------------------------------
 export function FormAvaliacao({ negociacaoId }: { negociacaoId: string }) {
+  const router = useRouter();
   const [estado, action, pendente] = useActionState<ResultadoAcao | undefined, FormData>(
     enviarAvaliacao,
     undefined,
   );
+
+  useEffect(() => {
+    if (estado?.ok) router.refresh();
+  }, [estado, router]);
 
   const estrelas = [1, 2, 3, 4, 5];
 

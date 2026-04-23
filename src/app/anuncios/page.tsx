@@ -2,6 +2,8 @@ import Link from "next/link";
 import { listarAnunciosPublicos } from "@/modules/anuncios/actions";
 import { ROTAS } from "@/constants/rotas";
 import type { StatusAnuncio, TipoAnuncio } from "@/modules/anuncios/actions";
+import { getSessao } from "@/lib/sessao";
+import { isAdmin } from "@/constants/papeis";
 
 const TIPO_LABEL: Record<TipoAnuncio, string> = {
   oferta: "Oferta",
@@ -22,7 +24,10 @@ const STATUS_LABEL: Record<StatusAnuncio, string> = {
 };
 
 export default async function PaginaAnuncios() {
-  const { anuncios, total, error } = await listarAnunciosPublicos(1, 20);
+  const [{ anuncios, total, error }, sessao] = await Promise.all([
+    listarAnunciosPublicos(1, 20),
+    getSessao(),
+  ]);
 
   return (
     <main className="min-h-screen bg-stone-50 px-6 py-10">
@@ -116,25 +121,55 @@ export default async function PaginaAnuncios() {
         </div>
 
         {/* CTA para visitantes */}
-        <div className="mt-10 rounded-3xl border border-stone-200 bg-white px-6 py-8 text-center">
-          <p className="text-sm text-stone-600">
-            Para interagir com os anúncios, faça login ou cadastre sua empresa.
-          </p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href={ROTAS.LOGIN}
-              className="rounded-xl border border-stone-300 px-5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
-            >
-              Entrar
-            </Link>
-            <Link
-              href={ROTAS.CADASTRO}
-              className="rounded-xl bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700"
-            >
-              Cadastrar empresa
-            </Link>
+        {!sessao ? (
+          <div className="mt-10 rounded-3xl border border-stone-200 bg-white px-6 py-8 text-center">
+            <p className="text-sm text-stone-600">
+              Para interagir com os anúncios, faça login ou cadastre sua empresa.
+            </p>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href={ROTAS.LOGIN}
+                className="rounded-xl border border-stone-300 px-5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
+              >
+                Entrar
+              </Link>
+              <Link
+                href={ROTAS.CADASTRO}
+                className="rounded-xl bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+              >
+                Cadastrar empresa
+              </Link>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="mt-10 rounded-3xl border border-stone-200 bg-white px-6 py-8 text-center">
+            <p className="text-sm text-stone-600">
+              {isAdmin(sessao.papel)
+                ? "Você está autenticado como administrador."
+                : sessao.status_empresa === "aprovada"
+                ? "Sua empresa está autenticada e pronta para interagir com os anúncios."
+                : "Sua empresa está autenticada, mas ainda depende da aprovação cadastral para operar."}
+            </p>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href={
+                  isAdmin(sessao.papel)
+                    ? ROTAS.ADMIN
+                    : sessao.status_empresa === "aprovada"
+                    ? ROTAS.DASHBOARD
+                    : ROTAS.STATUS_CADASTRAL
+                }
+                className="rounded-xl bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+              >
+                {isAdmin(sessao.papel)
+                  ? "Ir para painel admin"
+                  : sessao.status_empresa === "aprovada"
+                  ? "Ir para dashboard"
+                  : "Ver status cadastral"}
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

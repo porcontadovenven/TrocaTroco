@@ -6,6 +6,7 @@ export type SessaoUsuario = {
   id_usuario_autenticacao: string;
   papel: PapelUsuario;
   empresa_id: string | null;
+  empresa_slug_publico: string | null;
   nome_completo: string;
   email: string;
   status_empresa: "em_analise" | "aprovada" | "reprovada" | null;
@@ -36,7 +37,8 @@ export async function getSessao(): Promise<SessaoUsuario | null> {
       nome_completo,
       email,
       empresas (
-        status
+        status,
+        slug_publico
       )
     `,
     )
@@ -50,12 +52,16 @@ export async function getSessao(): Promise<SessaoUsuario | null> {
   const statusEmpresa = Array.isArray(empresasRaw)
     ? (empresasRaw[0]?.status ?? null)
     : (empresasRaw as { status: string } | null)?.status ?? null;
+  const slugEmpresa = Array.isArray(empresasRaw)
+    ? (empresasRaw[0]?.slug_publico ?? null)
+    : (empresasRaw as { slug_publico?: string } | null)?.slug_publico ?? null;
 
   return {
     id: usuario.id,
     id_usuario_autenticacao: usuario.id_usuario_autenticacao,
     papel: usuario.papel as PapelUsuario,
     empresa_id: usuario.empresa_id,
+    empresa_slug_publico: slugEmpresa,
     nome_completo: usuario.nome_completo,
     email: usuario.email,
     status_empresa: statusEmpresa
