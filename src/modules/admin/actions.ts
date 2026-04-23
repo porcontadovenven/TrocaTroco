@@ -1,0 +1,375 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSessao } from "@/lib/sessao";
+import { isAdmin } from "@/constants/papeis";
+import { ROTAS } from "@/constants/rotas";
+
+// ---------------------------------------------------------------------------
+// Tipos
+// ---------------------------------------------------------------------------
+export interface ResultadoAcao {
+  ok: boolean;
+  erro?: string;
+}
+
+// ---------------------------------------------------------------------------
+// abrirTicket — ação do usuário empresa para abrir denúncia/ticket
+// ---------------------------------------------------------------------------
+export async function abrirTicket(
+  _state: ResultadoAcao | undefined,
+  formData: FormData,
+): Promise<ResultadoAcao> {
+  const sessao = await getSessao();
+  if (!sessao?.empresa_id) return { ok: false, erro: "Sessão inválida." };
+
+  const assunto = (formData.get("assunto") as string)?.trim();
+  const descricao = (formData.get("descricao") as string)?.trim();
+  const tipo_origem = (formData.get("tipo_origem") as string) || "perfil_empresa";
+  const origem_id = (formData.get("origem_id") as string)?.trim();
+
+  if (!assunto) return { ok: false, erro: "Informe o assunto." };
+  if (!descricao) return { ok: false, erro: "Descreva o problema." };
+  if (!origem_id) return { ok: false, erro: "Referência inválida." };
+
+  const supabase = await getSupabaseServerClient();
+
+  const { error } = await supabase.from("tickets_moderacao").insert({
+    tipo_origem,
+    origem_id,
+    aberto_por_empresa_id: sessao.empresa_id,
+    assunto,
+    descricao,
+    status: "aberto",
+    aberto_em: new Date().toISOString(),
+  });
+
+  if (error) return { ok: false, erro: "Erro ao abrir ticket." };
+
+  return { ok: true };
+}
+
+
+export interface TicketResumo {
+  id: string;
+  tipo_origem: string;
+  origem_id: string;
+  assunto: string | null;
+  descricao: string | null;
+  status: string;
+  aberto_em: string;
+  encerrado_em: string | null;
+  resumo_resolucao: string | null;
+  empresa_origem: { razao_social: string } | null;
+}
+
+export interface AvaliacaoPendente {
+  id: string;
+  nota: number;
+  texto_comentario: string;
+  status_comentario: string;
+  criada_em: string;
+  empresa_avaliadora: { id: string; razao_social: string } | null;
+  empresa_avaliada: { id: string; razao_social: string } | null;
+  negociacao_id: string;
+}
+
+// ---------------------------------------------------------------------------
+// listarTickets
+// ---------------------------------------------------------------------------
+export async function listarTickets(status?: string): Promise<{
+  tickets: TicketResumo[];
+  error: string | null;
+}> {
+  const sessao = await getSessao();
+  if (!sessao || !isAdmin(sessao.papel)) {
+    return { tickets: [], error: "Acesso negado." };
+  }
+
+  const supabase = await getSupabaseServerClient();
+
+  let query = supabase
+    .from("tickets_moderacao")
+    .select(
+      "id, tipo_origem, origem_id, assunto, descricao, status, aberto_em, encerrado_em, resumo_resolucao, aberto_por_empresa_id",
+    )
+    .order("aberto_em", { ascending: true });
+
+  if (status) {
+    query = query.eq("status", status);
+  }
+
+  const { data: tickets, error } = await query.limit(100);
+
+  if (error) return { tickets: [], error: error.message };
+
+  // Busca nome das empresas
+  const empresa_ids = (tickets ?? [])
+    .map((t) => t.aberto_por_empresa_id)
+    .filter(Boolean) as string[];
+
+  let empresas: Record<string, string> = {};
+  if (empresa_ids.length > 0) {
+    const { data: emps } = await supabase
+      .from("empresas")
+      .select("id, razao_social")
+      .in("id", empresa_ids);
+    if (emps) {
+      for (const e of emps) empresas[e.id] = e.razao_social;
+    }
+  }
+
+  return {
+    tickets: (tickets ?? []).map((t) => ({
+      id: t.id,
+      tipo_origem: t.tipo_origem,
+      origem_id: t.origem_id,
+      assunto: t.assunto ?? null,
+      descricao: t.descricao ?? null,
+      status: t.status,
+      aberto_em: t.aberto_em,
+      encerrado_em: t.encerrado_em ?? null,
+      resumo_resolucao: t.resumo_resolucao ?? null,
+      empresa_origem: t.aberto_por_empresa_id
+        ? { razao_social: empresas[t.aberto_por_empresa_id] ?? "—" }
+        : null,
+    })),
+    error: null,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// encerrarTicket
+// ---------------------------------------------------------------------------
+export async function encerrarTicket(
+  _state: ResultadoAcao | undefined,
+  formData: FormData,
+): Promise<ResultadoAcao> {
+  const sessao = await getSessao();
+  if (!sessao || !isAdmin(sessao.papel)) return { ok: false, erro: "Acesso negado." };
+
+  const ticket_id = formData.get("ticket_id") as string;
+  const resumo_resolucao = (formData.get("resumo_resolucao") as string)?.trim();
+
+  if (!ticket_id) return { ok: false, erro: "ID do ticket inválido." };
+  if (!resumo_resolucao) return { ok: false, erro: "Informe a resolução antes de encerrar." };
+
+  const supabase = await getSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("tickets_moderacao")
+    .update({
+      status: "encerrado",
+      resumo_resolucao,
+      encerrado_em: new Date().toISOString(),
+    })
+    .eq("id", ticket_id)
+    .neq("status", "encerrado");
+
+  if (error) return { ok: false, erro: error.message };
+
+  revalidatePath(ROTAS.ADMIN_TICKETS);
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// atualizarStatusTicket (aberto → em_analise)
+// ---------------------------------------------------------------------------
+export async function assumirTicket(
+  _state: ResultadoAcao | undefined,
+  formData: FormData,
+): Promise<ResultadoAcao> {
+  const sessao = await getSessao();
+  if (!sessao || !isAdmin(sessao.papel)) return { ok: false, erro: "Acesso negado." };
+
+  const ticket_id = formData.get("ticket_id") as string;
+  if (!ticket_id) return { ok: false, erro: "ID inválido." };
+
+  const supabase = await getSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("tickets_moderacao")
+    .update({ status: "em_analise", atribuido_para_usuario_id: sessao.id })
+    .eq("id", ticket_id)
+    .eq("status", "aberto");
+
+  if (error) return { ok: false, erro: error.message };
+
+  revalidatePath(ROTAS.ADMIN_TICKETS);
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// listarAvaliacoesPendentes
+// ---------------------------------------------------------------------------
+export async function listarAvaliacoesPendentes(): Promise<{
+  avaliacoes: AvaliacaoPendente[];
+  error: string | null;
+}> {
+  const sessao = await getSessao();
+  if (!sessao || !isAdmin(sessao.papel)) {
+    return { avaliacoes: [], error: "Acesso negado." };
+  }
+
+  const supabase = await getSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("avaliacoes")
+    .select(
+      "id, nota, texto_comentario, status_comentario, criada_em, empresa_avaliadora_id, empresa_avaliada_id, negociacao_id",
+    )
+    .eq("status_comentario", "pendente_moderacao")
+    .not("texto_comentario", "is", null)
+    .order("criada_em", { ascending: true })
+    .limit(100);
+
+  if (error) return { avaliacoes: [], error: error.message };
+
+  // Busca empresas envolvidas
+  const ids = new Set<string>();
+  for (const a of data ?? []) {
+    ids.add(a.empresa_avaliadora_id);
+    ids.add(a.empresa_avaliada_id);
+  }
+  let empresas: Record<string, string> = {};
+  if (ids.size > 0) {
+    const { data: emps } = await supabase
+      .from("empresas")
+      .select("id, razao_social")
+      .in("id", Array.from(ids));
+    if (emps) {
+      for (const e of emps) empresas[e.id] = e.razao_social;
+    }
+  }
+
+  return {
+    avaliacoes: (data ?? [])
+      .filter((a) => a.texto_comentario !== null)
+      .map((a) => ({
+        id: a.id,
+        nota: a.nota,
+        texto_comentario: a.texto_comentario as string,
+        status_comentario: a.status_comentario ?? "pendente_moderacao",
+        criada_em: a.criada_em,
+        empresa_avaliadora: {
+          id: a.empresa_avaliadora_id,
+          razao_social: empresas[a.empresa_avaliadora_id] ?? "—",
+        },
+        empresa_avaliada: {
+          id: a.empresa_avaliada_id,
+          razao_social: empresas[a.empresa_avaliada_id] ?? "—",
+        },
+        negociacao_id: a.negociacao_id,
+      })),
+    error: null,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// aprovarComentario
+// ---------------------------------------------------------------------------
+export async function aprovarComentario(
+  _state: ResultadoAcao | undefined,
+  formData: FormData,
+): Promise<ResultadoAcao> {
+  const sessao = await getSessao();
+  if (!sessao || !isAdmin(sessao.papel)) return { ok: false, erro: "Acesso negado." };
+
+  const avaliacao_id = formData.get("avaliacao_id") as string;
+  if (!avaliacao_id) return { ok: false, erro: "ID inválido." };
+
+  const supabase = await getSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("avaliacoes")
+    .update({
+      status_comentario: "aprovado",
+      moderado_por_usuario_id: sessao.id,
+      moderado_em: new Date().toISOString(),
+    })
+    .eq("id", avaliacao_id)
+    .eq("status_comentario", "pendente_moderacao");
+
+  if (error) return { ok: false, erro: error.message };
+
+  revalidatePath(ROTAS.ADMIN_MODERACAO_AVALIACOES);
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// barrarComentario
+// ---------------------------------------------------------------------------
+export async function barrarComentario(
+  _state: ResultadoAcao | undefined,
+  formData: FormData,
+): Promise<ResultadoAcao> {
+  const sessao = await getSessao();
+  if (!sessao || !isAdmin(sessao.papel)) return { ok: false, erro: "Acesso negado." };
+
+  const avaliacao_id = formData.get("avaliacao_id") as string;
+  const motivo_moderacao = (formData.get("motivo_moderacao") as string)?.trim();
+
+  if (!avaliacao_id) return { ok: false, erro: "ID inválido." };
+
+  const supabase = await getSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("avaliacoes")
+    .update({
+      status_comentario: "barrado",
+      motivo_moderacao: motivo_moderacao || null,
+      moderado_por_usuario_id: sessao.id,
+      moderado_em: new Date().toISOString(),
+    })
+    .eq("id", avaliacao_id)
+    .eq("status_comentario", "pendente_moderacao");
+
+  if (error) return { ok: false, erro: error.message };
+
+  revalidatePath(ROTAS.ADMIN_MODERACAO_AVALIACOES);
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// contadores para o dashboard admin
+// ---------------------------------------------------------------------------
+export async function obterContadoresAdmin(): Promise<{
+  empresas_pendentes: number;
+  tickets_abertos: number;
+  comentarios_pendentes: number;
+  negociacoes_moderacao: number;
+}> {
+  const supabase = await getSupabaseServerClient();
+
+  const [
+    { count: empresas_pendentes },
+    { count: tickets_abertos },
+    { count: comentarios_pendentes },
+    { count: negociacoes_moderacao },
+  ] = await Promise.all([
+    supabase
+      .from("submissoes_cadastrais")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "em_analise"),
+    supabase
+      .from("tickets_moderacao")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["aberto", "em_analise"]),
+    supabase
+      .from("avaliacoes")
+      .select("id", { count: "exact", head: true })
+      .eq("status_comentario", "pendente_moderacao"),
+    supabase
+      .from("negociacoes")
+      .select("id", { count: "exact", head: true })
+      .neq("status_moderacao", "nao_acionada"),
+  ]);
+
+  return {
+    empresas_pendentes: empresas_pendentes ?? 0,
+    tickets_abertos: tickets_abertos ?? 0,
+    comentarios_pendentes: comentarios_pendentes ?? 0,
+    negociacoes_moderacao: negociacoes_moderacao ?? 0,
+  };
+}

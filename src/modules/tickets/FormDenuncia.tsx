@@ -1,0 +1,78 @@
+"use client";
+
+import { useActionState } from "react";
+import { abrirTicket } from "@/modules/admin/actions";
+import type { ResultadoAcao } from "@/modules/admin/actions";
+
+interface Props {
+  /** ID da entidade denunciada (empresa, anúncio ou negociação) */
+  origemId: string;
+  /** Tipo de origem conforme enum do banco */
+  tipoOrigem?: "perfil_empresa" | "administrativo" | "outro_contexto";
+}
+
+export function FormDenuncia({ origemId, tipoOrigem = "perfil_empresa" }: Props) {
+  const [estado, action, pendente] = useActionState<ResultadoAcao | undefined, FormData>(
+    abrirTicket,
+    undefined,
+  );
+
+  if (estado?.ok) {
+    return (
+      <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4">
+        <p className="text-sm text-emerald-700">
+          Ticket enviado com sucesso. Nossa equipe irá analisar em breve.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form action={action} className="flex flex-col gap-3">
+      <input type="hidden" name="origem_id" value={origemId} />
+      <input type="hidden" name="tipo_origem" value={tipoOrigem} />
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="assunto" className="text-sm font-medium text-stone-700">
+          Assunto
+        </label>
+        <input
+          id="assunto"
+          name="assunto"
+          required
+          maxLength={120}
+          placeholder="Descreva brevemente o problema"
+          className="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm outline-none placeholder:text-stone-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="descricao" className="text-sm font-medium text-stone-700">
+          Detalhes
+        </label>
+        <textarea
+          id="descricao"
+          name="descricao"
+          required
+          rows={4}
+          placeholder="Explique o que aconteceu com o máximo de detalhes possível..."
+          className="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm outline-none placeholder:text-stone-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
+        />
+      </div>
+
+      {estado && !estado.ok && (
+        <p className="rounded-xl border border-red-100 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+          {estado.erro}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={pendente}
+        className="rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-60"
+      >
+        {pendente ? "Enviando..." : "Enviar denúncia"}
+      </button>
+    </form>
+  );
+}
