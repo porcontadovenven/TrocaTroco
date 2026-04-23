@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSessao } from "@/lib/sessao";
 import { ROTAS } from "@/constants/rotas";
 import { isAdmin } from "@/constants/papeis";
+import { BarraSessao } from "@/modules/auth/BarraSessao";
 
 /**
  * Layout para rotas de empresa em análise ou reprovada.
@@ -31,5 +32,16 @@ export default async function LayoutStatusCadastral({
     redirect(ROTAS.DASHBOARD);
   }
 
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-stone-50">
+      <BarraSessao
+        nome={sessao.nome_completo}
+        email={sessao.email}
+        tituloArea="Conta conectada"
+        hrefArea={ROTAS.STATUS_CADASTRAL}
+        rotuloArea="Status cadastral"
+      />
+      {children}
+    </div>
+  );
 }

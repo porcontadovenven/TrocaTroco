@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSessao } from "@/lib/sessao";
 import { ROTAS } from "@/constants/rotas";
 import { isAdmin } from "@/constants/papeis";
+import { BarraSessao } from "@/modules/auth/BarraSessao";
 
 /**
  * Layout para rotas de empresa autenticada e aprovada.
@@ -35,5 +36,16 @@ export default async function LayoutEmpresa({
     redirect(ROTAS.STATUS_CADASTRAL);
   }
 
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-stone-50">
+      <BarraSessao
+        nome={sessao.nome_completo}
+        email={sessao.email}
+        tituloArea="Conta conectada"
+        hrefArea={ROTAS.DASHBOARD}
+        rotuloArea="Dashboard"
+      />
+      {children}
+    </div>
+  );
 }

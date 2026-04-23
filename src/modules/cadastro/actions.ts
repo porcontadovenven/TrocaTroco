@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { getSupabaseEnv } from "@/lib/env";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
 import { ROTAS } from "@/constants/rotas";
@@ -52,6 +53,7 @@ export async function criarEmpresaESubmissao(
   formData: FormData,
 ): Promise<ResultadoAcao> {
   const supabase = await getSupabaseServerClient();
+  const { appUrl } = getSupabaseEnv();
 
   const empresa: DadosEmpresa = {
     cnpj: String(formData.get("cnpj") ?? "").replace(/\D/g, ""),
@@ -102,6 +104,9 @@ export async function criarEmpresaESubmissao(
     const { data: cadastroAuth, error: erroAuth } = await supabase.auth.signUp({
       email: responsavel.email,
       password: senha,
+      options: {
+        emailRedirectTo: `${(appUrl ?? "http://localhost:3000").replace(/\/$/, "")}${ROTAS.LOGIN}?confirmacao=ok`,
+      },
     });
 
     if (erroAuth) {
@@ -115,7 +120,7 @@ export async function criarEmpresaESubmissao(
     user = cadastroAuth.user;
 
     if (!user) {
-      return { ok: false, erro: "Conta criada sem sessão ativa. Faça login para concluir o cadastro." };
+      return { ok: false, erro: "Conta criada sem usuário válido no Auth. Tente novamente." };
     }
   }
 
@@ -166,6 +171,19 @@ export async function criarEmpresaESubmissao(
   }
 
   revalidatePath("/", "layout");
+
+  if (!formData.get("senha")) {
+    redirect(ROTAS.STATUS_CADASTRAL);
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    redirect(`${ROTAS.LOGIN}?cadastro=confirmar-email&email=${encodeURIComponent(responsavel.email)}`);
+  }
+
   redirect(ROTAS.STATUS_CADASTRAL);
 }
 
