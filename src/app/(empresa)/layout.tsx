@@ -6,7 +6,7 @@ import { BarraSessao } from "@/modules/auth/BarraSessao";
 
 /**
  * Layout para rotas de empresa autenticada e aprovada.
- * Cobre: /dashboard, /anunciar, /meus-anuncios, /solicitacoes, /negociacoes/*
+ * Cobre: /dashboard, /anunciar, /meus-anuncios, /solicitacoes, /negociacoes, /negociacoes/*
  *
  * Regras — Fase 5, seção 7:
  * - Sem sessão → /login
@@ -49,7 +49,9 @@ export default async function LayoutEmpresa({
           { href: ROTAS.ANUNCIAR, label: "Anunciar" },
           { href: ROTAS.MEUS_ANUNCIOS, label: "Meus anúncios" },
           { href: ROTAS.SOLICITACOES, label: "Solicitações" },
+          { href: ROTAS.NEGOCIACOES, label: "Negociações" },
           { href: ROTAS.ANUNCIOS, label: "Marketplace" },
+          { href: ROTAS.EMPRESAS, label: "Empresas" },
         ]}
       />
       {children}

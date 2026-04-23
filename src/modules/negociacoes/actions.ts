@@ -35,6 +35,21 @@ export type ResultadoAcao =
   | { ok: true }
   | { ok: false; erro: string };
 
+export interface NegociacaoHistoricoResumo {
+  id: string;
+  status: StatusNegociacao;
+  status_moderacao: StatusModeracaoNegociacao;
+  valor_negociado: number;
+  meio_pagamento: string;
+  local_troca: string;
+  criada_em: string;
+  operacao_encerrada_em: string | null;
+  finalizada_em: string | null;
+  anuncio: { id: string; tipo: string } | null;
+  empresa_autora: { id: string; slug_publico: string | null; razao_social: string } | null;
+  empresa_contraparte: { id: string; slug_publico: string | null; razao_social: string } | null;
+}
+
 async function registrarMensagemSistemaNegociacao(
   negociacaoId: string,
   atorUsuarioId: string,
@@ -486,8 +501,8 @@ export async function obterNegociacao(negociacaoId: string) {
        empresa_autora_id, empresa_contraparte_id,
        anuncio_id,
        anuncios ( id, tipo ),
-       empresa_autora:empresas!negociacoes_empresa_autora_id_fkey ( id, razao_social ),
-       empresa_contraparte:empresas!negociacoes_empresa_contraparte_id_fkey ( id, razao_social ),
+       empresa_autora:empresas!negociacoes_empresa_autora_id_fkey ( id, slug_publico, razao_social ),
+       empresa_contraparte:empresas!negociacoes_empresa_contraparte_id_fkey ( id, slug_publico, razao_social ),
        mensagens_negociacao (
          id, texto_mensagem, tipo_ator, criada_em,
          usuarios:ator_usuario_id ( id, nome_completo, empresa_id )
@@ -498,4 +513,53 @@ export async function obterNegociacao(negociacaoId: string) {
     .single();
 
   return { neg, sessao, error };
+}
+
+export async function listarNegociacoesDaEmpresa(): Promise<{
+  negociacoes: NegociacaoHistoricoResumo[];
+  error: string | null;
+}> {
+  const sessao = await getSessao();
+  if (!sessao?.empresa_id) {
+    return { negociacoes: [], error: "Sessão inválida." };
+  }
+
+  const supabase = getSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("negociacoes")
+    .select(
+      `id, status, status_moderacao, valor_negociado, meio_pagamento, local_troca,
+       criada_em, operacao_encerrada_em, finalizada_em,
+       anuncios ( id, tipo ),
+       empresa_autora:empresas!negociacoes_empresa_autora_id_fkey ( id, slug_publico, razao_social ),
+       empresa_contraparte:empresas!negociacoes_empresa_contraparte_id_fkey ( id, slug_publico, razao_social )`,
+    )
+    .or(`empresa_autora_id.eq.${sessao.empresa_id},empresa_contraparte_id.eq.${sessao.empresa_id}`)
+    .order("criada_em", { ascending: false });
+
+  if (error) {
+    return { negociacoes: [], error: "Erro ao carregar histórico de negociações." };
+  }
+
+  return {
+    negociacoes: (data ?? []).map((negociacao) => ({
+      id: negociacao.id,
+      status: negociacao.status as StatusNegociacao,
+      status_moderacao: negociacao.status_moderacao as StatusModeracaoNegociacao,
+      valor_negociado: negociacao.valor_negociado,
+      meio_pagamento: negociacao.meio_pagamento,
+      local_troca: negociacao.local_troca,
+      criada_em: negociacao.criada_em,
+      operacao_encerrada_em: negociacao.operacao_encerrada_em,
+      finalizada_em: negociacao.finalizada_em,
+      anuncio: Array.isArray(negociacao.anuncios) ? negociacao.anuncios[0] ?? null : negociacao.anuncios,
+      empresa_autora: Array.isArray(negociacao.empresa_autora)
+        ? negociacao.empresa_autora[0] ?? null
+        : negociacao.empresa_autora,
+      empresa_contraparte: Array.isArray(negociacao.empresa_contraparte)
+        ? negociacao.empresa_contraparte[0] ?? null
+        : negociacao.empresa_contraparte,
+    })),
+    error: null,
+  };
 }

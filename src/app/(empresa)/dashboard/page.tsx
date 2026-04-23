@@ -269,6 +269,12 @@ export default async function PaginaDashboard() {
               descricao="Veja enviadas e recebidas"
               icon={<Bell className="h-4 w-4" />}
             />
+            <LinkAcao
+              href={ROTAS.NEGOCIACOES}
+              titulo="Negociações"
+              descricao="Ativas e concluídas com histórico do chat"
+              icon={<MessageSquare className="h-4 w-4" />}
+            />
           </div>
         </div>
 
@@ -286,6 +292,12 @@ export default async function PaginaDashboard() {
             href={ROTAS.ANUNCIOS}
             titulo="Explorar anúncios"
             descricao="Veja ofertas e necessidades de outras empresas"
+            icon={<Building2 className="h-4 w-4" />}
+          />
+          <LinkAcao
+            href={ROTAS.EMPRESAS}
+            titulo="Explorar empresas"
+            descricao="Descubra perfis públicos e reputação"
             icon={<Building2 className="h-4 w-4" />}
           />
           <LinkAcao

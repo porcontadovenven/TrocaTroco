@@ -123,9 +123,12 @@ export default async function PaginaAnuncios({
 
                 {empresa && (
                   <div>
-                    <p className="text-sm font-medium text-stone-700">
+                    <Link
+                      href={ROTAS.EMPRESA_PERFIL(empresa.slug_publico ?? empresa.id)}
+                      className="text-sm font-medium text-stone-700 underline-offset-4 hover:underline"
+                    >
                       {empresa.razao_social}
-                    </p>
+                    </Link>
                     {(empresa.cidade || empresa.estado) && (
                       <p className="text-xs text-stone-400">
                         {[empresa.cidade, empresa.estado].filter(Boolean).join(", ")}
@@ -185,6 +188,12 @@ export default async function PaginaAnuncios({
                 : "Sua empresa está autenticada, mas ainda depende da aprovação cadastral para operar."}
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href={ROTAS.EMPRESAS}
+                className="rounded-xl border border-stone-300 px-5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
+              >
+                Ver empresas
+              </Link>
               <Link
                 href={
                   isAdmin(sessao.papel)

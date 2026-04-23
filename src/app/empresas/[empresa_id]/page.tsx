@@ -25,10 +25,13 @@ function Estrelas({ nota }: { nota: number }) {
 
 export default async function PaginaPerfilEmpresa({
   params,
+  searchParams,
 }: {
   params: Promise<{ empresa_id: string }>;
+  searchParams: Promise<{ avaliacao?: string }>;
 }) {
   const { empresa_id } = await params;
+  const { avaliacao } = await searchParams;
   const [{ perfil, error }, sessao] = await Promise.all([
     obterPerfilEmpresa(empresa_id),
     getSessao(),
@@ -38,6 +41,18 @@ export default async function PaginaPerfilEmpresa({
   if (empresa_id !== perfil.slug_publico) {
     redirect(ROTAS.EMPRESA_PERFIL(perfil.slug_publico));
   }
+
+  const filtroAvaliacao =
+    avaliacao === "positiva" || avaliacao === "neutra" || avaliacao === "negativa"
+      ? avaliacao
+      : "todas";
+
+  const avaliacoesFiltradas = perfil.avaliacoes.filter((avaliacaoAtual) => {
+    if (filtroAvaliacao === "todas") return true;
+    if (filtroAvaliacao === "positiva") return avaliacaoAtual.nota >= 4;
+    if (filtroAvaliacao === "neutra") return avaliacaoAtual.nota === 3;
+    return avaliacaoAtual.nota <= 2;
+  });
 
   return (
     <main className="min-h-screen bg-stone-50 px-4 py-10">
@@ -157,13 +172,46 @@ export default async function PaginaPerfilEmpresa({
             Avaliações recebidas
           </h2>
 
-          {perfil.avaliacoes.length === 0 ? (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {[
+              { label: "Todas", value: "todas" },
+              { label: "Positivas", value: "positiva" },
+              { label: "Neutras", value: "neutra" },
+              { label: "Negativas", value: "negativa" },
+            ].map((filtro) => {
+              const ativo = filtro.value === filtroAvaliacao;
+              const href =
+                filtro.value === "todas"
+                  ? ROTAS.EMPRESA_PERFIL(perfil.slug_publico)
+                  : `${ROTAS.EMPRESA_PERFIL(perfil.slug_publico)}?avaliacao=${filtro.value}`;
+
+              return (
+                <Link
+                  key={filtro.value}
+                  href={href}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    ativo
+                      ? "border-stone-900 bg-stone-900 text-white"
+                      : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+                  }`}
+                >
+                  {filtro.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {avaliacoesFiltradas.length === 0 ? (
             <div className="rounded-2xl border border-stone-200 bg-white px-5 py-8 text-center">
-              <p className="text-sm text-stone-400">Nenhuma avaliação ainda.</p>
+              <p className="text-sm text-stone-400">
+                {perfil.avaliacoes.length === 0
+                  ? "Nenhuma avaliação ainda."
+                  : "Nenhuma avaliação encontrada para este filtro."}
+              </p>
             </div>
           ) : (
             <ul className="flex flex-col gap-3">
-              {perfil.avaliacoes.map((av) => (
+              {avaliacoesFiltradas.map((av) => (
                 <li
                   key={av.id}
                   className="rounded-2xl border border-stone-200 bg-white px-5 py-4"

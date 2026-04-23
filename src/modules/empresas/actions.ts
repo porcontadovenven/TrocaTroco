@@ -39,6 +39,106 @@ export interface PerfilEmpresa {
   total_negociacoes_concluidas: number;
 }
 
+export interface EmpresaPublicaResumo {
+  id: string;
+  slug_publico: string;
+  razao_social: string;
+  nome_fantasia: string | null;
+  cidade: string;
+  estado: string;
+  foto_perfil_url: string | null;
+  media_nota: number | null;
+  total_avaliacoes: number;
+  total_negociacoes_concluidas: number;
+}
+
+export async function listarEmpresasPublicas(): Promise<{
+  empresas: EmpresaPublicaResumo[];
+  error: string | null;
+}> {
+  const supabase = getSupabaseAdminClient();
+
+  const { data: empresas, error: empresasError } = await supabase
+    .from("empresas")
+    .select("id, slug_publico, razao_social, nome_fantasia, cidade, estado, foto_perfil_url")
+    .eq("status", "aprovada")
+    .order("razao_social", { ascending: true });
+
+  if (empresasError) {
+    return { empresas: [], error: "Erro ao carregar empresas." };
+  }
+
+  const empresasAprovadas = empresas ?? [];
+  if (empresasAprovadas.length === 0) {
+    return { empresas: [], error: null };
+  }
+
+  const idsEmpresas = empresasAprovadas.map((empresa) => empresa.id);
+
+  const [{ data: avaliacoes }, { data: negociacoesFinalizadas }] = await Promise.all([
+    supabase
+      .from("avaliacoes")
+      .select("empresa_avaliada_id, nota")
+      .in("empresa_avaliada_id", idsEmpresas),
+    supabase
+      .from("negociacoes")
+      .select("empresa_autora_id, empresa_contraparte_id")
+      .eq("status", "finalizada"),
+  ]);
+
+  const notasPorEmpresa = new Map<string, number[]>();
+  for (const avaliacao of avaliacoes ?? []) {
+    const notasAtuais = notasPorEmpresa.get(avaliacao.empresa_avaliada_id) ?? [];
+    notasAtuais.push(avaliacao.nota);
+    notasPorEmpresa.set(avaliacao.empresa_avaliada_id, notasAtuais);
+  }
+
+  const negociacoesPorEmpresa = new Map<string, number>();
+  for (const negociacao of negociacoesFinalizadas ?? []) {
+    negociacoesPorEmpresa.set(
+      negociacao.empresa_autora_id,
+      (negociacoesPorEmpresa.get(negociacao.empresa_autora_id) ?? 0) + 1,
+    );
+    negociacoesPorEmpresa.set(
+      negociacao.empresa_contraparte_id,
+      (negociacoesPorEmpresa.get(negociacao.empresa_contraparte_id) ?? 0) + 1,
+    );
+  }
+
+  const empresasOrdenadas = empresasAprovadas
+    .map((empresa) => {
+      const notas = notasPorEmpresa.get(empresa.id) ?? [];
+      const media = notas.length > 0
+        ? Math.round((notas.reduce((soma, nota) => soma + nota, 0) / notas.length) * 10) / 10
+        : null;
+
+      return {
+        id: empresa.id,
+        slug_publico: empresa.slug_publico,
+        razao_social: empresa.razao_social,
+        nome_fantasia: empresa.nome_fantasia ?? null,
+        cidade: empresa.cidade,
+        estado: empresa.estado,
+        foto_perfil_url: empresa.foto_perfil_url ?? null,
+        media_nota: media,
+        total_avaliacoes: notas.length,
+        total_negociacoes_concluidas: negociacoesPorEmpresa.get(empresa.id) ?? 0,
+      };
+    })
+    .sort((a, b) => {
+      const mediaA = a.media_nota ?? -1;
+      const mediaB = b.media_nota ?? -1;
+      if (mediaB !== mediaA) return mediaB - mediaA;
+      if (b.total_avaliacoes !== a.total_avaliacoes) return b.total_avaliacoes - a.total_avaliacoes;
+      if (b.total_negociacoes_concluidas !== a.total_negociacoes_concluidas) {
+        return b.total_negociacoes_concluidas - a.total_negociacoes_concluidas;
+      }
+      return a.razao_social.localeCompare(b.razao_social, "pt-BR");
+    });
+
+  return { empresas: empresasOrdenadas, error: null };
+}
+
 // ---------------------------------------------------------------------------
 // obterPerfilEmpresa
 // ---------------------------------------------------------------------------

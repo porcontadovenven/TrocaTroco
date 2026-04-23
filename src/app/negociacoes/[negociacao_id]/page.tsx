@@ -59,13 +59,13 @@ export default async function PaginaNegociacao({
     ? (neg.anuncios as { id: string; tipo: string }[])[0]
     : (neg.anuncios as { id: string; tipo: string } | null);
 
-  const autoraNome = Array.isArray(neg.empresa_autora)
-    ? (neg.empresa_autora as { razao_social: string }[])[0]?.razao_social
-    : (neg.empresa_autora as { razao_social: string } | null)?.razao_social;
+  const empresaAutora = Array.isArray(neg.empresa_autora)
+    ? (neg.empresa_autora as { id: string; slug_publico?: string | null; razao_social: string }[])[0] ?? null
+    : (neg.empresa_autora as { id: string; slug_publico?: string | null; razao_social: string } | null);
 
-  const contraparteNome = Array.isArray(neg.empresa_contraparte)
-    ? (neg.empresa_contraparte as { razao_social: string }[])[0]?.razao_social
-    : (neg.empresa_contraparte as { razao_social: string } | null)?.razao_social;
+  const empresaContraparte = Array.isArray(neg.empresa_contraparte)
+    ? (neg.empresa_contraparte as { id: string; slug_publico?: string | null; razao_social: string }[])[0] ?? null
+    : (neg.empresa_contraparte as { id: string; slug_publico?: string | null; razao_social: string } | null);
 
   // Normaliza mensagens para o componente realtime
   const mensagensIniciais = (
@@ -159,11 +159,29 @@ export default async function PaginaNegociacao({
           <div className="flex flex-wrap gap-4 text-sm">
             <div>
               <span className="text-stone-400">Anunciante: </span>
-              <span className="font-medium text-stone-700">{autoraNome}</span>
+              {empresaAutora ? (
+                <Link
+                  href={ROTAS.EMPRESA_PERFIL(empresaAutora.slug_publico ?? empresaAutora.id)}
+                  className="font-medium text-stone-700 underline-offset-4 hover:underline"
+                >
+                  {empresaAutora.razao_social}
+                </Link>
+              ) : (
+                <span className="font-medium text-stone-700">—</span>
+              )}
             </div>
             <div>
               <span className="text-stone-400">Solicitante: </span>
-              <span className="font-medium text-stone-700">{contraparteNome}</span>
+              {empresaContraparte ? (
+                <Link
+                  href={ROTAS.EMPRESA_PERFIL(empresaContraparte.slug_publico ?? empresaContraparte.id)}
+                  className="font-medium text-stone-700 underline-offset-4 hover:underline"
+                >
+                  {empresaContraparte.razao_social}
+                </Link>
+              ) : (
+                <span className="font-medium text-stone-700">—</span>
+              )}
             </div>
           </div>
         </div>

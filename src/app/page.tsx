@@ -447,9 +447,14 @@ export default async function Home() {
                         📍 {anuncio.rotulo_regiao}
                       </p>
                     )}
-                    <p className="mt-auto text-xs font-medium text-stone-500">
-                      {anuncio.empresa?.razao_social}
-                    </p>
+                    {anuncio.empresa && (
+                      <Link
+                        href={ROTAS.EMPRESA_PERFIL(anuncio.empresa.slug_publico ?? anuncio.empresa.id)}
+                        className="mt-auto text-xs font-medium text-stone-500 underline-offset-4 hover:underline"
+                      >
+                        {anuncio.empresa.razao_social}
+                      </Link>
+                    )}
                   </Link>
                 ))}
               </div>

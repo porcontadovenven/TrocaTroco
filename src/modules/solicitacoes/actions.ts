@@ -355,7 +355,7 @@ export async function listarSolicitacoesEnviadas() {
     .select(
       `id, status, valor_solicitado, parcial, meio_pagamento, local_troca,
        criada_em, prazo_cancelamento_em,
-       anuncios ( id, tipo, empresas ( id, razao_social ) ),
+       anuncios ( id, tipo, empresas ( id, slug_publico, razao_social ) ),
        negociacoes ( id )`,
     )
     .eq("empresa_solicitante_id", sessao.empresa_id)
@@ -386,7 +386,7 @@ export async function listarSolicitacoesRecebidas() {
       `id, status, valor_solicitado, parcial, meio_pagamento, local_troca,
        criada_em,
        anuncios ( id, tipo ),
-       empresas:empresa_solicitante_id ( id, razao_social ),
+       empresas:empresa_solicitante_id ( id, slug_publico, razao_social ),
        negociacoes ( id )`,
     )
     .in("anuncio_id", ids)

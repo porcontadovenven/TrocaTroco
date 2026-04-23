@@ -12,6 +12,7 @@ export const ROTAS = {
   CADASTRO: "/cadastro",
   ANUNCIOS: "/anuncios",
   ANUNCIO_DETALHE: (id: string) => `/anuncios/${id}`,
+  EMPRESAS: "/empresas",
   EMPRESA_PERFIL: (id: string) => `/empresas/${id}`,
 
   // Empresa autenticada
@@ -20,6 +21,7 @@ export const ROTAS = {
   ANUNCIAR: "/anunciar",
   MEUS_ANUNCIOS: "/meus-anuncios",
   SOLICITACOES: "/solicitacoes",
+  NEGOCIACOES: "/negociacoes",
   TICKETS: "/tickets",
   NEGOCIACAO: (id: string) => `/negociacoes/${id}`,
 
@@ -38,8 +40,8 @@ export const PREFIXOS_AUTENTICADOS = [
   "/anunciar",
   "/meus-anuncios",
   "/solicitacoes",
-  "/tickets",
   "/negociacoes",
+  "/tickets",
   "/admin",
 ] as const;
 

@@ -73,8 +73,8 @@ export default async function PaginaSolicitacoes() {
           <div className="flex flex-col gap-3">
             {enviadas.map((sol) => {
               const anuncio = (Array.isArray((sol as unknown as { anuncios: unknown }).anuncios)
-                ? (sol as unknown as { anuncios: { id: string; tipo: string; empresas: { razao_social: string }[] | { razao_social: string } }[] }).anuncios[0]
-                : (sol as unknown as { anuncios: { id: string; tipo: string; empresas: { razao_social: string }[] | { razao_social: string } } }).anuncios);
+                ? (sol as unknown as { anuncios: { id: string; tipo: string; empresas: { id: string; slug_publico?: string | null; razao_social: string }[] | { id: string; slug_publico?: string | null; razao_social: string } }[] }).anuncios[0]
+                : (sol as unknown as { anuncios: { id: string; tipo: string; empresas: { id: string; slug_publico?: string | null; razao_social: string }[] | { id: string; slug_publico?: string | null; razao_social: string } } }).anuncios);
 
               const empresa = anuncio
                 ? (Array.isArray(anuncio.empresas) ? anuncio.empresas[0] : anuncio.empresas)
@@ -93,7 +93,14 @@ export default async function PaginaSolicitacoes() {
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     {anuncio && (
                       <span className="text-xs text-stone-500">
-                        {TIPO_LABEL[anuncio.tipo]} — {empresa?.razao_social}
+                        {TIPO_LABEL[anuncio.tipo]} — {empresa ? (
+                          <Link
+                            href={ROTAS.EMPRESA_PERFIL(empresa.slug_publico ?? empresa.id)}
+                            className="underline-offset-4 hover:underline"
+                          >
+                            {empresa.razao_social}
+                          </Link>
+                        ) : "—"}
                       </span>
                     )}
                     <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS_COR[status]}`}>
@@ -157,10 +164,11 @@ export default async function PaginaSolicitacoes() {
                 ? (sol as unknown as { anuncios: { id: string; tipo: string }[] }).anuncios[0]
                 : (sol as unknown as { anuncios: { id: string; tipo: string } }).anuncios);
 
-              const solicitante = (sol as unknown as { empresas: { razao_social: string }[] | { razao_social: string } | null }).empresas;
+              const solicitante = (sol as unknown as { empresas: { id: string; slug_publico?: string | null; razao_social: string }[] | { id: string; slug_publico?: string | null; razao_social: string } | null }).empresas;
               const nomeEmpresa = Array.isArray(solicitante)
                 ? solicitante[0]?.razao_social
                 : solicitante?.razao_social;
+              const empresaSolicitante = Array.isArray(solicitante) ? solicitante[0] : solicitante;
 
               const negs = (sol as unknown as { negociacoes: { id: string }[] | null }).negociacoes;
               const negId = Array.isArray(negs) ? negs[0]?.id : null;
@@ -178,9 +186,16 @@ export default async function PaginaSolicitacoes() {
                         {TIPO_LABEL[anuncio.tipo]}
                       </span>
                     )}
-                    <span className="text-xs font-medium text-stone-700">
-                      {nomeEmpresa}
-                    </span>
+                    {empresaSolicitante ? (
+                      <Link
+                        href={ROTAS.EMPRESA_PERFIL(empresaSolicitante.slug_publico ?? empresaSolicitante.id)}
+                        className="text-xs font-medium text-stone-700 underline-offset-4 hover:underline"
+                      >
+                        {nomeEmpresa}
+                      </Link>
+                    ) : (
+                      <span className="text-xs font-medium text-stone-700">{nomeEmpresa}</span>
+                    )}
                     <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS_COR[status]}`}>
                       {STATUS_LABEL[status]}
                     </span>
