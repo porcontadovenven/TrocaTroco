@@ -7,7 +7,7 @@ const CONTENT_SECURITY_POLICY = [
   "form-action 'self'",
   "object-src 'none'",
   "frame-src 'none'",
-  "script-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
   "img-src 'self' data: blob: https://nqetigprgmkvoyxygqty.supabase.co",
