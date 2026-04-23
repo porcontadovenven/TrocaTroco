@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useActionState } from "react";
 import { criarSolicitacao } from "@/modules/solicitacoes/actions";
 import type { ResultadoAcao, LocalTroca } from "@/modules/solicitacoes/actions";
@@ -36,7 +36,6 @@ export function FormSolicitacao({
   itensAnuncio: ItemAnuncio[];
 }) {
   const [parcial, setParcial] = useState(false);
-  const [valor, setValor] = useState(valorMaximo.toFixed(2));
   const [local, setLocal] = useState<LocalTroca>("empresa_autora");
   const [meio, setMeio] = useState("");
   const [erroLocal, setErroLocal] = useState<string | null>(null);
@@ -66,7 +65,16 @@ export function FormSolicitacao({
     0,
   );
 
+  const valorSolicitado = parcial ? totalSelecionado : valorMaximo;
+
   const itensSelecionadosJson = JSON.stringify(itensSelecionados);
+
+  useEffect(() => {
+    if (!parcial) {
+      setQuantidadesSelecionadas({});
+      setErroLocal(null);
+    }
+  }, [parcial]);
 
   function atualizarQuantidade(itemId: string, quantidade: number, quantidadeMaxima: number) {
     setQuantidadesSelecionadas((atual) => ({
@@ -76,7 +84,7 @@ export function FormSolicitacao({
   }
 
   function handleSubmit(e: React.FormEvent) {
-    const v = parseFloat(valor);
+    const v = valorSolicitado;
     if (!v || v <= 0 || v > valorMaximo) {
       e.preventDefault();
       setErroLocal(`Valor inválido. Máximo: R$ ${valorMaximo.toFixed(2)}`);
@@ -108,37 +116,54 @@ export function FormSolicitacao({
       <input type="hidden" name="anuncio_id" value={anuncioId} />
       <input type="hidden" name="parcial" value={String(parcial)} />
       <input type="hidden" name="itens_composicao" value={itensSelecionadosJson} />
+      <input type="hidden" name="valor_solicitado" value={valorSolicitado.toFixed(2)} />
 
-      {/* Valor */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-stone-700">
-          Valor solicitado (R$)
-        </label>
-        <input
-          name="valor_solicitado"
-          type="number"
-          step="0.01"
-          min="0.01"
-          max={valorMaximo}
-          value={valor}
-          onChange={(e) => {
-            setValor(e.target.value);
-            if (parseFloat(e.target.value) < valorMaximo) setParcial(true);
-            else setParcial(false);
-            setErroLocal(null);
-          }}
-          className="rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
-        />
-        {permiteParcial && (
-          <p className="text-xs text-stone-400">
-            Máximo disponível: R$ {valorMaximo.toFixed(2)} — parcial permitido
-          </p>
+        <label className="text-sm font-medium text-stone-700">Tipo da solicitação</label>
+        {permiteParcial ? (
+          <div className="flex flex-col gap-2 rounded-2xl border border-stone-200 bg-stone-50 p-4">
+            <label className="flex items-start gap-2 text-sm text-stone-700">
+              <input
+                type="radio"
+                name="tipo_solicitacao_ui"
+                checked={!parcial}
+                onChange={() => setParcial(false)}
+                className="mt-0.5 accent-stone-900"
+              />
+              <span>
+                <span className="block font-medium text-stone-800">Integral</span>
+                <span className="text-xs text-stone-500">Solicita o valor total disponível de R$ {valorMaximo.toFixed(2)}.</span>
+              </span>
+            </label>
+            <label className="flex items-start gap-2 text-sm text-stone-700">
+              <input
+                type="radio"
+                name="tipo_solicitacao_ui"
+                checked={parcial}
+                onChange={() => setParcial(true)}
+                className="mt-0.5 accent-stone-900"
+              />
+              <span>
+                <span className="block font-medium text-stone-800">Parcial por composição</span>
+                <span className="text-xs text-stone-500">Selecione a composição e o valor será calculado automaticamente.</span>
+              </span>
+            </label>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700">
+            Somente valor integral disponível: <span className="font-semibold text-stone-900">R$ {valorMaximo.toFixed(2)}</span>
+          </div>
         )}
-        {!permiteParcial && (
+      </div>
+
+      <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3">
+        <div>
+          <p className="text-sm font-medium text-stone-700">Valor solicitado</p>
           <p className="text-xs text-stone-400">
-            Somente valor integral: R$ {valorMaximo.toFixed(2)}
+            {parcial ? "Calculado a partir da composição selecionada" : "Valor integral do anúncio"}
           </p>
-        )}
+        </div>
+        <p className="text-lg font-bold text-stone-900">R$ {valorSolicitado.toFixed(2)}</p>
       </div>
 
       {permiteParcial && parcial && (

@@ -19,6 +19,7 @@ export interface AvaliacaoPublica {
   id: string;
   nota: number;
   texto_comentario: string | null;
+  comentario_publico: boolean;
   empresa_avaliadora: { razao_social: string } | null;
   criada_em: string;
 }
@@ -34,6 +35,7 @@ export interface PerfilEmpresa {
   anuncios: AnuncioPublico[];
   avaliacoes: AvaliacaoPublica[];
   media_nota: number | null;
+  total_avaliacoes: number;
   total_negociacoes_concluidas: number;
 }
 
@@ -84,19 +86,18 @@ export async function obterPerfilEmpresa(empresaIdentificador: string): Promise<
     .order("publicado_em", { ascending: false })
     .limit(20);
 
-  // Avaliações aprovadas (comentário aprovado ou sem comentário)
-  const { data: avaliacoes } = await supabase
+  // Todas as notas entram imediatamente na reputação pública.
+  const { data: avaliacoesReputacao } = await supabase
     .from("avaliacoes")
     .select(
-      "id, nota, texto_comentario, criada_em, empresa_avaliadora_id",
+      "id, nota, texto_comentario, status_comentario, criada_em, empresa_avaliadora_id",
     )
     .eq("empresa_avaliada_id", empresa.id)
-    .or("status_comentario.eq.aprovado,texto_comentario.is.null")
     .order("criada_em", { ascending: false })
     .limit(50);
 
   // Busca razao_social das avaliadoras
-  const avaliadoras_ids = (avaliacoes ?? []).map((a) => a.empresa_avaliadora_id);
+  const avaliadoras_ids = (avaliacoesReputacao ?? []).map((a) => a.empresa_avaliadora_id);
   const avaliadoras: Record<string, string> = {};
   if (avaliadoras_ids.length > 0) {
     const { data: emp } = await supabase
@@ -109,11 +110,24 @@ export async function obterPerfilEmpresa(empresaIdentificador: string): Promise<
   }
 
   // Média e total de negociações concluídas
-  const notas = (avaliacoes ?? []).map((a) => a.nota);
+  const notas = (avaliacoesReputacao ?? []).map((a) => a.nota);
   const media_nota =
     notas.length > 0
       ? Math.round((notas.reduce((s, n) => s + n, 0) / notas.length) * 10) / 10
       : null;
+
+  const avaliacoesPublicas = (avaliacoesReputacao ?? []).map((a) => {
+    const comentarioPublico = !a.texto_comentario || a.status_comentario === "aprovado";
+
+    return {
+      id: a.id,
+      nota: a.nota,
+      texto_comentario: comentarioPublico ? a.texto_comentario ?? null : null,
+      comentario_publico: comentarioPublico,
+      empresa_avaliadora: { razao_social: avaliadoras[a.empresa_avaliadora_id] ?? "—" },
+      criada_em: a.criada_em,
+    };
+  });
 
   const { count: totalNeg } = await supabase
     .from("negociacoes")
@@ -140,14 +154,9 @@ export async function obterPerfilEmpresa(empresaIdentificador: string): Promise<
       rotulo_regiao: a.rotulo_regiao ?? null,
       publicado_em: a.publicado_em,
     })),
-    avaliacoes: (avaliacoes ?? []).map((a) => ({
-      id: a.id,
-      nota: a.nota,
-      texto_comentario: a.texto_comentario ?? null,
-      empresa_avaliadora: { razao_social: avaliadoras[a.empresa_avaliadora_id] ?? "—" },
-      criada_em: a.criada_em,
-    })),
+    avaliacoes: avaliacoesPublicas,
     media_nota,
+    total_avaliacoes: notas.length,
     total_negociacoes_concluidas: totalNeg ?? 0,
   };
 

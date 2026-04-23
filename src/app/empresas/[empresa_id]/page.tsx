@@ -83,8 +83,8 @@ export default async function PaginaPerfilEmpresa({
                     {perfil.media_nota.toFixed(1)}
                   </span>
                   <span className="text-xs text-stone-400">
-                    ({perfil.avaliacoes.length} avaliação
-                    {perfil.avaliacoes.length !== 1 ? "ões" : ""})
+                    ({perfil.total_avaliacoes} avaliação
+                    {perfil.total_avaliacoes !== 1 ? "ões" : ""})
                   </span>
                 </div>
               ) : (
@@ -184,6 +184,11 @@ export default async function PaginaPerfilEmpresa({
                   </p>
                   {av.texto_comentario && (
                     <p className="mt-2 text-sm text-stone-600">{av.texto_comentario}</p>
+                  )}
+                  {!av.texto_comentario && !av.comentario_publico && (
+                    <p className="mt-2 text-sm text-stone-400">
+                      Comentário em moderação. A nota já compõe a reputação pública.
+                    </p>
                   )}
                 </li>
               ))}

@@ -35,6 +35,22 @@ export type ResultadoAcao =
   | { ok: true }
   | { ok: false; erro: string };
 
+async function registrarMensagemSistemaNegociacao(
+  negociacaoId: string,
+  atorUsuarioId: string,
+  tipoAtor: TipoAtorMensagem,
+  textoMensagem: string,
+) {
+  const supabase = await getSupabaseServerClient();
+
+  return supabase.from("mensagens_negociacao").insert({
+    negociacao_id: negociacaoId,
+    ator_usuario_id: atorUsuarioId,
+    tipo_ator: tipoAtor,
+    texto_mensagem: textoMensagem,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Helper — verifica se o usuário participa da negociação
 // ---------------------------------------------------------------------------
@@ -120,6 +136,7 @@ export async function enviarMensagem(
   if (!resultado.ok) return { ok: false, erro: resultado.erro };
 
   const { neg, sessao } = resultado;
+  let iniciouAcompanhamento = false;
 
   if (neg.status !== "em_andamento" && neg.status !== "operacao_encerrada") {
     return { ok: false, erro: "Não é possível enviar mensagens nesta negociação." };
@@ -141,6 +158,21 @@ export async function enviarMensagem(
     }
     if (!moderacaoAtualizada) {
       return { ok: false, erro: "A moderação já foi alterada. Atualize a tela e tente novamente." };
+    }
+
+    iniciouAcompanhamento = true;
+  }
+
+  if (iniciouAcompanhamento) {
+    const { error: erroMensagemSistema } = await registrarMensagemSistemaNegociacao(
+      negociacaoId,
+      sessao.id,
+      sessao.papel as TipoAtorMensagem,
+      "A moderação entrou na negociação e iniciou o acompanhamento no chat.",
+    );
+
+    if (erroMensagemSistema) {
+      return { ok: false, erro: "Erro ao registrar entrada da moderação no chat." };
     }
   }
 
@@ -203,6 +235,17 @@ export async function chamarModerador(
     return { ok: false, erro: "A negociação não pôde ser atualizada. Atualize a tela e tente novamente." };
   }
 
+  const { error: erroMensagemSistema } = await registrarMensagemSistemaNegociacao(
+    negociacaoId,
+    resultado.sessao.id,
+    resultado.sessao.papel as TipoAtorMensagem,
+    "A empresa solicitou apoio da moderação nesta negociação.",
+  );
+
+  if (erroMensagemSistema) {
+    return { ok: false, erro: "Erro ao registrar o chamado da moderação no chat." };
+  }
+
   revalidatePath(ROTAS.NEGOCIACAO(negociacaoId));
   revalidatePath(ROTAS.ADMIN);
   revalidatePath(ROTAS.ADMIN_MODERACAO_NEGOCIACOES);
@@ -262,6 +305,17 @@ export async function encerrarModeracaoNegociacao(
   }
   if (!negociacaoAtualizada) {
     return { ok: false, erro: "A moderação não pôde ser encerrada. Atualize a tela e tente novamente." };
+  }
+
+  const { error: erroMensagemSistema } = await registrarMensagemSistemaNegociacao(
+    negociacaoId,
+    sessao.id,
+    sessao.papel as TipoAtorMensagem,
+    "A moderação encerrou o acompanhamento desta negociação.",
+  );
+
+  if (erroMensagemSistema) {
+    return { ok: false, erro: "Erro ao registrar encerramento da moderação no chat." };
   }
 
   revalidatePath(ROTAS.NEGOCIACAO(negociacaoId));
