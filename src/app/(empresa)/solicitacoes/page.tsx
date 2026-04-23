@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight, Bell } from "lucide-react";
 import {
   listarSolicitacoesEnviadas,
   listarSolicitacoesRecebidas,
@@ -43,10 +44,14 @@ export default async function PaginaSolicitacoes() {
   ]);
 
   return (
-    <main className="min-h-screen bg-stone-50 px-6 py-10">
+    <main className="min-h-screen bg-stone-50/50 px-6 py-10">
       <div className="mx-auto max-w-3xl">
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-stone-900">Solicitações</h1>
+          <div className="mb-1 flex items-center gap-2 text-xs font-medium text-stone-400">
+            <Bell className="h-3.5 w-3.5" />
+            Solicitações
+          </div>
+          <h1 className="text-2xl font-bold text-stone-900">Solicitações</h1>
           <p className="mt-1 text-sm text-stone-500">
             Gerencie as solicitações que você enviou e recebeu.
           </p>
@@ -114,9 +119,9 @@ export default async function PaginaSolicitacoes() {
                   {status === "aceita" && negId && (
                     <Link
                       href={ROTAS.NEGOCIACAO(negId)}
-                      className="mt-1 inline-block rounded-xl bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-stone-700"
+                      className="mt-1 inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
                     >
-                      Abrir negociação →
+                      Abrir negociação <ArrowRight className="h-3 w-3" />
                     </Link>
                   )}
 

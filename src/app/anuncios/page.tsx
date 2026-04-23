@@ -43,10 +43,10 @@ export default async function PaginaAnuncios({
   ]);
 
   return (
-    <main className="min-h-screen bg-stone-50 px-6 py-10">
+    <main className="min-h-screen bg-stone-50/50 px-6 py-10">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-stone-900">Anúncios</h1>
+          <h1 className="text-2xl font-bold text-stone-900">Anúncios</h1>
           <p className="mt-1 text-sm text-stone-500">
             {total} anúncio{total !== 1 ? "s" : ""} disponíveis na plataforma
           </p>
@@ -144,7 +144,7 @@ export default async function PaginaAnuncios({
                   </p>
                   <Link
                     href={ROTAS.ANUNCIO_DETALHE(anuncio.id)}
-                    className="rounded-xl border border-stone-300 px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50"
+                    className="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
                   >
                     Ver detalhe →
                   </Link>

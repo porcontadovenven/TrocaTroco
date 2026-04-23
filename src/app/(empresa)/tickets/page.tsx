@@ -32,21 +32,13 @@ export default async function PaginaTicketsEmpresa() {
   const { tickets, error } = await listarTicketsDaEmpresa();
 
   return (
-    <main className="min-h-screen bg-stone-50 px-6 py-10">
+    <main className="min-h-screen bg-stone-50/50 px-6 py-10">
       <div className="mx-auto max-w-4xl">
-        <div className="mb-8 flex items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-semibold text-stone-900">Minhas denúncias</h1>
-            <p className="mt-1 text-sm text-stone-500">
-              Acompanhe status, andamento e mensagens da moderação.
-            </p>
-          </div>
-          <Link
-            href={ROTAS.DASHBOARD}
-            className="text-sm text-stone-500 underline-offset-4 hover:underline"
-          >
-            ← Dashboard
-          </Link>
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-stone-900">Minhas denúncias</h1>
+          <p className="mt-1 text-sm text-stone-500">
+            Acompanhe status, andamento e mensagens da moderação.
+          </p>
         </div>
 
         {error && (

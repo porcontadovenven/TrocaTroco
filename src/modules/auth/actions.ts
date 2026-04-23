@@ -105,7 +105,7 @@ export async function solicitarRecuperacaoSenhaAction(
 
     return {
       sucesso:
-        "Se o email existir, enviaremos um link de recuperação. O envio depende da configuração do SMTP no Supabase Auth.",
+        "Se o email estiver cadastrado na plataforma, você receberá o link de recuperação em instantes. Verifique também sua caixa de spam.",
     };
   } catch {
     return {

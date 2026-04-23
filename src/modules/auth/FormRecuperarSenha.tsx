@@ -16,10 +16,6 @@ export function FormRecuperarSenha() {
 
   return (
     <form action={action} className="flex flex-col gap-5">
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-        O link de recuperação só será entregue quando o SMTP do projeto estiver configurado.
-      </div>
-
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-stone-700">
           Email da conta
@@ -31,7 +27,7 @@ export function FormRecuperarSenha() {
           required
           autoComplete="email"
           placeholder="empresa@exemplo.com.br"
-          className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+          className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
         />
       </div>
 
@@ -50,7 +46,7 @@ export function FormRecuperarSenha() {
       <button
         type="submit"
         disabled={pendente}
-        className="rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-60"
+        className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
       >
         {pendente ? "Solicitando..." : "Enviar link de recuperação"}
       </button>
@@ -58,9 +54,9 @@ export function FormRecuperarSenha() {
       <p className="text-center text-sm text-stone-500">
         <Link
           href={ROTAS.LOGIN}
-          className="font-medium text-stone-800 underline-offset-4 hover:underline"
+          className="font-medium text-stone-700 underline-offset-4 hover:underline"
         >
-          Voltar para o login
+          ← Voltar para o login
         </Link>
       </p>
     </form>

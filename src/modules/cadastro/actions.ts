@@ -39,6 +39,60 @@ export type ResultadoAcao =
   | { ok: true }
   | { ok: false; erro: string };
 
+function normalizarTextoErro(valor: unknown) {
+  return typeof valor === "string" ? valor.trim().toLowerCase() : "";
+}
+
+function montarMensagemErroCadastroAuth(erro: {
+  code?: string;
+  message?: string;
+  status?: number;
+}) {
+  const code = normalizarTextoErro(erro.code);
+  const message = normalizarTextoErro(erro.message);
+
+  if (
+    code === "user_already_exists" ||
+    code === "email_exists" ||
+    message.includes("already registered") ||
+    message.includes("already exists")
+  ) {
+    return "Ja existe uma conta com este e-mail. Faça login para continuar.";
+  }
+
+  if (code === "email_address_invalid") {
+    return "Informe um e-mail válido para concluir o cadastro.";
+  }
+
+  if (code === "weak_password") {
+    return "A senha informada não atende aos requisitos mínimos de segurança.";
+  }
+
+  if (code === "signup_disabled" || code === "email_provider_disabled") {
+    return "O cadastro por e-mail está desativado na configuração do projeto Supabase.";
+  }
+
+  if (code === "captcha_failed") {
+    return "A proteção anti-bot do Supabase está exigindo CAPTCHA para o cadastro.";
+  }
+
+  if (code === "validation_failed") {
+    return "Não foi possível validar os dados de cadastro enviados ao Supabase.";
+  }
+
+  if (code === "over_request_rate_limit" || code === "over_email_send_rate_limit") {
+    return "Muitas tentativas de cadastro em sequência. Aguarde alguns minutos e tente novamente.";
+  }
+
+  const detalhes = [erro.status ? `status=${erro.status}` : null, erro.code ? `code=${erro.code}` : null]
+    .filter(Boolean)
+    .join(" ");
+
+  return detalhes
+    ? `Erro ao criar conta de acesso no Supabase (${detalhes}).`
+    : "Erro ao criar conta de acesso. Tente novamente.";
+}
+
 // ---------------------------------------------------------------------------
 // criar_empresa_e_submissao
 // Fase 5 — Matriz Operacional, seção 6 (Cadastro)
@@ -110,11 +164,22 @@ export async function criarEmpresaESubmissao(
     });
 
     if (erroAuth) {
-      if (erroAuth.message.toLowerCase().includes("already registered")) {
-        return { ok: false, erro: "Já existe uma conta com este e-mail. Faça login para continuar." };
-      }
+      console.error("[cadastro] Falha no supabase.auth.signUp", {
+        status: erroAuth.status,
+        code: erroAuth.code,
+        message: erroAuth.message,
+        email: responsavel.email,
+        redirectTo: `${(appUrl ?? "http://localhost:3000").replace(/\/$/, "")}${ROTAS.LOGIN}?confirmacao=ok`,
+      });
 
-      return { ok: false, erro: "Erro ao criar conta de acesso. Tente novamente." };
+      return {
+        ok: false,
+        erro: montarMensagemErroCadastroAuth({
+          status: erroAuth.status,
+          code: erroAuth.code,
+          message: erroAuth.message,
+        }),
+      };
     }
 
     user = cadastroAuth.user;

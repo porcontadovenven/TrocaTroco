@@ -2,7 +2,10 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1c1917;
+  --brand: #059669;
+  --brand-dark: #047857;
+  --brand-light: #d1fae5;
 }
 
 @theme inline {
@@ -12,17 +15,40 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+/* Text selection */
+::selection {
+  background: #d1fae5;
+  color: #065f46;
 }
 
 @layer base {
@@ -34,26 +60,17 @@ body {
 
   input::placeholder,
   textarea::placeholder {
-    color: #78716c;
+    color: #a8a29e;
     opacity: 1;
   }
-}
 
-@layer utilities {
-  .text-stone-300 {
-    color: #78716c !important;
+  *:focus-visible {
+    outline: 2px solid #059669;
+    outline-offset: 2px;
+    border-radius: 6px;
   }
 
-  .text-stone-400 {
-    color: #57534e !important;
-  }
-
-  .text-stone-500 {
-    color: #44403c !important;
-  }
-
-  .placeholder\:text-stone-400::placeholder {
-    color: #78716c !important;
-    opacity: 1;
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.015em;
   }
 }

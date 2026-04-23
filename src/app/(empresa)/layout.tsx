@@ -44,6 +44,13 @@ export default async function LayoutEmpresa({
         tituloArea="Conta conectada"
         hrefArea={ROTAS.DASHBOARD}
         rotuloArea="Dashboard"
+        navItems={[
+          { href: ROTAS.DASHBOARD, label: "Dashboard" },
+          { href: ROTAS.ANUNCIAR, label: "Anunciar" },
+          { href: ROTAS.MEUS_ANUNCIOS, label: "Meus anúncios" },
+          { href: ROTAS.SOLICITACOES, label: "Solicitações" },
+          { href: ROTAS.ANUNCIOS, label: "Marketplace" },
+        ]}
       />
       {children}
     </div>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight, Megaphone, Plus } from "lucide-react";
 import { listarMeusAnuncios } from "@/modules/anuncios/actions";
 import { ROTAS } from "@/constants/rotas";
 import type { StatusAnuncio, TipoAnuncio } from "@/modules/anuncios/actions";
@@ -28,20 +29,25 @@ export default async function PaginaMeusAnuncios() {
   const { anuncios, error } = await listarMeusAnuncios();
 
   return (
-    <main className="min-h-screen bg-stone-50 px-6 py-10">
+    <main className="min-h-screen bg-stone-50/50 px-6 py-10">
       <div className="mx-auto max-w-3xl">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-8 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold text-stone-900">Meus anúncios</h1>
+            <div className="mb-1 flex items-center gap-2 text-xs font-medium text-stone-400">
+              <Megaphone className="h-3.5 w-3.5" />
+              Meus anúncios
+            </div>
+            <h1 className="text-2xl font-bold text-stone-900">Anúncios publicados</h1>
             <p className="mt-1 text-sm text-stone-500">
-              {anuncios.length} anúncio{anuncios.length !== 1 ? "s" : ""}
+              {anuncios.length} anúncio{anuncios.length !== 1 ? "s" : ""} no total
             </p>
           </div>
           <Link
             href={ROTAS.ANUNCIAR}
-            className="rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-stone-700"
+            className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
           >
-            + Criar anúncio
+            <Plus className="h-4 w-4" />
+            Criar anúncio
           </Link>
         </div>
 
@@ -56,8 +62,9 @@ export default async function PaginaMeusAnuncios() {
             <p className="text-stone-400">Você ainda não tem anúncios publicados.</p>
             <Link
               href={ROTAS.ANUNCIAR}
-              className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800"
+              className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
             >
+              <Plus className="h-4 w-4" />
               Criar primeiro anúncio
             </Link>
           </div>
@@ -99,9 +106,9 @@ export default async function PaginaMeusAnuncios() {
 
               <Link
                 href={ROTAS.ANUNCIO_DETALHE(anuncio.id)}
-                className="self-start rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 sm:self-center"
+                className="flex items-center gap-1.5 self-start rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-sm hover:bg-stone-50 sm:self-center"
               >
-                Ver detalhe →
+                Ver detalhe <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           ))}
