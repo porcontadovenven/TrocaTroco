@@ -542,7 +542,7 @@ export async function listarNegociacoesModeracao(): Promise<{
     .select(
       "id, status, status_moderacao, valor_negociado, meio_pagamento, local_troca, criada_em, empresa_autora_id, empresa_contraparte_id",
     )
-    .neq("status_moderacao", "nao_acionada")
+    .in("status_moderacao", ["acionada", "em_acompanhamento"])
     .order("criada_em", { ascending: false })
     .limit(100);
 
@@ -685,7 +685,7 @@ export async function obterContadoresAdmin(): Promise<{
     supabase
       .from("negociacoes")
       .select("id", { count: "exact", head: true })
-      .neq("status_moderacao", "nao_acionada"),
+      .in("status_moderacao", ["acionada", "em_acompanhamento"]),
   ]);
 
   return {

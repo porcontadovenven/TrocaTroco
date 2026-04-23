@@ -4,6 +4,7 @@ import { obterNegociacao } from "@/modules/negociacoes/actions";
 import {
   ChatInput,
   BotaoChamarModerador,
+  BotaoEncerrarModeracao,
   BotaoEncerrarOperacao,
   FormAvaliacao,
 } from "@/modules/negociacoes/AcoesNegociacao";
@@ -244,6 +245,15 @@ export default async function PaginaNegociacao({
                 </Link>
               </div>
             )}
+          </div>
+        )}
+
+        {!participa && isAdmin(sessao.papel) && statusMod !== "nao_acionada" && statusMod !== "encerrada" && (
+          <div className="mt-4 rounded-2xl border border-stone-200 bg-white p-4">
+            <p className="mb-3 text-sm text-stone-600">
+              Encerrar o acompanhamento administrativo remove esta negociação das pendências do painel.
+            </p>
+            <BotaoEncerrarModeracao negociacaoId={neg.id} />
           </div>
         )}
       </div>

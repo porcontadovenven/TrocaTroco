@@ -4,6 +4,7 @@ import { getSessao } from "@/lib/sessao";
 import { isAdmin } from "@/constants/papeis";
 import { ROTAS } from "@/constants/rotas";
 import { listarNegociacoesModeracao } from "@/modules/admin/actions";
+import { BotaoEncerrarModeracao } from "@/modules/negociacoes/AcoesNegociacao";
 
 const STATUS_NEGOCIACAO_LABEL: Record<string, string> = {
   em_andamento: "Em andamento",
@@ -118,6 +119,10 @@ export default async function PaginaModeracaoNegociacoes() {
               >
                 Abrir negociação →
               </Link>
+
+              <div className="mt-4">
+                <BotaoEncerrarModeracao negociacaoId={negociacao.id} />
+              </div>
             </li>
           ))}
         </ul>

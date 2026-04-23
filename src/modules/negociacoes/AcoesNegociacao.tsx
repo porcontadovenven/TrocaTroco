@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   enviarMensagem,
   chamarModerador,
+  encerrarModeracaoNegociacao,
   encerrarOperacaoNegociacao,
   enviarAvaliacao,
 } from "@/modules/negociacoes/actions";
@@ -103,6 +104,33 @@ export function BotaoEncerrarOperacao({ negociacaoId }: { negociacaoId: string }
         className="rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"
       >
         {pendente ? "Encerrando..." : "Concluir negociação"}
+      </button>
+    </form>
+  );
+}
+
+export function BotaoEncerrarModeracao({ negociacaoId }: { negociacaoId: string }) {
+  const router = useRouter();
+  const [estado, action, pendente] = useActionState<ResultadoAcao | undefined, FormData>(
+    encerrarModeracaoNegociacao,
+    undefined,
+  );
+
+  useEffect(() => {
+    if (estado?.ok) router.refresh();
+  }, [estado, router]);
+
+  return (
+    <form action={action} className="flex flex-col gap-1">
+      <input type="hidden" name="negociacao_id" value={negociacaoId} />
+      {estado && !estado.ok && <p className="text-xs text-red-600">{estado.erro}</p>}
+      {estado?.ok && <p className="text-xs text-emerald-700">Moderação encerrada.</p>}
+      <button
+        type="submit"
+        disabled={pendente}
+        className="rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-60"
+      >
+        {pendente ? "Encerrando..." : "Encerrar moderação"}
       </button>
     </form>
   );

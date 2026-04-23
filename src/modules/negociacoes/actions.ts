@@ -179,6 +179,55 @@ export async function chamarModerador(
   return { ok: true };
 }
 
+export async function encerrarModeracaoNegociacao(
+  _estado: ResultadoAcao | undefined,
+  formData: FormData,
+): Promise<ResultadoAcao> {
+  const negociacaoId = String(formData.get("negociacao_id") ?? "");
+  const sessao = await getSessao();
+
+  if (!sessao || !isAdmin(sessao.papel)) {
+    return { ok: false, erro: "Acesso negado." };
+  }
+
+  if (!negociacaoId) {
+    return { ok: false, erro: "Negociação não identificada." };
+  }
+
+  const supabase = await getSupabaseServerClient();
+  const { data: neg } = await supabase
+    .from("negociacoes")
+    .select("id, status_moderacao")
+    .eq("id", negociacaoId)
+    .maybeSingle();
+
+  if (!neg) {
+    return { ok: false, erro: "Negociação não encontrada." };
+  }
+
+  if (neg.status_moderacao === "nao_acionada") {
+    return { ok: false, erro: "Esta negociação não possui moderação ativa." };
+  }
+
+  if (neg.status_moderacao === "encerrada") {
+    return { ok: false, erro: "A moderação desta negociação já foi encerrada." };
+  }
+
+  const { error } = await supabase
+    .from("negociacoes")
+    .update({ status_moderacao: "encerrada", atualizada_em: new Date().toISOString() })
+    .eq("id", negociacaoId);
+
+  if (error) {
+    return { ok: false, erro: "Erro ao encerrar moderação da negociação." };
+  }
+
+  revalidatePath(ROTAS.NEGOCIACAO(negociacaoId));
+  revalidatePath(ROTAS.ADMIN);
+  revalidatePath(ROTAS.ADMIN_MODERACAO_NEGOCIACOES);
+  return { ok: true };
+}
+
 // ---------------------------------------------------------------------------
 // encerrar_operacao_negociacao
 // Fase 5 — Matriz Operacional, seção 6
