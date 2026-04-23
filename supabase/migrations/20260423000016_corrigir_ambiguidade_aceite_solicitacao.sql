@@ -1,44 +1,6 @@
 -- =============================================================================
--- Migration: reconciliar composicao remanescente e baixar itens ao aceitar
+-- Migration: corrige referencia ambigua de anuncio_id no aceite atomico
 -- =============================================================================
-
-ALTER TABLE public.itens_composicao_solicitacao
-ADD COLUMN IF NOT EXISTS item_anuncio_id uuid REFERENCES public.itens_composicao_anuncio (id);
-
-ALTER TABLE public.itens_composicao_anuncio
-DROP CONSTRAINT IF EXISTS itens_composicao_anuncio_quantidade_positiva;
-
-ALTER TABLE public.itens_composicao_anuncio
-ADD CONSTRAINT itens_composicao_anuncio_quantidade_nao_negativa
-CHECK (quantidade >= 0);
-
-UPDATE public.itens_composicao_solicitacao AS ics
-SET item_anuncio_id = ica.id
-FROM public.solicitacoes AS s,
-     public.itens_composicao_anuncio AS ica
-WHERE ics.solicitacao_id = s.id
-  AND ica.anuncio_id = s.anuncio_id
-  AND ica.tipo_item = ics.tipo_item
-  AND ica.valor_unitario = ics.valor_unitario
-  AND ics.item_anuncio_id IS NULL;
-
-WITH consumo_por_item AS (
-  SELECT
-    ics.item_anuncio_id,
-    SUM(ics.quantidade) AS quantidade_consumida
-  FROM public.itens_composicao_solicitacao AS ics
-  JOIN public.solicitacoes AS s
-    ON s.id = ics.solicitacao_id
-  WHERE s.status = 'aceita'
-    AND ics.item_anuncio_id IS NOT NULL
-  GROUP BY ics.item_anuncio_id
-)
-UPDATE public.itens_composicao_anuncio AS ica
-SET
-  quantidade = GREATEST(0, ica.quantidade - consumo_por_item.quantidade_consumida),
-  subtotal_valor = GREATEST(0, (ica.quantidade - consumo_por_item.quantidade_consumida) * ica.valor_unitario)
-FROM consumo_por_item
-WHERE ica.id = consumo_por_item.item_anuncio_id;
 
 CREATE OR REPLACE FUNCTION public.aceitar_solicitacao_atomica(
   p_solicitacao_id uuid,
