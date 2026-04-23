@@ -162,7 +162,7 @@ export default async function Home() {
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 shadow-sm">
               <BadgeCheck className="h-3.5 w-3.5 text-emerald-600" />
               <span className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
-                Plataforma B2B · CNPJs e MEIs
+                TrocaTroco · Marketplace de Troco B2B
               </span>
             </div>
             <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-stone-900 sm:text-5xl lg:text-6xl">
