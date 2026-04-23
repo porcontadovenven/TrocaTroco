@@ -8,9 +8,37 @@ import type { ResultadoAcao } from "@/modules/cadastro/actions";
 type Etapa = 1 | 2 | 3;
 
 const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const REGEX_APENAS_NUMEROS = /^\d+$/;
 const REGEX_APENAS_LETRAS = /^[A-Za-zÀ-ÿ\s]+$/u;
 const ESTADOS_DISPONIVEIS = ["RJ"] as const;
+
+function mascaraCnpj(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 14);
+  return d
+    .replace(/(\d{2})(\d)/, "$1.$2")
+    .replace(/(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
+}
+function mascaraCpf(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  return d
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1-$2");
+}
+function mascaraTelefone(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 10)
+    return d.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{4})(\d)/, "$1-$2");
+  return d.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
+}
+function mascaraCep(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 8);
+  return d.replace(/(\d{5})(\d)/, "$1-$2");
+}
+function digitos(v: string): string {
+  return v.replace(/\D/g, "");
+}
 
 const ETAPAS: Record<Etapa, string> = {
   1: "Dados da empresa",
@@ -69,9 +97,9 @@ function validarCampoNumericoExato(
   rotulo: string,
   quantidade: number,
 ) {
-  if (!valor) return `${rotulo} é obrigatório.`;
-  if (!REGEX_APENAS_NUMEROS.test(valor)) return `${rotulo}: utilize apenas números.`;
-  if (valor.length !== quantidade) {
+  const d = digitos(valor);
+  if (!d) return `${rotulo} é obrigatório.`;
+  if (d.length !== quantidade) {
     return `${rotulo} deve conter ${quantidade} números.`;
   }
   return null;
@@ -105,6 +133,13 @@ export function FormCadastro({ requerCredenciais }: { requerCredenciais: boolean
     setCampos((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
+  function atualizarComMascara(
+    e: React.ChangeEvent<HTMLInputElement>,
+    fn: (v: string) => string,
+  ) {
+    setCampos((prev) => ({ ...prev, [e.target.name]: fn(e.target.value) }));
+  }
+
   function validarEtapa1(): string | null {
     const erroCnpj = validarCampoNumericoExato(campos.cnpj, "CNPJ", 14);
     if (erroCnpj) return erroCnpj;
@@ -122,12 +157,8 @@ export function FormCadastro({ requerCredenciais }: { requerCredenciais: boolean
       "Endereço (logradouro)",
     );
     if (erroEndereco) return erroEndereco;
-    const erroNumeroEndereco = validarCampoNumericoExato(
-      campos.endereco_numero,
-      "Número do endereço",
-      5,
-    );
-    if (erroNumeroEndereco) return erroNumeroEndereco;
+    if (!campos.endereco_numero.trim()) return "Número do endereço é obrigatório.";
+    if (campos.endereco_numero.trim().length > 5) return "Número do endereço deve ter no máximo 5 caracteres.";
     const erroCep = validarCampoNumericoExato(campos.cep, "CEP", 8);
     if (erroCep) return erroCep;
     const erroCidade = validarCampoApenasLetras(campos.cidade, "Cidade");
@@ -210,26 +241,28 @@ export function FormCadastro({ requerCredenciais }: { requerCredenciais: boolean
 
       {/* Formulário real — enviado na etapa 3 */}
       <form action={action} className="flex flex-col gap-5">
-        {/* Campos ocultos com todos os valores coletados */}
-        {Object.entries(campos).map(([k, v]) => (
-          <input key={k} type="hidden" name={k} value={v} />
-        ))}
+        {/* Campos ocultos — campos mascarados são enviados como dígitos puros */}
+        {Object.entries(campos).map(([k, v]) => {
+          const camposMascarados = ["cnpj", "cpf", "telefone_empresa", "telefone_responsavel", "cep"];
+          const valor = camposMascarados.includes(k) ? digitos(v) : v;
+          return <input key={k} type="hidden" name={k} value={valor} />;
+        })}
 
         {/* Etapa 1 */}
         {etapa === 1 && (
           <div className="flex flex-col gap-4">
-            <Campo label="CNPJ" name="cnpj" value={campos.cnpj} onChange={atualizar} placeholder="Somente 14 números" inputMode="numeric" maxLength={14} />
+            <Campo label="CNPJ" name="cnpj" value={campos.cnpj} onChange={(e) => atualizarComMascara(e, mascaraCnpj)} placeholder="00.000.000/0000-00" inputMode="numeric" maxLength={18} />
             <Campo label="Razão social" name="razao_social" value={campos.razao_social} onChange={atualizar} />
             <Campo label="E-mail da empresa" name="email_empresa" type="email" value={campos.email_empresa} onChange={atualizar} />
-            <Campo label="Telefone" name="telefone_empresa" value={campos.telefone_empresa} onChange={atualizar} placeholder="Somente 11 números" inputMode="numeric" maxLength={11} />
-            <Campo label="Endereço (logradouro)" name="endereco_linha" value={campos.endereco_linha} onChange={atualizar} placeholder="Somente letras" />
+            <Campo label="Telefone" name="telefone_empresa" value={campos.telefone_empresa} onChange={(e) => atualizarComMascara(e, mascaraTelefone)} placeholder="(00) 00000-0000" inputMode="numeric" maxLength={15} />
+            <Campo label="Endereço (logradouro)" name="endereco_linha" value={campos.endereco_linha} onChange={atualizar} placeholder="Rua, Avenida..." />
             <div className="grid grid-cols-2 gap-3">
-              <Campo label="Número" name="endereco_numero" value={campos.endereco_numero} onChange={atualizar} placeholder="00000" inputMode="numeric" maxLength={5} />
+              <Campo label="Número" name="endereco_numero" value={campos.endereco_numero} onChange={atualizar} placeholder="Ex: 100" maxLength={5} />
               <Campo label="Complemento" name="endereco_complemento" value={campos.endereco_complemento} onChange={atualizar} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Campo label="Bairro" name="bairro" value={campos.bairro} onChange={atualizar} />
-              <Campo label="CEP" name="cep" value={campos.cep} onChange={atualizar} placeholder="Somente 8 números" inputMode="numeric" maxLength={8} />
+              <Campo label="CEP" name="cep" value={campos.cep} onChange={(e) => atualizarComMascara(e, mascaraCep)} placeholder="00000-000" inputMode="numeric" maxLength={9} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Campo label="Cidade" name="cidade" value={campos.cidade} onChange={atualizar} placeholder="Somente letras" />
@@ -252,8 +285,8 @@ export function FormCadastro({ requerCredenciais }: { requerCredenciais: boolean
         {etapa === 2 && (
           <div className="flex flex-col gap-4">
             <Campo label="Nome completo" name="nome_completo" value={campos.nome_completo} onChange={atualizar} />
-            <Campo label="CPF" name="cpf" value={campos.cpf} onChange={atualizar} placeholder="Somente 11 números" inputMode="numeric" maxLength={11} />
-            <Campo label="Telefone" name="telefone_responsavel" value={campos.telefone_responsavel} onChange={atualizar} placeholder="Somente 11 números" inputMode="numeric" maxLength={11} />
+            <Campo label="CPF" name="cpf" value={campos.cpf} onChange={(e) => atualizarComMascara(e, mascaraCpf)} placeholder="000.000.000-00" inputMode="numeric" maxLength={14} />
+            <Campo label="Telefone" name="telefone_responsavel" value={campos.telefone_responsavel} onChange={(e) => atualizarComMascara(e, mascaraTelefone)} placeholder="(00) 00000-0000" inputMode="numeric" maxLength={15} />
             <Campo label="E-mail" name="email_responsavel" type="email" value={campos.email_responsavel} onChange={atualizar} />
             <Campo label="Cargo / função" name="cargo_funcao" value={campos.cargo_funcao} onChange={atualizar} />
             <Campo label="Vínculo atual com a empresa" name="vinculo_empresa" value={campos.vinculo_empresa} onChange={atualizar} placeholder="Sócio, funcionário, representante..." />
