@@ -176,6 +176,7 @@ export async function criarSolicitacao(
     await supabaseAdmin.from("itens_composicao_solicitacao").insert(
       itens.map((item, idx) => ({
         solicitacao_id: novaSol.id,
+        item_anuncio_id: item.item_anuncio_id ?? null,
         tipo_item: item.tipo_item,
         valor_unitario: item.valor_unitario,
         quantidade: item.quantidade,

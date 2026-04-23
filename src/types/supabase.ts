@@ -353,6 +353,7 @@ export type Database = {
       itens_composicao_solicitacao: {
         Row: {
           id: string
+          item_anuncio_id: string | null
           ordem_exibicao: number | null
           quantidade: number
           solicitacao_id: string
@@ -362,6 +363,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          item_anuncio_id?: string | null
           ordem_exibicao?: number | null
           quantidade: number
           solicitacao_id: string
@@ -371,6 +373,7 @@ export type Database = {
         }
         Update: {
           id?: string
+          item_anuncio_id?: string | null
           ordem_exibicao?: number | null
           quantidade?: number
           solicitacao_id?: string
@@ -379,6 +382,13 @@ export type Database = {
           valor_unitario?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "itens_composicao_solicitacao_item_anuncio_id_fkey"
+            columns: ["item_anuncio_id"]
+            isOneToOne: false
+            referencedRelation: "itens_composicao_anuncio"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "itens_composicao_solicitacao_solicitacao_id_fkey"
             columns: ["solicitacao_id"]

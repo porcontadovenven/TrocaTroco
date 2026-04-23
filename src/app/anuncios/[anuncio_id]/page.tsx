@@ -37,7 +37,9 @@ export default async function PaginaDetalheAnuncio({
 
   const itens = (
     Array.isArray(anuncio.itens) ? anuncio.itens : []
-  ).sort((a, b) => (a.ordem_exibicao ?? 0) - (b.ordem_exibicao ?? 0));
+  )
+    .filter((item) => item.quantidade > 0)
+    .sort((a, b) => (a.ordem_exibicao ?? 0) - (b.ordem_exibicao ?? 0));
 
   return (
     <main className="min-h-screen bg-stone-50 px-6 py-10">
