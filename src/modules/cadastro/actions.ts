@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getAppUrlObrigatoriaEmProducao } from "@/lib/env";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
 import { ROTAS } from "@/constants/rotas";
@@ -107,6 +108,7 @@ export async function criarEmpresaESubmissao(
   formData: FormData,
 ): Promise<ResultadoAcao> {
   const supabase = await getSupabaseServerClient();
+  const supabaseAdmin = getSupabaseAdminClient();
   const appUrl = getAppUrlObrigatoriaEmProducao();
 
   const empresa: DadosEmpresa = {
@@ -140,7 +142,7 @@ export async function criarEmpresaESubmissao(
   } = await supabase.auth.getUser();
 
   // Verifica CNPJ duplicado
-  const { data: cnpjExistente } = await supabase
+  const { data: cnpjExistente } = await supabaseAdmin
     .from("empresas")
     .select("id")
     .eq("cnpj", empresa.cnpj)
@@ -189,7 +191,7 @@ export async function criarEmpresaESubmissao(
   }
 
   // Cria empresa
-  const { data: novaEmpresa, error: erroEmpresa } = await supabase
+  const { data: novaEmpresa, error: erroEmpresa } = await supabaseAdmin
     .from("empresas")
     .insert({ ...empresa, status: "em_analise" })
     .select("id")
@@ -200,7 +202,7 @@ export async function criarEmpresaESubmissao(
   }
 
   // Cria usuário vinculado
-  const { error: erroUsuario } = await supabase.from("usuarios").insert({
+  const { error: erroUsuario } = await supabaseAdmin.from("usuarios").insert({
     id_usuario_autenticacao: user.id,
     papel: "usuario_empresa",
     empresa_id: novaEmpresa.id,
@@ -218,7 +220,7 @@ export async function criarEmpresaESubmissao(
   }
 
   // Registra submissão cadastral nº 1
-  const { error: erroSubmissao } = await supabase
+  const { error: erroSubmissao } = await supabaseAdmin
     .from("submissoes_cadastrais")
     .insert({
       empresa_id: novaEmpresa.id,

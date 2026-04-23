@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
+import { isAdmin } from "@/constants/papeis";
 import { ROTAS } from "@/constants/rotas";
 
 // ---------------------------------------------------------------------------
@@ -63,7 +65,7 @@ export type ResultadoAcao =
 const EPSILON_VALOR = 0.000001;
 
 export async function recalcularStatusAnuncio(anuncioId: string, agora = new Date().toISOString()) {
-  const supabase = await getSupabaseServerClient();
+  const supabase = getSupabaseAdminClient();
 
   const { data: anuncio, error: anuncioError } = await supabase
     .from("anuncios")
@@ -254,7 +256,7 @@ export async function listarAnunciosPublicos(
   porPagina = 20,
   tipo?: TipoAnuncio,
 ) {
-  const supabase = await getSupabaseServerClient();
+  const supabase = getSupabaseAdminClient();
   const offset = (pagina - 1) * porPagina;
 
   let query = supabase
@@ -312,7 +314,10 @@ export async function listarMeusAnuncios() {
 // Fase 5 — Matriz Operacional, seção 6
 // ---------------------------------------------------------------------------
 export async function obterDetalheAnuncio(anuncioId: string) {
-  const supabase = await getSupabaseServerClient();
+  const [supabase, sessao] = await Promise.all([
+    Promise.resolve(getSupabaseAdminClient()),
+    getSessao(),
+  ]);
 
   const { data, error } = await supabase
     .from("anuncios")
@@ -324,6 +329,20 @@ export async function obterDetalheAnuncio(anuncioId: string) {
     )
     .eq("id", anuncioId)
     .single();
+
+  const empresa = data
+    ? (Array.isArray(data.empresas) ? data.empresas[0] : data.empresas)
+    : null;
+  const ehAutora = !!sessao?.empresa_id && sessao.empresa_id === empresa?.id;
+  const podeVerNaoPublico = !!sessao && (ehAutora || isAdmin(sessao.papel));
+
+  if (
+    data &&
+    !["ativo", "em_negociacao"].includes(data.status) &&
+    !podeVerNaoPublico
+  ) {
+    return { anuncio: null, error: { message: "Anúncio não encontrado." } };
+  }
 
   return { anuncio: data as unknown as (AnuncioResumo & { aceita_local_proprio: boolean | null }) | null, error };
 }

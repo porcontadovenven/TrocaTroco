@@ -4,6 +4,11 @@ type SupabaseEnv = {
   appUrl?: string;
 };
 
+type SupabaseAdminEnv = {
+  url: string;
+  serviceRoleKey: string;
+};
+
 function normalizarAppUrl(valor?: string) {
   return valor?.trim().replace(/\/$/, "") || undefined;
 }
@@ -47,4 +52,27 @@ export function getAppUrlObrigatoriaEmProducao() {
   }
 
   return undefined;
+}
+
+export function getSupabaseAdminEnv(): SupabaseAdminEnv {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  const missing = [
+    ["NEXT_PUBLIC_SUPABASE_URL", url],
+    ["SUPABASE_SERVICE_ROLE_KEY", serviceRoleKey],
+  ]
+    .filter(([, value]) => !value)
+    .map(([key]) => key);
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Variaveis de ambiente ausentes do Supabase Admin: ${missing.join(", ")}.`,
+    );
+  }
+
+  return {
+    url: url as string,
+    serviceRoleKey: serviceRoleKey as string,
+  };
 }

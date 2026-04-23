@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
 import { ROTAS } from "@/constants/rotas";
@@ -400,8 +401,8 @@ export async function enviarAvaliacao(
 // Consulta completa da negociação para a tela
 // ---------------------------------------------------------------------------
 export async function obterNegociacao(negociacaoId: string) {
-  const supabase = await getSupabaseServerClient();
   const sessao = await getSessao();
+  const supabase = getSupabaseAdminClient();
 
   const { data: neg, error } = await supabase
     .from("negociacoes")
@@ -411,8 +412,8 @@ export async function obterNegociacao(negociacaoId: string) {
        empresa_autora_id, empresa_contraparte_id,
        anuncio_id,
        anuncios ( id, tipo ),
-       empresa_autora:empresa_autora_id ( id, razao_social ),
-       empresa_contraparte:empresa_contraparte_id ( id, razao_social ),
+       empresa_autora:empresas!negociacoes_empresa_autora_id_fkey ( id, razao_social ),
+       empresa_contraparte:empresas!negociacoes_empresa_contraparte_id_fkey ( id, razao_social ),
        mensagens_negociacao (
          id, texto_mensagem, tipo_ator, criada_em,
          usuarios:ator_usuario_id ( id, nome_completo, empresa_id )

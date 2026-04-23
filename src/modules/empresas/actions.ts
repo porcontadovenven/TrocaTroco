@@ -1,6 +1,6 @@
 "use server";
 
-import { getSupabaseServerClient as createClient } from "@/lib/supabase/server";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -44,7 +44,7 @@ export async function obterPerfilEmpresa(empresaIdentificador: string): Promise<
   perfil: PerfilEmpresa | null;
   error: string | null;
 }> {
-  const supabase = await createClient();
+  const supabase = getSupabaseAdminClient();
 
   // Dados da empresa
   let { data: empresa, error: errEmpresa } = await supabase

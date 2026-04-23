@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
 import { ROTAS } from "@/constants/rotas";
@@ -49,6 +50,7 @@ export async function criarSolicitacao(
   formData: FormData,
 ): Promise<ResultadoAcao> {
   const supabase = await getSupabaseServerClient();
+  const supabaseAdmin = getSupabaseAdminClient();
   const sessao = await getSessao();
 
   if (!sessao?.empresa_id) return { ok: false, erro: "Sessão inválida." };
@@ -71,7 +73,7 @@ export async function criarSolicitacao(
     return { ok: false, erro: "Local da troca inválido." };
 
   // Verifica que a empresa solicitante não é a autora do anúncio
-  const { data: anuncio } = await supabase
+  const { data: anuncio } = await supabaseAdmin
     .from("anuncios")
     .select("id, empresa_id, status, valor_remanescente, permite_parcial")
     .eq("id", anuncioId)
@@ -290,9 +292,10 @@ export async function cancelarSolicitacao(
 // ---------------------------------------------------------------------------
 
 export async function listarSolicitacoesEnviadas() {
-  const supabase = await getSupabaseServerClient();
   const sessao = await getSessao();
   if (!sessao?.empresa_id) return [];
+
+  const supabase = getSupabaseAdminClient();
 
   const { data } = await supabase
     .from("solicitacoes")
@@ -309,9 +312,10 @@ export async function listarSolicitacoesEnviadas() {
 }
 
 export async function listarSolicitacoesRecebidas() {
-  const supabase = await getSupabaseServerClient();
   const sessao = await getSessao();
   if (!sessao?.empresa_id) return [];
+
+  const supabase = getSupabaseAdminClient();
 
   // Busca anúncios da empresa para depois buscar solicitações vinculadas
   const { data: anuncioIds } = await supabase
