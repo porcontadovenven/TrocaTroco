@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { obterNegociacao } from "@/modules/negociacoes/actions";
 import {
   ChatInput,
@@ -9,16 +8,9 @@ import {
   BotaoEncerrarOperacao,
   FormAvaliacao,
 } from "@/modules/negociacoes/AcoesNegociacao";
+import { ChatMensagensClient } from "@/modules/negociacoes/ChatMensagensClient";
 import { ROTAS } from "@/constants/rotas";
 import { isAdmin } from "@/constants/papeis";
-
-const ChatMensagens = dynamic(
-  () => import("@/modules/negociacoes/ChatMensagens").then((mod) => mod.ChatMensagens),
-  {
-    ssr: false,
-    loading: () => <p className="text-center text-sm text-stone-400">Carregando mensagens...</p>,
-  },
-);
 
 const STATUS_LABEL: Record<string, string> = {
   em_andamento: "Em andamento",
@@ -183,8 +175,7 @@ export default async function PaginaNegociacao({
           </div>
 
           <div className="flex max-h-[400px] flex-col gap-3 overflow-y-auto px-5 py-4">
-            <ChatMensagens
-              key={`${neg.id}:${mensagensIniciais.length}:${mensagensIniciais.at(-1)?.id ?? "vazio"}`}
+            <ChatMensagensClient
               negociacaoId={neg.id}
               mensagensIniciais={mensagensIniciais}
               usuarioId={sessao.id}
