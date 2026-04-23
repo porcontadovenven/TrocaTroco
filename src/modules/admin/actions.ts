@@ -351,7 +351,7 @@ export async function encerrarTicket(
 
   const supabase = await getSupabaseServerClient();
 
-  const { error } = await supabase
+  const { data: ticketAtualizado, error } = await supabase
     .from("tickets_moderacao")
     .update({
       status: "encerrado",
@@ -359,9 +359,14 @@ export async function encerrarTicket(
       encerrado_em: new Date().toISOString(),
     })
     .eq("id", ticket_id)
-    .neq("status", "encerrado");
+    .neq("status", "encerrado")
+    .select("id")
+    .maybeSingle();
 
   if (error) return { ok: false, erro: error.message };
+  if (!ticketAtualizado) {
+    return { ok: false, erro: "O ticket não pôde ser encerrado. Atualize a tela e tente novamente." };
+  }
 
   await registrarEventoTicket(ticket_id, sessao.id, "encerramento", resumo_resolucao);
 
@@ -457,13 +462,18 @@ export async function assumirTicket(
 
   const supabase = await getSupabaseServerClient();
 
-  const { error } = await supabase
+  const { data: ticketAtualizado, error } = await supabase
     .from("tickets_moderacao")
     .update({ status: "em_analise", atribuido_para_usuario_id: sessao.id })
     .eq("id", ticket_id)
-    .eq("status", "aberto");
+    .eq("status", "aberto")
+    .select("id")
+    .maybeSingle();
 
   if (error) return { ok: false, erro: error.message };
+  if (!ticketAtualizado) {
+    return { ok: false, erro: "O ticket não pôde ser assumido. Atualize a tela e tente novamente." };
+  }
 
   await registrarEventoTicket(ticket_id, sessao.id, "assuncao", "Ticket assumido para análise.");
 
@@ -614,7 +624,7 @@ export async function aprovarComentario(
 
   const supabase = await getSupabaseServerClient();
 
-  const { error } = await supabase
+  const { data: avaliacaoAtualizada, error } = await supabase
     .from("avaliacoes")
     .update({
       status_comentario: "aprovado",
@@ -622,9 +632,14 @@ export async function aprovarComentario(
       moderado_em: new Date().toISOString(),
     })
     .eq("id", avaliacao_id)
-    .eq("status_comentario", "pendente_moderacao");
+    .eq("status_comentario", "pendente_moderacao")
+    .select("id")
+    .maybeSingle();
 
   if (error) return { ok: false, erro: error.message };
+  if (!avaliacaoAtualizada) {
+    return { ok: false, erro: "O comentário não pôde ser aprovado. Atualize a tela e tente novamente." };
+  }
 
   revalidatePath(ROTAS.ADMIN_MODERACAO_AVALIACOES);
   return { ok: true };
@@ -647,7 +662,7 @@ export async function barrarComentario(
 
   const supabase = await getSupabaseServerClient();
 
-  const { error } = await supabase
+  const { data: avaliacaoAtualizada, error } = await supabase
     .from("avaliacoes")
     .update({
       status_comentario: "barrado",
@@ -656,9 +671,14 @@ export async function barrarComentario(
       moderado_em: new Date().toISOString(),
     })
     .eq("id", avaliacao_id)
-    .eq("status_comentario", "pendente_moderacao");
+    .eq("status_comentario", "pendente_moderacao")
+    .select("id")
+    .maybeSingle();
 
   if (error) return { ok: false, erro: error.message };
+  if (!avaliacaoAtualizada) {
+    return { ok: false, erro: "O comentário não pôde ser barrado. Atualize a tela e tente novamente." };
+  }
 
   revalidatePath(ROTAS.ADMIN_MODERACAO_AVALIACOES);
   return { ok: true };

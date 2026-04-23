@@ -224,12 +224,17 @@ export async function recusarSolicitacao(
     return { ok: false, erro: "Sem permissão para recusar esta solicitação." };
 
   const agora = new Date().toISOString();
-  const { error } = await supabase
+  const { data: solicitacaoAtualizada, error } = await supabase
     .from("solicitacoes")
     .update({ status: "recusada", recusada_em: agora, atualizada_em: agora })
-    .eq("id", solicitacaoId);
+    .eq("id", solicitacaoId)
+    .select("id")
+    .maybeSingle();
 
   if (error) return { ok: false, erro: "Erro ao recusar solicitação." };
+  if (!solicitacaoAtualizada) {
+    return { ok: false, erro: "A solicitação não pôde ser recusada. Atualize a tela e tente novamente." };
+  }
 
   revalidatePath(ROTAS.SOLICITACOES);
   return { ok: true };
@@ -272,16 +277,21 @@ export async function cancelarSolicitacao(
   if (agora > prazo)
     return { ok: false, erro: "O prazo de cancelamento de 15 minutos já expirou." };
 
-  const { error } = await supabase
+  const { data: solicitacaoAtualizada, error } = await supabase
     .from("solicitacoes")
     .update({
       status: "cancelada",
       cancelada_em: agora.toISOString(),
       atualizada_em: agora.toISOString(),
     })
-    .eq("id", solicitacaoId);
+    .eq("id", solicitacaoId)
+    .select("id")
+    .maybeSingle();
 
   if (error) return { ok: false, erro: "Erro ao cancelar solicitação." };
+  if (!solicitacaoAtualizada) {
+    return { ok: false, erro: "A solicitação não pôde ser cancelada. Atualize a tela e tente novamente." };
+  }
 
   revalidatePath(ROTAS.SOLICITACOES);
   return { ok: true };

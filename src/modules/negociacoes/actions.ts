@@ -128,14 +128,19 @@ export async function enviarMensagem(
   const supabase = await getSupabaseServerClient();
 
   if (isAdmin(sessao.papel) && neg.status_moderacao === "acionada") {
-    const { error: erroModeracao } = await supabase
+    const { data: moderacaoAtualizada, error: erroModeracao } = await supabase
       .from("negociacoes")
       .update({ status_moderacao: "em_acompanhamento", atualizada_em: new Date().toISOString() })
       .eq("id", negociacaoId)
-      .eq("status_moderacao", "acionada");
+      .eq("status_moderacao", "acionada")
+      .select("id")
+      .maybeSingle();
 
     if (erroModeracao) {
       return { ok: false, erro: "Erro ao iniciar o acompanhamento da moderação." };
+    }
+    if (!moderacaoAtualizada) {
+      return { ok: false, erro: "A moderação já foi alterada. Atualize a tela e tente novamente." };
     }
   }
 
@@ -186,12 +191,17 @@ export async function chamarModerador(
 
   const supabase = await getSupabaseServerClient();
 
-  const { error } = await supabase
+  const { data: negociacaoAtualizada, error } = await supabase
     .from("negociacoes")
     .update({ status_moderacao: "acionada", atualizada_em: new Date().toISOString() })
-    .eq("id", negociacaoId);
+    .eq("id", negociacaoId)
+    .select("id")
+    .maybeSingle();
 
   if (error) return { ok: false, erro: "Erro ao acionar moderação." };
+  if (!negociacaoAtualizada) {
+    return { ok: false, erro: "A negociação não pôde ser atualizada. Atualize a tela e tente novamente." };
+  }
 
   revalidatePath(ROTAS.NEGOCIACAO(negociacaoId));
   revalidatePath(ROTAS.ADMIN);
@@ -240,13 +250,18 @@ export async function encerrarModeracaoNegociacao(
     };
   }
 
-  const { error } = await supabase
+  const { data: negociacaoAtualizada, error } = await supabase
     .from("negociacoes")
     .update({ status_moderacao: "encerrada", atualizada_em: new Date().toISOString() })
-    .eq("id", negociacaoId);
+    .eq("id", negociacaoId)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     return { ok: false, erro: "Erro ao encerrar moderação da negociação." };
+  }
+  if (!negociacaoAtualizada) {
+    return { ok: false, erro: "A moderação não pôde ser encerrada. Atualize a tela e tente novamente." };
   }
 
   revalidatePath(ROTAS.NEGOCIACAO(negociacaoId));
@@ -281,16 +296,21 @@ export async function encerrarOperacaoNegociacao(
   const supabase = await getSupabaseServerClient();
   const agora = new Date().toISOString();
 
-  const { error } = await supabase
+  const { data: negociacaoAtualizada, error } = await supabase
     .from("negociacoes")
     .update({
       status: "operacao_encerrada",
       operacao_encerrada_em: agora,
       atualizada_em: agora,
     })
-    .eq("id", negociacaoId);
+    .eq("id", negociacaoId)
+    .select("id")
+    .maybeSingle();
 
   if (error) return { ok: false, erro: "Erro ao encerrar negociação." };
+  if (!negociacaoAtualizada) {
+    return { ok: false, erro: "A negociação não pôde ser encerrada. Atualize a tela e tente novamente." };
+  }
 
   revalidatePath(ROTAS.NEGOCIACAO(negociacaoId));
   return { ok: true };
