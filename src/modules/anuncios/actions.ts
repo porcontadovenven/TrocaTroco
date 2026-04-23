@@ -62,7 +62,59 @@ export type ResultadoAcao =
   | { ok: true; anuncio_id?: string }
   | { ok: false; erro: string };
 
+type AnuncioRow = {
+  id: string;
+  tipo: TipoAnuncio;
+  status: StatusAnuncio;
+  valor_total: number;
+  valor_remanescente: number;
+  permite_parcial: boolean;
+  aceita_local_proprio?: boolean | null;
+  rotulo_regiao: string | null;
+  disponibilidade_texto: string | null;
+  expira_em: string | null;
+  publicado_em: string;
+  empresas?:
+    | {
+        id: string;
+        slug_publico?: string | null;
+        razao_social: string;
+        cidade: string | null;
+        estado: string | null;
+      }
+    | {
+        id: string;
+        slug_publico?: string | null;
+        razao_social: string;
+        cidade: string | null;
+        estado: string | null;
+      }[]
+    | null;
+  itens_composicao_anuncio?: ItemComposicaoDetalhe[] | null;
+};
+
 const EPSILON_VALOR = 0.000001;
+
+function normalizarAnuncio(row: AnuncioRow): AnuncioResumo & { aceita_local_proprio?: boolean | null } {
+  const empresa = Array.isArray(row.empresas) ? row.empresas[0] ?? null : row.empresas ?? null;
+  const itens = Array.isArray(row.itens_composicao_anuncio) ? row.itens_composicao_anuncio : [];
+
+  return {
+    id: row.id,
+    tipo: row.tipo,
+    status: row.status,
+    valor_total: row.valor_total,
+    valor_remanescente: row.valor_remanescente,
+    permite_parcial: row.permite_parcial,
+    aceita_local_proprio: row.aceita_local_proprio ?? null,
+    rotulo_regiao: row.rotulo_regiao,
+    disponibilidade_texto: row.disponibilidade_texto,
+    expira_em: row.expira_em,
+    publicado_em: row.publicado_em,
+    empresa,
+    itens,
+  };
+}
 
 export async function recalcularStatusAnuncio(anuncioId: string, agora = new Date().toISOString()) {
   const supabase = getSupabaseAdminClient();
@@ -254,7 +306,11 @@ export async function listarAnunciosPublicos(
 
   const { data, error, count } = await query.range(offset, offset + porPagina - 1);
 
-  return { anuncios: (data ?? []) as unknown as AnuncioResumo[], total: count ?? 0, error };
+  return {
+    anuncios: (data ?? []).map((anuncio) => normalizarAnuncio(anuncio as unknown as AnuncioRow)),
+    total: count ?? 0,
+    error,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -281,7 +337,7 @@ export async function listarMeusAnuncios() {
     .order("publicado_em", { ascending: false });
 
   return {
-    anuncios: (data ?? []) as unknown as (Omit<AnuncioResumo, "empresa"> & { empresa: null })[],
+    anuncios: (data ?? []).map((anuncio) => normalizarAnuncio(anuncio as unknown as AnuncioRow)),
     error: error?.message ?? null,
   };
 }
@@ -307,19 +363,18 @@ export async function obterDetalheAnuncio(anuncioId: string) {
     .eq("id", anuncioId)
     .single();
 
-  const empresa = data
-    ? (Array.isArray(data.empresas) ? data.empresas[0] : data.empresas)
-    : null;
+  const anuncio = data ? normalizarAnuncio(data as unknown as AnuncioRow) : null;
+  const empresa = anuncio?.empresa ?? null;
   const ehAutora = !!sessao?.empresa_id && sessao.empresa_id === empresa?.id;
   const podeVerNaoPublico = !!sessao && (ehAutora || isAdmin(sessao.papel));
 
   if (
-    data &&
-    !["ativo", "em_negociacao"].includes(data.status) &&
+    anuncio &&
+    !["ativo", "em_negociacao"].includes(anuncio.status) &&
     !podeVerNaoPublico
   ) {
     return { anuncio: null, error: { message: "Anúncio não encontrado." } };
   }
 
-  return { anuncio: data as unknown as (AnuncioResumo & { aceita_local_proprio: boolean | null }) | null, error };
+  return { anuncio, error };
 }
