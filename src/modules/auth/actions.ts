@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { getSupabaseEnv } from "@/lib/env";
+import { getAppUrlObrigatoriaEmProducao } from "@/lib/env";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { ROTAS } from "@/constants/rotas";
 
@@ -13,9 +13,9 @@ function validarEmail(email: string) {
 }
 
 async function obterOrigemAtual() {
-  const { appUrl } = getSupabaseEnv();
+  const appUrl = getAppUrlObrigatoriaEmProducao();
 
-  if (appUrl) return appUrl.replace(/\/$/, "");
+  if (appUrl) return appUrl;
 
   const headerStore = await headers();
   const origin = headerStore.get("origin");

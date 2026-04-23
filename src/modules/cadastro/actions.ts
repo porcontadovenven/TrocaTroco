@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { getSupabaseEnv } from "@/lib/env";
+import { getAppUrlObrigatoriaEmProducao } from "@/lib/env";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessao } from "@/lib/sessao";
 import { ROTAS } from "@/constants/rotas";
@@ -107,7 +107,7 @@ export async function criarEmpresaESubmissao(
   formData: FormData,
 ): Promise<ResultadoAcao> {
   const supabase = await getSupabaseServerClient();
-  const { appUrl } = getSupabaseEnv();
+  const appUrl = getAppUrlObrigatoriaEmProducao();
 
   const empresa: DadosEmpresa = {
     cnpj: String(formData.get("cnpj") ?? "").replace(/\D/g, ""),
@@ -159,7 +159,7 @@ export async function criarEmpresaESubmissao(
       email: responsavel.email,
       password: senha,
       options: {
-        emailRedirectTo: `${(appUrl ?? "http://localhost:3000").replace(/\/$/, "")}${ROTAS.LOGIN}?confirmacao=ok`,
+        emailRedirectTo: `${(appUrl ?? "http://localhost:3000")}${ROTAS.LOGIN}?confirmacao=ok`,
       },
     });
 
@@ -168,8 +168,7 @@ export async function criarEmpresaESubmissao(
         status: erroAuth.status,
         code: erroAuth.code,
         message: erroAuth.message,
-        email: responsavel.email,
-        redirectTo: `${(appUrl ?? "http://localhost:3000").replace(/\/$/, "")}${ROTAS.LOGIN}?confirmacao=ok`,
+        redirectTo: `${(appUrl ?? "http://localhost:3000")}${ROTAS.LOGIN}?confirmacao=ok`,
       });
 
       return {

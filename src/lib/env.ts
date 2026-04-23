@@ -4,10 +4,16 @@ type SupabaseEnv = {
   appUrl?: string;
 };
 
+function normalizarAppUrl(valor?: string) {
+  return valor?.trim().replace(/\/$/, "") || undefined;
+}
+
 export function getSupabaseEnv(): SupabaseEnv {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || process.env.APP_URL?.trim() || undefined;
+  const appUrl = normalizarAppUrl(
+    process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL,
+  );
 
   const missing = [
     ["NEXT_PUBLIC_SUPABASE_URL", url],
@@ -27,4 +33,18 @@ export function getSupabaseEnv(): SupabaseEnv {
     anonKey: anonKey as string,
     appUrl,
   };
+}
+
+export function getAppUrlObrigatoriaEmProducao() {
+  const { appUrl } = getSupabaseEnv();
+
+  if (appUrl) return appUrl;
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "APP_URL ou NEXT_PUBLIC_APP_URL deve estar definido em produção.",
+    );
+  }
+
+  return undefined;
 }
