@@ -4,6 +4,7 @@ import { ROTAS } from "@/constants/rotas";
 import type { StatusAnuncio, TipoAnuncio } from "@/modules/anuncios/actions";
 import { getSessao } from "@/lib/sessao";
 import { isAdmin } from "@/constants/papeis";
+import { AutoRefreshClient } from "@/modules/app/AutoRefreshClient";
 
 const TIPO_LABEL: Record<TipoAnuncio, string> = {
   oferta: "Oferta",
@@ -44,6 +45,7 @@ export default async function PaginaAnuncios({
 
   return (
     <main className="min-h-screen bg-stone-50/50 px-6 py-10">
+      <AutoRefreshClient tabelas={["anuncios"]} intervaloMs={15000} />
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-stone-900">Anúncios</h1>

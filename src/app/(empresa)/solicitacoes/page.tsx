@@ -10,6 +10,7 @@ import {
 } from "@/modules/solicitacoes/BotoesSolicitacao";
 import { ROTAS } from "@/constants/rotas";
 import type { StatusSolicitacao } from "@/modules/solicitacoes/actions";
+import { AutoRefreshClient } from "@/modules/app/AutoRefreshClient";
 
 const STATUS_LABEL: Record<StatusSolicitacao, string> = {
   pendente: "Aguardando resposta",
@@ -45,6 +46,7 @@ export default async function PaginaSolicitacoes() {
 
   return (
     <main className="min-h-screen bg-stone-50/50 px-6 py-10">
+      <AutoRefreshClient tabelas={["solicitacoes", "negociacoes"]} intervaloMs={12000} />
       <div className="mx-auto max-w-3xl">
         <div className="mb-8">
           <div className="mb-1 flex items-center gap-2 text-xs font-medium text-stone-400">

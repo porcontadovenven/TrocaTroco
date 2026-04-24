@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MessageSquareText } from "lucide-react";
 import { listarNegociacoesDaEmpresa } from "@/modules/negociacoes/actions";
 import { ROTAS } from "@/constants/rotas";
+import { AutoRefreshClient } from "@/modules/app/AutoRefreshClient";
 
 const STATUS_LABEL: Record<string, string> = {
   em_andamento: "Em andamento",
@@ -33,6 +34,7 @@ export default async function PaginaNegociacoes() {
 
   return (
     <main className="min-h-screen bg-stone-50/50 px-6 py-10">
+      <AutoRefreshClient tabelas={["negociacoes", "avaliacoes", "solicitacoes"]} intervaloMs={12000} />
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
           <div className="mb-1 flex items-center gap-2 text-xs font-medium text-stone-400">

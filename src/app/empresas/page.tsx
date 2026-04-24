@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Building2, Star } from "lucide-react";
 import { listarEmpresasPublicas } from "@/modules/empresas/actions";
 import { ROTAS } from "@/constants/rotas";
+import { AutoRefreshClient } from "@/modules/app/AutoRefreshClient";
 
 function EstrelasResumo({ nota }: { nota: number | null }) {
   if (nota === null) {
@@ -25,6 +26,7 @@ export default async function PaginaEmpresas() {
 
   return (
     <main className="min-h-screen bg-stone-50/50 px-6 py-10">
+      <AutoRefreshClient tabelas={["empresas", "avaliacoes", "negociacoes"]} intervaloMs={20000} />
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
           <div>

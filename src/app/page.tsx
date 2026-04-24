@@ -15,6 +15,7 @@ import { ROTAS } from "@/constants/rotas";
 import { APP_NAME } from "@/constants/app";
 import { getSessao } from "@/lib/sessao";
 import { isAdmin } from "@/constants/papeis";
+import { AutoRefreshClient } from "@/modules/app/AutoRefreshClient";
 
 const TIPO_LABEL: Record<string, string> = {
   oferta: "Oferta de troco",
@@ -89,6 +90,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-white">
+      <AutoRefreshClient tabelas={["anuncios"]} intervaloMs={15000} />
       {/* ── Header ─────────────────────────────────── */}
       <header className="sticky top-0 z-50 border-b border-stone-100 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
