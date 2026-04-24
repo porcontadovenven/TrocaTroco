@@ -8,6 +8,7 @@ import {
   BotaoEncerrarOperacao,
   FormAvaliacao,
 } from "@/modules/negociacoes/AcoesNegociacao";
+import { AtualizacaoNegociacaoClient } from "@/modules/negociacoes/AtualizacaoNegociacaoClient";
 import { ChatMensagensClient } from "@/modules/negociacoes/ChatMensagensClient";
 import { ROTAS } from "@/constants/rotas";
 import { isAdmin } from "@/constants/papeis";
@@ -110,6 +111,7 @@ export default async function PaginaNegociacao({
 
   return (
     <main className="min-h-screen bg-stone-50 px-4 py-8">
+      <AtualizacaoNegociacaoClient negociacaoId={neg.id} />
       <div className="mx-auto max-w-2xl">
         {/* Nav */}
         <Link
