@@ -17,6 +17,7 @@ import { getSessao } from "@/lib/sessao";
 import { isAdmin } from "@/constants/papeis";
 import { AutoRefreshClient } from "@/modules/app/AutoRefreshClient";
 import { formatarMoedaBRL } from "@/lib/format";
+import { ThemeSelector } from "@/modules/theme/ThemeSelector";
 
 const TIPO_LABEL: Record<string, string> = {
   oferta: "Oferta de troco",
@@ -26,7 +27,7 @@ const TIPO_LABEL: Record<string, string> = {
 function Logo() {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 shadow-sm">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 shadow-sm shadow-emerald-600/30">
         <svg
           width="17"
           height="17"
@@ -50,7 +51,7 @@ function Logo() {
           />
         </svg>
       </div>
-      <span className="text-base font-bold tracking-tight text-stone-900">
+      <span className="text-base font-bold tracking-tight text-stone-900 dark:text-stone-50">
         {APP_NAME}
       </span>
     </div>
@@ -90,10 +91,10 @@ export default async function Home() {
     : { href: ROTAS.ANUNCIOS, label: "Explorar anúncios" };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-[#09090f]">
       <AutoRefreshClient tabelas={["anuncios"]} intervaloMs={15000} />
       {/* ── Header ─────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-stone-100 bg-white/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b border-stone-100/80 bg-white/90 backdrop-blur-md dark:border-stone-800/80 dark:bg-[#09090f]/90">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
           <Link href={ROTAS.HOME}>
             <Logo />
@@ -101,35 +102,36 @@ export default async function Home() {
           <nav className="hidden items-center gap-7 sm:flex">
             <Link
               href={ROTAS.ANUNCIOS}
-              className="text-sm font-medium text-stone-600 transition-colors hover:text-stone-900"
+              className="text-sm font-medium text-stone-600 transition-colors hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
             >
               Anúncios
             </Link>
             <a
               href="#como-funciona"
-              className="text-sm font-medium text-stone-600 transition-colors hover:text-stone-900"
+              className="text-sm font-medium text-stone-600 transition-colors hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
             >
               Como funciona
             </a>
             <a
               href="#diferenciais"
-              className="text-sm font-medium text-stone-600 transition-colors hover:text-stone-900"
+              className="text-sm font-medium text-stone-600 transition-colors hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
             >
               Diferenciais
             </a>
           </nav>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <ThemeSelector />
             {!sessao ? (
               <>
                 <Link
                   href={ROTAS.LOGIN}
-                  className="hidden text-sm font-medium text-stone-700 transition-colors hover:text-stone-900 sm:block"
+                  className="hidden text-sm font-medium text-stone-700 transition-colors hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 sm:block"
                 >
                   Entrar
                 </Link>
                 <Link
                   href={ROTAS.CADASTRO}
-                  className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700"
+                  className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-emerald-600/25 transition-all hover:bg-emerald-700 hover:shadow-emerald-700/30"
                 >
                   Cadastrar empresa
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -138,7 +140,7 @@ export default async function Home() {
             ) : (
               <Link
                 href={ctaPrincipal.href}
-                className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700"
+                className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-emerald-600/25 transition-all hover:bg-emerald-700"
               >
                 {ctaPrincipal.label}
               </Link>
@@ -149,10 +151,10 @@ export default async function Home() {
 
       <main>
         {/* ── Hero ──────────────────────────────────── */}
-        <section className="relative overflow-hidden border-b border-stone-100 bg-gradient-to-br from-stone-50 via-white to-emerald-50/40 px-6 py-24 sm:py-36">
+        <section className="relative overflow-hidden border-b border-stone-100 bg-gradient-to-br from-stone-50 via-white to-emerald-50/40 px-6 py-24 dark:border-stone-800 dark:from-[#09090f] dark:via-[#0d0d15] dark:to-[#09090f] sm:py-36">
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-emerald-100/50 blur-3xl" />
-            <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-emerald-50/70 blur-2xl" />
+            <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-emerald-100/50 blur-3xl dark:bg-emerald-900/15" />
+            <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-emerald-50/70 blur-2xl dark:bg-emerald-950/30" />
             <div
               className="absolute inset-0 opacity-[0.025]"
               style={{
@@ -162,19 +164,19 @@ export default async function Home() {
             />
           </div>
           <div className="relative mx-auto max-w-4xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 shadow-sm">
-              <BadgeCheck className="h-3.5 w-3.5 text-emerald-600" />
-              <span className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/60">
+              <BadgeCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-xs font-semibold uppercase tracking-widest text-emerald-800 dark:text-emerald-300">
                 TrocaTroco · Plataforma B2B de Troco
               </span>
             </div>
-            <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-stone-900 sm:text-5xl lg:text-6xl">
+            <h1 className="mb-6 text-5xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 sm:text-6xl lg:text-7xl">
               Troco para empresas,{" "}
-              <span className="bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent dark:from-emerald-400 dark:to-emerald-300">
                 simples e direto.
               </span>
             </h1>
-            <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-stone-500">
+            <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-stone-500 dark:text-stone-400">
               Plataforma B2B para empresas que precisam de troco ou têm troco
               disponível. Conexão direta entre negócios — sem custódia, sem
               intermediação de pagamento.
@@ -182,33 +184,33 @@ export default async function Home() {
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 href={ctaPrincipal.href}
-                className="flex items-center gap-2 rounded-2xl bg-emerald-600 px-8 py-3.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-emerald-700 hover:shadow-lg"
+                className="flex items-center gap-2 rounded-2xl bg-emerald-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/30 transition-all hover:bg-emerald-500 hover:shadow-xl hover:shadow-emerald-500/30"
               >
                 {ctaPrincipal.label}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href={ctaSecundaria.href}
-                className="rounded-2xl border border-stone-200 bg-white px-8 py-3.5 text-sm font-semibold text-stone-700 shadow-sm transition-all hover:border-stone-300 hover:bg-stone-50"
+                className="rounded-2xl border border-stone-200 bg-white px-8 py-3.5 text-sm font-semibold text-stone-700 shadow-sm transition-all hover:border-stone-300 hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-800/60 dark:text-stone-300 dark:hover:border-stone-600 dark:hover:bg-stone-800"
               >
                 {ctaSecundaria.label}
               </Link>
             </div>
 
             {/* Social proof mini */}
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-stone-400">
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-stone-400 dark:text-stone-500">
               <span className="flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400" />
                 Análise cadastral rigorosa
               </span>
-              <span className="hidden h-4 w-px bg-stone-200 sm:block" />
+              <span className="hidden h-4 w-px bg-stone-200 dark:bg-stone-700 sm:block" />
               <span className="flex items-center gap-1.5">
-                <Star className="h-3.5 w-3.5 text-emerald-500" />
+                <Star className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400" />
                 Sistema de avaliações verificado
               </span>
-              <span className="hidden h-4 w-px bg-stone-200 sm:block" />
+              <span className="hidden h-4 w-px bg-stone-200 dark:bg-stone-700 sm:block" />
               <span className="flex items-center gap-1.5">
-                <MessageSquare className="h-3.5 w-3.5 text-emerald-500" />
+                <MessageSquare className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400" />
                 Chat em tempo real
               </span>
             </div>
@@ -216,38 +218,38 @@ export default async function Home() {
         </section>
 
         {/* ── Trust / Pilares ──────────────────────── */}
-        <section className="border-b border-stone-100 bg-stone-50 px-6 py-16">
+        <section className="border-b border-stone-100 bg-stone-50 px-6 py-16 dark:border-stone-800 dark:bg-stone-900/50">
           <div className="mx-auto max-w-5xl">
-            <p className="mb-10 text-center text-xs font-semibold uppercase tracking-widest text-stone-400">
+            <p className="mb-10 text-center text-xs font-semibold uppercase tracking-widest text-stone-400 dark:text-stone-500">
               Por que empresas escolhem o TrocaTroco
             </p>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
               {[
                 {
-                  icon: <BadgeCheck className="h-5 w-5 text-emerald-600" />,
+                  icon: <BadgeCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
                   titulo: "Aberto a CNPJs e MEIs",
                   texto:
                     "Acesso restrito a empresas e MEIs com CNPJ ativo, mediante cadastro aprovado pela nossa equipe de análise.",
                 },
                 {
-                  icon: <Zap className="h-5 w-5 text-emerald-600" />,
+                  icon: <Zap className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
                   titulo: "Negociação direta",
                   texto:
                     "Empresas se conectam e combinam a operação diretamente, sem intermediário no processo.",
                 },
                 {
-                  icon: <ShieldCheck className="h-5 w-5 text-emerald-600" />,
+                  icon: <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
                   titulo: "Moderação e reputação",
                   texto:
                     "Avaliações públicas, histórico transparente e moderação disponível conforme a operação da plataforma.",
                 },
               ].map(({ icon, titulo, texto }) => (
-                <div key={titulo} className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
+                <div key={titulo} className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm dark:border-stone-700/60 dark:bg-stone-800/50">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/60">
                     {icon}
                   </div>
-                  <p className="text-sm font-semibold text-stone-900">{titulo}</p>
-                  <p className="text-sm leading-6 text-stone-500">{texto}</p>
+                  <p className="text-sm font-semibold text-stone-900 dark:text-stone-100">{titulo}</p>
+                  <p className="text-sm leading-6 text-stone-500 dark:text-stone-400">{texto}</p>
                 </div>
               ))}
             </div>
@@ -255,16 +257,16 @@ export default async function Home() {
         </section>
 
         {/* ── Como funciona ────────────────────────── */}
-        <section id="como-funciona" className="px-6 py-20">
+        <section id="como-funciona" className="bg-white px-6 py-20 dark:bg-[#09090f]">
           <div className="mx-auto max-w-5xl">
             <div className="mb-14 text-center">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-emerald-600">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                 Processo simples
               </p>
-              <h2 className="text-2xl font-bold text-stone-900 sm:text-3xl">
+              <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50 sm:text-3xl">
                 Como funciona
               </h2>
-              <p className="mt-3 text-stone-500">
+              <p className="mt-3 text-stone-500 dark:text-stone-400">
                 Do cadastro à operação em 4 passos.
               </p>
             </div>
@@ -301,27 +303,27 @@ export default async function Home() {
               ].map(({ n, icon, titulo, texto }) => (
                 <article
                   key={n}
-                  className="group flex flex-col gap-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md"
+                  className="group flex flex-col gap-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5 dark:border-stone-700/60 dark:bg-stone-900 dark:hover:border-emerald-900 dark:hover:shadow-emerald-950/40"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 shadow-sm shadow-emerald-600/30">
                       {icon}
                     </div>
-                    <span className="text-xl font-black text-stone-100">{n}</span>
+                    <span className="text-xl font-black text-stone-100 dark:text-stone-800">{n}</span>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <h3 className="text-sm font-semibold text-stone-800">
+                    <h3 className="text-sm font-semibold text-stone-800 dark:text-stone-100">
                       {titulo}
                     </h3>
-                    <p className="text-xs leading-5 text-stone-500">{texto}</p>
+                    <p className="text-xs leading-5 text-stone-500 dark:text-stone-400">{texto}</p>
                   </div>
                 </article>
               ))}
             </div>
 
-            <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-100 bg-amber-50 px-5 py-4">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-              <p className="text-xs leading-5 text-amber-800">
+            <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-100 bg-amber-50 px-5 py-4 dark:border-amber-900/30 dark:bg-amber-950/30">
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <p className="text-xs leading-5 text-amber-800 dark:text-amber-300">
                 <strong>Transparência total:</strong> o TrocaTroco não processa
                 pagamentos, não faz custódia de valores e não garante a
                 operação. É uma plataforma de conexão entre empresas.
@@ -331,58 +333,58 @@ export default async function Home() {
         </section>
 
         {/* ── Diferenciais ─────────────────────────── */}
-        <section id="diferenciais" className="border-t border-stone-100 bg-stone-50 px-6 py-20">
+        <section id="diferenciais" className="border-t border-stone-100 bg-stone-50 px-6 py-20 dark:border-stone-800 dark:bg-stone-900/40">
           <div className="mx-auto max-w-5xl">
             <div className="mb-14 text-center">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-emerald-600">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                 Infraestrutura
               </p>
-              <h2 className="text-2xl font-bold text-stone-900 sm:text-3xl">
+              <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50 sm:text-3xl">
                 Construído para negócios sérios
               </h2>
-              <p className="mt-3 text-stone-500">
+              <p className="mt-3 text-stone-500 dark:text-stone-400">
                 Tecnologia de ponta e processos robustos para garantir segurança e transparência.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 {
-                  icon: <BadgeCheck className="h-5 w-5 text-emerald-600" />,
+                  icon: <BadgeCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
                   titulo: "Verificação Cadastral",
                   texto: "Todos os cadastros — CNPJs e MEIs — passam por análise manual antes de operar na plataforma.",
                 },
                 {
-                  icon: <ShieldCheck className="h-5 w-5 text-emerald-600" />,
+                  icon: <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
                   titulo: "Moderação ativa",
                   texto: "Canal de moderação para denúncias, disputas e revisão de avaliações quando necessário.",
                 },
                 {
-                  icon: <Star className="h-5 w-5 text-emerald-600" />,
+                  icon: <Star className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
                   titulo: "Reputação pública",
                   texto: "Histórico de avaliações verificado visível para todas as empresas.",
                 },
                 {
-                  icon: <MessageSquare className="h-5 w-5 text-emerald-600" />,
+                  icon: <MessageSquare className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
                   titulo: "Chat em tempo real",
                   texto: "Comunicação direta entre empresas com histórico completo de negociações.",
                 },
                 {
-                  icon: <Zap className="h-5 w-5 text-emerald-600" />,
+                  icon: <Zap className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
                   titulo: "Operação ágil",
                   texto: "Fluxo otimizado do anúncio à conclusão da operação em poucos minutos.",
                 },
                 {
-                  icon: <Building2 className="h-5 w-5 text-emerald-600" />,
+                  icon: <Building2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
                   titulo: "Perfil empresarial",
                   texto: "Página pública com histórico, avaliações e anúncios de cada empresa.",
                 },
               ].map(({ icon, titulo, texto }) => (
-                <div key={titulo} className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50">
+                <div key={titulo} className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-stone-700/60 dark:bg-stone-800/50">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/60">
                     {icon}
                   </div>
-                  <p className="text-sm font-semibold text-stone-800">{titulo}</p>
-                  <p className="text-xs leading-5 text-stone-500">{texto}</p>
+                  <p className="text-sm font-semibold text-stone-800 dark:text-stone-100">{titulo}</p>
+                  <p className="text-xs leading-5 text-stone-500 dark:text-stone-400">{texto}</p>
                 </div>
               ))}
             </div>
@@ -390,35 +392,35 @@ export default async function Home() {
         </section>
 
         {/* ── Anúncios em destaque ─────────────────── */}
-        <section className="border-t border-stone-100 px-6 pb-20 pt-16">
+        <section className="border-t border-stone-100 px-6 pb-20 pt-16 dark:border-stone-800 dark:bg-[#09090f]">
           <div className="mx-auto max-w-5xl">
             <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-emerald-600">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                   Ao vivo
                 </p>
-                <h2 className="text-2xl font-bold text-stone-900">
+                <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">
                   Anúncios recentes
                 </h2>
-                <p className="mt-1 text-sm text-stone-500">
+                <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
                   Veja as oportunidades ativas na plataforma.
                 </p>
               </div>
               <Link
                 href={ROTAS.ANUNCIOS}
-                className="flex items-center gap-1.5 text-sm font-medium text-emerald-700 underline-offset-4 hover:underline"
+                className="flex items-center gap-1.5 text-sm font-medium text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400"
               >
                 Ver todos <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
             {anuncios.length === 0 ? (
-              <div className="rounded-2xl border border-stone-200 bg-stone-50 px-5 py-14 text-center">
-                <Building2 className="mx-auto mb-3 h-8 w-8 text-stone-300" />
-                <p className="text-sm text-stone-400">
+              <div className="rounded-2xl border border-stone-200 bg-stone-50 px-5 py-14 text-center dark:border-stone-700/60 dark:bg-stone-900">
+                <Building2 className="mx-auto mb-3 h-8 w-8 text-stone-300 dark:text-stone-600" />
+                <p className="text-sm text-stone-400 dark:text-stone-500">
                   Nenhum anúncio ativo no momento.
                 </p>
-                <p className="mt-1 text-xs text-stone-400">
+                <p className="mt-1 text-xs text-stone-400 dark:text-stone-600">
                   Cadastre sua empresa e seja o primeiro a anunciar.
                 </p>
               </div>
@@ -428,30 +430,30 @@ export default async function Home() {
                   <Link
                     key={anuncio.id}
                     href={ROTAS.ANUNCIO_DETALHE(anuncio.id)}
-                    className="group flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md"
+                    className="group flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5 dark:border-stone-700/60 dark:bg-stone-900 dark:hover:border-emerald-900 dark:hover:shadow-emerald-950/40"
                   >
                     <div className="flex items-center justify-between">
                       <span
                         className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
                           anuncio.tipo === "oferta"
-                            ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                            : "border-amber-200 bg-amber-50 text-amber-800"
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/60 dark:text-emerald-300"
+                            : "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/60 dark:text-amber-300"
                         }`}
                       >
                         {TIPO_LABEL[anuncio.tipo] ?? anuncio.tipo}
                       </span>
-                      <ArrowRight className="h-3.5 w-3.5 text-stone-300 transition-colors group-hover:text-emerald-500" />
+                      <ArrowRight className="h-3.5 w-3.5 text-stone-300 transition-colors group-hover:text-emerald-500 dark:text-stone-600 dark:group-hover:text-emerald-400" />
                     </div>
-                    <p className="text-2xl font-bold tracking-tight text-stone-900">
+                    <p className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-50">
                       {formatarMoedaBRL(anuncio.valor_remanescente)}
                     </p>
                     {anuncio.rotulo_regiao && (
-                      <p className="text-xs text-stone-400">
+                      <p className="text-xs text-stone-400 dark:text-stone-500">
                         📍 {anuncio.rotulo_regiao}
                       </p>
                     )}
                     {anuncio.empresa && (
-                      <div className="mt-auto text-xs font-medium text-stone-500">
+                      <div className="mt-auto text-xs font-medium text-stone-500 dark:text-stone-400">
                         {anuncio.empresa.razao_social}
                       </div>
                     )}
@@ -463,7 +465,7 @@ export default async function Home() {
             <div className="mt-8 text-center">
               <Link
                 href={ROTAS.ANUNCIOS}
-                className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-6 py-3 text-sm font-semibold text-stone-700 shadow-sm transition-all hover:border-stone-300 hover:bg-stone-50"
+                className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-6 py-3 text-sm font-semibold text-stone-700 shadow-sm transition-all hover:border-stone-300 hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-800/60 dark:text-stone-300 dark:hover:border-stone-600 dark:hover:bg-stone-800"
               >
                 Explorar todos os anúncios
                 <ArrowRight className="h-4 w-4" />

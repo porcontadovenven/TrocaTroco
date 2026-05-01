@@ -5,6 +5,9 @@ import { APP_DESCRIPTION, APP_NAME } from "@/constants/app";
 
 import "./globals.css";
 
+/* Runs before first paint to avoid flash of unstyled content */
+const themeScript = `(function(){try{var t=localStorage.getItem('tt-theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(!t&&d)){document.documentElement.classList.add('dark');}}catch(e){}})();`;
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,9 +31,14 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {/* Anti-FOSC: sets .dark class before first paint */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {children}
+      </body>
     </html>
   );
 }

@@ -45,12 +45,12 @@ export default async function PaginaAnuncios({
   ]);
 
   return (
-    <main className="min-h-screen bg-stone-50/50 px-6 py-10">
+    <main className="min-h-screen bg-stone-50/50 px-6 py-10 dark:bg-[#09090f]">
       <AutoRefreshClient tabelas={["anuncios"]} intervaloMs={15000} />
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-stone-900">Anúncios</h1>
-          <p className="mt-1 text-sm text-stone-500">
+          <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-50">Anúncios</h1>
+          <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
             {pluralizar(total, "anúncio disponível", "anúncios disponíveis")} na plataforma
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -63,8 +63,8 @@ export default async function PaginaAnuncios({
                   href={filtro.value ? `${ROTAS.ANUNCIOS}?tipo=${filtro.value}` : ROTAS.ANUNCIOS}
                   className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
                     ativo
-                      ? "border-stone-900 bg-stone-900 text-white"
-                      : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                      ? "border-stone-900 bg-stone-900 text-white dark:border-emerald-600 dark:bg-emerald-600"
+                      : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-800/60 dark:text-stone-300 dark:hover:bg-stone-800"
                   }`}
                 >
                   {filtro.label}
@@ -81,13 +81,13 @@ export default async function PaginaAnuncios({
         )}
 
         {!error && anuncios.length === 0 && (
-          <div className="flex flex-col items-center gap-4 rounded-3xl border border-stone-200 bg-white py-20 text-center">
-            <p className="text-stone-400">
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-stone-200 bg-white py-20 text-center dark:border-stone-700/60 dark:bg-stone-900">
+            <p className="text-stone-400 dark:text-stone-500">
               {tipoSelecionado
                 ? `Nenhum anúncio de ${tipoSelecionado === "oferta" ? "oferta" : "necessidade"} disponível no momento.`
                 : "Nenhum anúncio disponível no momento."}
             </p>
-            <Link href={ROTAS.HOME} className="text-sm text-stone-500 underline-offset-4 hover:underline">
+            <Link href={ROTAS.HOME} className="text-sm text-stone-500 underline-offset-4 hover:underline dark:text-stone-400">
               ← Voltar para a home
             </Link>
           </div>
@@ -102,7 +102,7 @@ export default async function PaginaAnuncios({
             return (
               <div
                 key={anuncio.id}
-                className="flex flex-col gap-3 rounded-3xl border border-stone-200 bg-white p-5"
+                className="flex flex-col gap-3 rounded-3xl border border-stone-200 bg-white p-5 transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-stone-700/60 dark:bg-stone-900"
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <span
@@ -110,17 +110,17 @@ export default async function PaginaAnuncios({
                   >
                     {TIPO_LABEL[anuncio.tipo]}
                   </span>
-                  <span className="text-xs text-stone-400">
+                  <span className="text-xs text-stone-400 dark:text-stone-500">
                     {STATUS_LABEL[anuncio.status]}
                   </span>
                 </div>
 
                 <div>
-                  <p className="text-xl font-bold text-stone-900">
+                  <p className="text-xl font-bold text-stone-900 dark:text-stone-50">
                     {formatarMoedaBRL(anuncio.valor_total)}
                   </p>
                   {anuncio.permite_parcial && (
-                    <p className="text-xs text-stone-400">Aceita parcial</p>
+                    <p className="text-xs text-stone-400 dark:text-stone-500">Aceita parcial</p>
                   )}
                 </div>
 
@@ -128,12 +128,12 @@ export default async function PaginaAnuncios({
                   <div>
                     <Link
                       href={ROTAS.EMPRESA_PERFIL(empresa.slug_publico ?? empresa.id)}
-                      className="text-sm font-medium text-stone-700 underline-offset-4 hover:underline"
+                      className="text-sm font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
                     >
                       {empresa.razao_social}
                     </Link>
                     {(empresa.cidade || empresa.estado) && (
-                      <p className="text-xs text-stone-400">
+                      <p className="text-xs text-stone-400 dark:text-stone-500">
                         {formatarLocalizacao(empresa.cidade, empresa.estado)}
                       </p>
                     )}
@@ -141,16 +141,16 @@ export default async function PaginaAnuncios({
                 )}
 
                 {anuncio.rotulo_regiao && (
-                  <p className="text-xs text-stone-500">{anuncio.rotulo_regiao}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">{anuncio.rotulo_regiao}</p>
                 )}
 
                 <div className="mt-auto flex items-center justify-between pt-2">
-                  <p className="text-xs text-stone-400">
+                  <p className="text-xs text-stone-400 dark:text-stone-500">
                     {new Date(anuncio.publicado_em).toLocaleDateString("pt-BR")}
                   </p>
                   <Link
                     href={ROTAS.ANUNCIO_DETALHE(anuncio.id)}
-                    className="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+                    className="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:border-stone-700 dark:bg-stone-800/60 dark:text-stone-300 dark:hover:border-emerald-900 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400"
                   >
                     Ver detalhe →
                   </Link>
@@ -162,20 +162,20 @@ export default async function PaginaAnuncios({
 
         {/* CTA para visitantes */}
         {!sessao ? (
-          <div className="mt-10 rounded-3xl border border-stone-200 bg-white px-6 py-8 text-center">
-            <p className="text-sm text-stone-600">
+          <div className="mt-10 rounded-3xl border border-stone-200 bg-white px-6 py-8 text-center dark:border-stone-700/60 dark:bg-stone-900">
+            <p className="text-sm text-stone-600 dark:text-stone-400">
               Para interagir com os anúncios, faça login ou cadastre sua empresa.
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href={ROTAS.LOGIN}
-                className="rounded-xl border border-stone-300 px-5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
+                className="rounded-xl border border-stone-300 px-5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-300 dark:hover:bg-stone-800"
               >
                 Entrar
               </Link>
               <Link
                 href={ROTAS.CADASTRO}
-                className="rounded-xl bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+                className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
               >
                 Cadastrar empresa
               </Link>

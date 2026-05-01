@@ -29,7 +29,7 @@ export default async function LayoutAdmin({
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 dark:bg-[#09090f]">
       <BarraSessao
         nome={sessao.nome_completo}
         email={sessao.email}
