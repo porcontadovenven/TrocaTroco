@@ -11,6 +11,7 @@ import {
 import { ROTAS } from "@/constants/rotas";
 import type { StatusSolicitacao } from "@/modules/solicitacoes/actions";
 import { AutoRefreshClient } from "@/modules/app/AutoRefreshClient";
+import { formatarMoedaBRL } from "@/lib/format";
 
 const STATUS_LABEL: Record<StatusSolicitacao, string> = {
   pendente: "Aguardando resposta",
@@ -112,7 +113,7 @@ export default async function PaginaSolicitacoes() {
 
                   <div className="mb-2 flex flex-wrap gap-4 text-sm">
                     <span className="font-semibold text-stone-900">
-                      R$ {sol.valor_solicitado.toFixed(2)}
+                      {formatarMoedaBRL(sol.valor_solicitado)}
                     </span>
                     <span className="text-stone-500">
                       {LOCAL_LABEL[sol.local_troca] ?? sol.local_troca}
@@ -205,7 +206,7 @@ export default async function PaginaSolicitacoes() {
 
                   <div className="mb-2 flex flex-wrap gap-4 text-sm">
                     <span className="font-semibold text-stone-900">
-                      R$ {sol.valor_solicitado.toFixed(2)}
+                      {formatarMoedaBRL(sol.valor_solicitado)}
                     </span>
                     {sol.parcial && (
                       <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700">

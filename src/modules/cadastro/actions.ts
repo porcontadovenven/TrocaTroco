@@ -40,6 +40,13 @@ export type ResultadoAcao =
   | { ok: true }
   | { ok: false; erro: string };
 
+type CadastroParcial = {
+  empresaId?: string;
+  usuarioAuthId?: string;
+  usuarioVinculadoCriado?: boolean;
+  authUserCriado?: boolean;
+};
+
 function normalizarTextoErro(valor: unknown) {
   return typeof valor === "string" ? valor.trim().toLowerCase() : "";
 }
@@ -94,6 +101,34 @@ function montarMensagemErroCadastroAuth(erro: {
     : "Erro ao criar conta de acesso. Tente novamente.";
 }
 
+async function desfazerCadastroParcial(
+  supabaseAdmin: ReturnType<typeof getSupabaseAdminClient>,
+  parcial: CadastroParcial,
+) {
+  if (parcial.usuarioVinculadoCriado && parcial.usuarioAuthId) {
+    await supabaseAdmin
+      .from("usuarios")
+      .delete()
+      .eq("id_usuario_autenticacao", parcial.usuarioAuthId);
+  }
+
+  if (parcial.empresaId) {
+    await supabaseAdmin
+      .from("submissoes_cadastrais")
+      .delete()
+      .eq("empresa_id", parcial.empresaId);
+
+    await supabaseAdmin
+      .from("empresas")
+      .delete()
+      .eq("id", parcial.empresaId);
+  }
+
+  if (parcial.authUserCriado && parcial.usuarioAuthId) {
+    await supabaseAdmin.auth.admin.deleteUser(parcial.usuarioAuthId);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // criar_empresa_e_submissao
 // Fase 5 — Matriz Operacional, seção 6 (Cadastro)
@@ -136,6 +171,7 @@ export async function criarEmpresaESubmissao(
   };
 
   const senha = String(formData.get("senha") ?? "");
+  const cadastroParcial: CadastroParcial = {};
 
   let {
     data: { user },
@@ -184,11 +220,14 @@ export async function criarEmpresaESubmissao(
     }
 
     user = cadastroAuth.user;
+    cadastroParcial.authUserCriado = true;
 
     if (!user) {
       return { ok: false, erro: "Conta criada sem usuário válido no Auth. Tente novamente." };
     }
   }
+
+  cadastroParcial.usuarioAuthId = user.id;
 
   // Cria empresa
   const { data: novaEmpresa, error: erroEmpresa } = await supabaseAdmin
@@ -198,8 +237,11 @@ export async function criarEmpresaESubmissao(
     .single();
 
   if (erroEmpresa || !novaEmpresa) {
+    await desfazerCadastroParcial(supabaseAdmin, cadastroParcial);
     return { ok: false, erro: "Erro ao criar empresa. Tente novamente." };
   }
+
+  cadastroParcial.empresaId = novaEmpresa.id;
 
   // Cria usuário vinculado
   const { error: erroUsuario } = await supabaseAdmin.from("usuarios").insert({
@@ -216,8 +258,11 @@ export async function criarEmpresaESubmissao(
   });
 
   if (erroUsuario) {
+    await desfazerCadastroParcial(supabaseAdmin, cadastroParcial);
     return { ok: false, erro: "Erro ao vincular usuário. Tente novamente." };
   }
+
+  cadastroParcial.usuarioVinculadoCriado = true;
 
   // Registra submissão cadastral nº 1
   const { error: erroSubmissao } = await supabaseAdmin
@@ -230,6 +275,7 @@ export async function criarEmpresaESubmissao(
     });
 
   if (erroSubmissao) {
+    await desfazerCadastroParcial(supabaseAdmin, cadastroParcial);
     return {
       ok: false,
       erro: "Erro ao registrar submissão. Tente novamente.",

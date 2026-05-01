@@ -2,9 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { obterDetalheAnuncio } from "@/modules/anuncios/actions";
 import { getSessao } from "@/lib/sessao";
+import { isAdmin } from "@/constants/papeis";
 import { ROTAS } from "@/constants/rotas";
+import { AcoesAnuncio } from "@/modules/anuncios/AcoesAnuncio";
 import type { TipoAnuncio, TipoItemDinheiro } from "@/modules/anuncios/actions";
 import { FormSolicitacao } from "@/modules/solicitacoes/FormSolicitacao";
+import { formatarLocalizacao, formatarMoedaBRL } from "@/lib/format";
 
 const TIPO_LABEL: Record<TipoAnuncio, string> = {
   oferta: "Oferta de troco",
@@ -32,6 +35,7 @@ export default async function PaginaDetalheAnuncio({
     : anuncio.empresa;
 
   const isAutora = sessao?.empresa_id === empresa?.id;
+  const podeGerenciar = !!sessao && (isAutora || isAdmin(sessao.papel));
   const isAprovada = sessao?.status_empresa === "aprovada";
   const disponivel = anuncio.status === "ativo";
 
@@ -60,11 +64,11 @@ export default async function PaginaDetalheAnuncio({
                 {TIPO_LABEL[anuncio.tipo]}
               </p>
               <p className="mt-1 text-3xl font-bold text-stone-900">
-                R$ {anuncio.valor_total.toFixed(2)}
+                {formatarMoedaBRL(anuncio.valor_total)}
               </p>
               {anuncio.valor_remanescente !== anuncio.valor_total && (
                 <p className="mt-0.5 text-sm text-stone-400">
-                  Remanescente: R$ {anuncio.valor_remanescente.toFixed(2)}
+                  Remanescente: {formatarMoedaBRL(anuncio.valor_remanescente)}
                 </p>
               )}
             </div>
@@ -80,7 +84,7 @@ export default async function PaginaDetalheAnuncio({
                 </p>
                 {(empresa.cidade || empresa.estado) && (
                   <p className="text-xs text-stone-400">
-                    {[empresa.cidade, empresa.estado].filter(Boolean).join(", ")}
+                    {formatarLocalizacao(empresa.cidade, empresa.estado)}
                   </p>
                 )}
               </div>
@@ -106,10 +110,10 @@ export default async function PaginaDetalheAnuncio({
                     className="flex items-center justify-between rounded-xl bg-stone-50 px-4 py-2 text-sm"
                   >
                     <span className="text-stone-600">
-                      {ITEM_LABEL[item.tipo_item]} R$ {item.valor_unitario.toFixed(2)} × {item.quantidade}
+                      {ITEM_LABEL[item.tipo_item]} {formatarMoedaBRL(item.valor_unitario)} × {item.quantidade}
                     </span>
                     <span className="font-medium text-stone-800">
-                      R$ {item.subtotal_valor.toFixed(2)}
+                      {formatarMoedaBRL(item.subtotal_valor)}
                     </span>
                   </div>
                 ))}
@@ -189,6 +193,24 @@ export default async function PaginaDetalheAnuncio({
                 >
                   Ver solicitações vinculadas
                 </Link>
+                <AcoesAnuncio
+                  anuncioId={anuncio.id}
+                  hrefEditar={ROTAS.ANUNCIO_EDITAR(anuncio.id)}
+                  hrefAposExcluir={ROTAS.MEUS_ANUNCIOS}
+                />
+              </div>
+            )}
+
+            {sessao && !isAutora && podeGerenciar && (
+              <div className="flex flex-col gap-2 rounded-2xl bg-stone-50 p-4">
+                <p className="text-sm font-medium text-stone-700">
+                  Gestão administrativa deste anúncio.
+                </p>
+                <AcoesAnuncio
+                  anuncioId={anuncio.id}
+                  hrefEditar={ROTAS.ANUNCIO_EDITAR(anuncio.id)}
+                  hrefAposExcluir={ROTAS.ADMIN_ANUNCIOS}
+                />
               </div>
             )}
 

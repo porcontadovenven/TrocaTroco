@@ -5,6 +5,7 @@ import { obterPerfilEmpresa } from "@/modules/empresas/actions";
 import { getSessao } from "@/lib/sessao";
 import { FormDenuncia } from "@/modules/tickets/FormDenuncia";
 import { ROTAS } from "@/constants/rotas";
+import { formatarDecimalBR, formatarLocalizacao, formatarMoedaBRL, pluralizar } from "@/lib/format";
 
 const TIPO_LABEL: Record<string, string> = {
   oferta: "Oferta de troco",
@@ -82,7 +83,7 @@ export default async function PaginaPerfilEmpresa({
                 <p className="text-sm text-stone-400">{perfil.razao_social}</p>
               )}
               <p className="mt-1 text-sm text-stone-500">
-                {perfil.cidade}, {perfil.estado}
+                {formatarLocalizacao(perfil.cidade, perfil.estado)}
               </p>
             </div>
           </div>
@@ -95,11 +96,10 @@ export default async function PaginaPerfilEmpresa({
                 <div className="mt-1 flex items-center gap-2">
                   <Estrelas nota={perfil.media_nota} />
                   <span className="text-sm font-semibold text-stone-700">
-                    {perfil.media_nota.toFixed(1)}
+                    {formatarDecimalBR(perfil.media_nota)}
                   </span>
                   <span className="text-xs text-stone-400">
-                    ({perfil.total_avaliacoes} avaliação
-                    {perfil.total_avaliacoes !== 1 ? "ões" : ""})
+                    ({pluralizar(perfil.total_avaliacoes, "avaliação", "avaliações")})
                   </span>
                 </div>
               ) : (
@@ -151,11 +151,11 @@ export default async function PaginaPerfilEmpresa({
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-lg font-bold text-stone-900">
-                        R$ {anuncio.valor_remanescente.toFixed(2)}
+                        {formatarMoedaBRL(anuncio.valor_remanescente)}
                       </p>
                       {anuncio.valor_remanescente !== anuncio.valor_total && (
                         <p className="text-xs text-stone-400">
-                          de R$ {anuncio.valor_total.toFixed(2)}
+                          de {formatarMoedaBRL(anuncio.valor_total)}
                         </p>
                       )}
                     </div>

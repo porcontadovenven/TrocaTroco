@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const IS_DEVELOPMENT = process.env.NODE_ENV !== "production";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_HOST = SUPABASE_URL ? new URL(SUPABASE_URL).hostname : undefined;
+const SUPABASE_ORIGIN = SUPABASE_URL ? new URL(SUPABASE_URL).origin : undefined;
 
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
@@ -12,8 +15,8 @@ const CONTENT_SECURITY_POLICY = [
   `script-src 'self' 'unsafe-inline'${IS_DEVELOPMENT ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
-  "img-src 'self' data: blob: https://nqetigprgmkvoyxygqty.supabase.co",
-  "connect-src 'self' https://nqetigprgmkvoyxygqty.supabase.co wss://nqetigprgmkvoyxygqty.supabase.co https://*.supabase.co wss://*.supabase.co",
+  ["img-src 'self' data: blob:", SUPABASE_ORIGIN, "https://*.supabase.co"].filter(Boolean).join(" "),
+  ["connect-src 'self'", SUPABASE_ORIGIN, SUPABASE_ORIGIN?.replace("https://", "wss://"), "https://*.supabase.co", "wss://*.supabase.co"].filter(Boolean).join(" "),
 ].join("; ");
 
 const SECURITY_HEADERS = [
@@ -33,12 +36,14 @@ const SECURITY_HEADERS = [
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "nqetigprgmkvoyxygqty.supabase.co",
-      },
-    ],
+    remotePatterns: SUPABASE_HOST
+      ? [
+          {
+            protocol: "https",
+            hostname: SUPABASE_HOST,
+          },
+        ]
+      : [],
   },
   async headers() {
     return [

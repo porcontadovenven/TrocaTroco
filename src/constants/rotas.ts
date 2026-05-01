@@ -10,8 +10,15 @@ export const ROTAS = {
   RECUPERAR_SENHA: "/recuperar-senha",
   REDEFINIR_SENHA: "/redefinir-senha",
   CADASTRO: "/cadastro",
+  TERMOS_USO: "/termos-de-uso",
+  POLITICA_PRIVACIDADE: "/politica-de-privacidade",
+  REGRAS_PLATAFORMA: "/regras-da-plataforma",
+  SEGURANCA_OPERACOES: "/seguranca-nas-operacoes",
+  AVISO_RESPONSABILIDADE: "/aviso-de-responsabilidade",
+  POLITICA_MODERACAO: "/politica-de-moderacao",
   ANUNCIOS: "/anuncios",
   ANUNCIO_DETALHE: (id: string) => `/anuncios/${id}`,
+  ANUNCIO_EDITAR: (id: string) => `/anuncios/${id}/editar`,
   EMPRESAS: "/empresas",
   EMPRESA_PERFIL: (id: string) => `/empresas/${id}`,
 
@@ -27,6 +34,7 @@ export const ROTAS = {
 
   // Admin
   ADMIN: "/admin",
+  ADMIN_ANUNCIOS: "/admin/anuncios",
   ADMIN_ANALISE_CADASTRAL: "/admin/analise-cadastral",
   ADMIN_TICKETS: "/admin/tickets",
   ADMIN_MODERACAO_AVALIACOES: "/admin/moderacao-avaliacoes",

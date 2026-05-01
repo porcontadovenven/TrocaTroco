@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useActionState } from "react";
 import { criarSolicitacao } from "@/modules/solicitacoes/actions";
 import type { ResultadoAcao, LocalTroca } from "@/modules/solicitacoes/actions";
+import { formatarMoedaBRL } from "@/lib/format";
 
 const MEIOS_PAGAMENTO = ["Dinheiro", "PIX", "Crédito", "Débito"];
 const ITEM_LABEL = {
@@ -87,7 +88,7 @@ export function FormSolicitacao({
     const v = valorSolicitado;
     if (!v || v <= 0 || v > valorMaximo) {
       e.preventDefault();
-      setErroLocal(`Valor inválido. Máximo: R$ ${valorMaximo.toFixed(2)}`);
+      setErroLocal(`Valor inválido. Máximo: ${formatarMoedaBRL(valorMaximo)}`);
       return;
     }
     if (!meio) {
@@ -104,7 +105,7 @@ export function FormSolicitacao({
 
       if (Math.abs(totalSelecionado - v) > 0.009) {
         e.preventDefault();
-        setErroLocal(`A composição selecionada totaliza R$ ${totalSelecionado.toFixed(2)} e deve corresponder ao valor solicitado.`);
+        setErroLocal(`A composição selecionada totaliza ${formatarMoedaBRL(totalSelecionado)} e deve corresponder ao valor solicitado.`);
         return;
       }
     }
@@ -132,7 +133,7 @@ export function FormSolicitacao({
               />
               <span>
                 <span className="block font-medium text-stone-800">Integral</span>
-                <span className="text-xs text-stone-500">Solicita o valor total disponível de R$ {valorMaximo.toFixed(2)}.</span>
+                <span className="text-xs text-stone-500">Solicita o valor total disponível de {formatarMoedaBRL(valorMaximo)}.</span>
               </span>
             </label>
             <label className="flex items-start gap-2 text-sm text-stone-700">
@@ -151,7 +152,7 @@ export function FormSolicitacao({
           </div>
         ) : (
           <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700">
-            Somente valor integral disponível: <span className="font-semibold text-stone-900">R$ {valorMaximo.toFixed(2)}</span>
+            Somente valor integral disponível: <span className="font-semibold text-stone-900">{formatarMoedaBRL(valorMaximo)}</span>
           </div>
         )}
       </div>
@@ -163,7 +164,7 @@ export function FormSolicitacao({
             {parcial ? "Calculado a partir da composição selecionada" : "Valor integral do anúncio"}
           </p>
         </div>
-        <p className="text-lg font-bold text-stone-900">R$ {valorSolicitado.toFixed(2)}</p>
+        <p className="text-lg font-bold text-stone-900">{formatarMoedaBRL(valorSolicitado)}</p>
       </div>
 
       {permiteParcial && parcial && (
@@ -187,7 +188,7 @@ export function FormSolicitacao({
                 >
                   <div>
                     <p className="text-sm font-medium text-stone-800">
-                      {ITEM_LABEL[item.tipo_item]} R$ {item.valor_unitario.toFixed(2)}
+                      {ITEM_LABEL[item.tipo_item]} {formatarMoedaBRL(item.valor_unitario)}
                     </p>
                     <p className="text-xs text-stone-500">
                       Disponível: {item.quantidade}
@@ -208,7 +209,7 @@ export function FormSolicitacao({
                       />
                     </label>
                     <div className="min-w-20 text-right text-sm font-medium text-stone-700">
-                      R$ {subtotal.toFixed(2)}
+                      {formatarMoedaBRL(subtotal)}
                     </div>
                   </div>
                 </div>
@@ -218,7 +219,7 @@ export function FormSolicitacao({
 
           <div className="flex items-center justify-between rounded-xl bg-white px-4 py-3 text-sm">
             <span className="text-stone-500">Total da composição</span>
-            <span className="font-semibold text-stone-900">R$ {totalSelecionado.toFixed(2)}</span>
+            <span className="font-semibold text-stone-900">{formatarMoedaBRL(totalSelecionado)}</span>
           </div>
         </div>
       )}

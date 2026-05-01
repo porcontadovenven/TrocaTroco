@@ -4,7 +4,7 @@ import { APP_NAME } from "@/constants/app";
 import { FormLogin } from "@/modules/auth/FormLogin";
 
 const BENEFICIOS = [
-  "Marketplace B2B para empresas e MEIs com CNPJ ativo",
+  "Plataforma B2B exclusiva para CNPJs ativos",
   "Conexão direta entre empresas, sem custódia",
   "Moderação ativa e reputação pública verificada",
 ];
@@ -53,7 +53,7 @@ export default async function PaginaLogin({
               <span className="text-emerald-400">simples e seguro.</span>
             </h2>
             <p className="mt-3 text-sm leading-6 text-stone-400">
-              Plataforma B2B para intermediação de troco entre empresas e MEIs com CNPJ ativo.
+              Plataforma B2B para conexão entre empresas com CNPJ ativo que negociam troco entre si.
             </p>
           </div>
           <ul className="flex flex-col gap-3">

@@ -38,6 +38,7 @@ export default async function LayoutAdmin({
         rotuloArea="Painel admin"
         navItems={[
           { href: ROTAS.ADMIN, label: "Painel" },
+          { href: ROTAS.ADMIN_ANUNCIOS, label: "Anúncios" },
           { href: ROTAS.ADMIN_ANALISE_CADASTRAL, label: "Análise cadastral" },
           { href: ROTAS.ADMIN_TICKETS, label: "Tickets" },
           { href: ROTAS.ADMIN_MODERACAO_AVALIACOES, label: "Avaliações" },

@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useActionState } from "react";
-import { criarAnuncio } from "@/modules/anuncios/actions";
+import { useRouter } from "next/navigation";
+import { atualizarAnuncio, criarAnuncio } from "@/modules/anuncios/actions";
 import type { ResultadoAcao, TipoAnuncio, TipoItemDinheiro, ItemComposicao } from "@/modules/anuncios/actions";
+import { ROTAS } from "@/constants/rotas";
+import { formatarMoedaBRL } from "@/lib/format";
 
 type Etapa = "escolha" | "formulario";
 
@@ -15,16 +19,49 @@ const LABELS_TIPO_ITEM: Record<TipoItemDinheiro, string> = {
 const VALORES_CEDULA = [2, 5, 10, 20, 50, 100, 200];
 const VALORES_MOEDA = [0.05, 0.1, 0.25, 0.5, 1];
 
-export function FormAnunciar() {
-  const [etapa, setEtapa] = useState<Etapa>("escolha");
-  const [tipo, setTipo] = useState<TipoAnuncio | null>(null);
-  const [itens, setItens] = useState<ItemComposicao[]>([]);
+type FormAnunciarProps = {
+  modo?: "criar" | "editar";
+  anuncioId?: string;
+  valoresIniciais?: {
+    tipo: TipoAnuncio;
+    permite_parcial: boolean;
+    aceita_local_proprio?: boolean | null;
+    rotulo_regiao?: string | null;
+    disponibilidade_texto?: string | null;
+    expira_em?: string | null;
+    itens: ItemComposicao[];
+  };
+  hrefCancelar?: string;
+  hrefSucesso?: string;
+};
+
+export function FormAnunciar({
+  modo = "criar",
+  anuncioId,
+  valoresIniciais,
+  hrefCancelar = ROTAS.MEUS_ANUNCIOS,
+  hrefSucesso,
+}: FormAnunciarProps) {
+  const router = useRouter();
+  const editando = modo === "editar";
+  const [etapa, setEtapa] = useState<Etapa>(editando ? "formulario" : "escolha");
+  const [tipo, setTipo] = useState<TipoAnuncio | null>(valoresIniciais?.tipo ?? null);
+  const [itens, setItens] = useState<ItemComposicao[]>(valoresIniciais?.itens ?? []);
   const [erroLocal, setErroLocal] = useState<string | null>(null);
 
   const [estado, action, pendente] = useActionState<ResultadoAcao | undefined, FormData>(
-    criarAnuncio,
+    editando ? atualizarAnuncio : criarAnuncio,
     undefined,
   );
+
+  useEffect(() => {
+    if (!estado?.ok || !editando || !anuncioId) {
+      return;
+    }
+
+    router.push(hrefSucesso ?? ROTAS.ANUNCIO_DETALHE(anuncioId));
+    router.refresh();
+  }, [anuncioId, editando, estado, hrefSucesso, router]);
 
   // Cálculo do valor total derivado dos itens
   const valorTotal = itens.reduce(
@@ -129,19 +166,33 @@ export function FormAnunciar() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => { setEtapa("escolha"); setItens([]); setErroLocal(null); }}
-          className="text-sm text-stone-500 underline-offset-4 hover:underline"
-        >
-          ← Voltar
-        </button>
+        {editando ? (
+          <Link
+            href={hrefCancelar}
+            className="text-sm text-stone-500 underline-offset-4 hover:underline"
+          >
+            ← Cancelar
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => { setEtapa("escolha"); setItens([]); setErroLocal(null); }}
+            className="text-sm text-stone-500 underline-offset-4 hover:underline"
+          >
+            ← Voltar
+          </button>
+        )}
         <h1 className="text-xl font-semibold text-stone-900">
-          {tipo === "oferta" ? "Oferta de troco" : "Necessidade de troco"}
+          {editando
+            ? "Editar anúncio"
+            : tipo === "oferta"
+              ? "Oferta de troco"
+              : "Necessidade de troco"}
         </h1>
       </div>
 
       <form action={action} onSubmit={handleSubmit} className="flex flex-col gap-6">
+        {editando && <input type="hidden" name="anuncio_id" value={anuncioId ?? ""} />}
         {/* Campo oculto: tipo */}
         <input type="hidden" name="tipo" value={tipo ?? ""} />
         {/* Campo oculto: valor_total calculado */}
@@ -187,7 +238,7 @@ export function FormAnunciar() {
                   onClick={() => adicionarItem("moeda", v)}
                   className="rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 hover:bg-amber-50 hover:border-amber-400"
                 >
-                  + R$ {v.toFixed(2)}
+                  + {formatarMoedaBRL(v)}
                 </button>
               ))}
             </div>
@@ -205,7 +256,7 @@ export function FormAnunciar() {
                   className="flex items-center justify-between rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm"
                 >
                   <span className="text-stone-700">
-                    {LABELS_TIPO_ITEM[item.tipo_item]} R$ {item.valor_unitario.toFixed(2)}
+                    {LABELS_TIPO_ITEM[item.tipo_item]} {formatarMoedaBRL(item.valor_unitario)}
                   </span>
                   <div className="flex items-center gap-2">
                     <button
@@ -237,7 +288,7 @@ export function FormAnunciar() {
               <div className="mt-2 flex items-center justify-between rounded-xl bg-stone-900 px-4 py-2 text-sm text-white">
                 <span className="font-medium">Total</span>
                 <span className="font-bold">
-                  R$ {valorTotal.toFixed(2)}
+                  {formatarMoedaBRL(valorTotal)}
                 </span>
               </div>
             </div>
@@ -259,6 +310,7 @@ export function FormAnunciar() {
                 type="checkbox"
                 name="permite_parcial"
                 value="true"
+                defaultChecked={valoresIniciais?.permite_parcial ?? false}
                 className="h-4 w-4 rounded border-stone-300"
               />
               Aceito solicitações de valor parcial
@@ -268,6 +320,7 @@ export function FormAnunciar() {
                 type="checkbox"
                 name="aceita_local_proprio"
                 value="true"
+                defaultChecked={valoresIniciais?.aceita_local_proprio ?? false}
                 className="h-4 w-4 rounded border-stone-300"
               />
               A troca pode ocorrer na minha empresa
@@ -285,6 +338,7 @@ export function FormAnunciar() {
                 type="checkbox"
                 name="permite_parcial"
                 value="true"
+                defaultChecked={valoresIniciais?.permite_parcial ?? false}
                 className="h-4 w-4 rounded border-stone-300"
               />
               Aceito atendimentos parciais
@@ -298,16 +352,19 @@ export function FormAnunciar() {
             label="Região / bairro (opcional)"
             name="rotulo_regiao"
             placeholder="Ex: Centro, Vila Madalena..."
+            defaultValue={valoresIniciais?.rotulo_regiao ?? ""}
           />
           <CampoTexto
             label="Disponibilidade (opcional)"
             name="disponibilidade_texto"
             placeholder="Ex: Seg–Sex das 9h às 18h"
+            defaultValue={valoresIniciais?.disponibilidade_texto ?? ""}
           />
           <CampoTexto
             label="Validade (opcional)"
             name="expira_em"
             type="date"
+            defaultValue={valoresIniciais?.expira_em ?? ""}
           />
         </section>
 
@@ -323,7 +380,7 @@ export function FormAnunciar() {
           disabled={pendente}
           className="rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-60"
         >
-          {pendente ? "Publicando..." : "Publicar anúncio"}
+          {pendente ? (editando ? "Salvando..." : "Publicando...") : (editando ? "Salvar alterações" : "Publicar anúncio")}
         </button>
       </form>
     </div>
@@ -335,11 +392,13 @@ function CampoTexto({
   name,
   placeholder,
   type = "text",
+  defaultValue,
 }: {
   label: string;
   name: string;
   placeholder?: string;
   type?: string;
+  defaultValue?: string;
 }) {
   return (
     <div className="flex flex-col gap-1.5">
@@ -351,6 +410,7 @@ function CampoTexto({
         name={name}
         type={type}
         placeholder={placeholder}
+        defaultValue={defaultValue}
         className="rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
       />
     </div>

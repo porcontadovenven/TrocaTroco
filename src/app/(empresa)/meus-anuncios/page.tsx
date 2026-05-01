@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, Megaphone, Plus } from "lucide-react";
 import { listarMeusAnuncios } from "@/modules/anuncios/actions";
+import { AcoesAnuncio } from "@/modules/anuncios/AcoesAnuncio";
 import { ROTAS } from "@/constants/rotas";
 import type { StatusAnuncio, TipoAnuncio } from "@/modules/anuncios/actions";
+import { formatarMoedaBRL, pluralizar } from "@/lib/format";
 
 const STATUS_LABEL: Record<StatusAnuncio, string> = {
   ativo: "Ativo",
@@ -39,7 +41,7 @@ export default async function PaginaMeusAnuncios() {
             </div>
             <h1 className="text-2xl font-bold text-stone-900">Anúncios publicados</h1>
             <p className="mt-1 text-sm text-stone-500">
-              {anuncios.length} anúncio{anuncios.length !== 1 ? "s" : ""} no total
+              {pluralizar(anuncios.length, "anúncio", "anúncios")} no total
             </p>
           </div>
           <Link
@@ -88,11 +90,11 @@ export default async function PaginaMeusAnuncios() {
                   </span>
                 </div>
                 <p className="text-lg font-semibold text-stone-900">
-                  R$ {anuncio.valor_total.toFixed(2)}
+                  {formatarMoedaBRL(anuncio.valor_total)}
                 </p>
                 {anuncio.valor_remanescente !== anuncio.valor_total && (
                   <p className="text-xs text-stone-400">
-                    Remanescente: R$ {anuncio.valor_remanescente.toFixed(2)}
+                    Remanescente: {formatarMoedaBRL(anuncio.valor_remanescente)}
                   </p>
                 )}
                 {anuncio.rotulo_regiao && (
@@ -104,12 +106,19 @@ export default async function PaginaMeusAnuncios() {
                 </p>
               </div>
 
-              <Link
-                href={ROTAS.ANUNCIO_DETALHE(anuncio.id)}
-                className="flex items-center gap-1.5 self-start rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-sm hover:bg-stone-50 sm:self-center"
-              >
-                Ver detalhe <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              <div className="flex flex-col items-start gap-2 sm:items-end">
+                <Link
+                  href={ROTAS.ANUNCIO_DETALHE(anuncio.id)}
+                  className="flex items-center gap-1.5 self-start rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-sm hover:bg-stone-50 sm:self-center"
+                >
+                  Ver detalhe <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+                <AcoesAnuncio
+                  anuncioId={anuncio.id}
+                  hrefEditar={ROTAS.ANUNCIO_EDITAR(anuncio.id)}
+                  compacta
+                />
+              </div>
             </div>
           ))}
         </div>

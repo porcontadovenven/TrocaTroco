@@ -5,6 +5,7 @@ import { isAdmin } from "@/constants/papeis";
 import { ROTAS } from "@/constants/rotas";
 import { listarNegociacoesModeracao } from "@/modules/admin/actions";
 import { BotaoEncerrarModeracao } from "@/modules/negociacoes/AcoesNegociacao";
+import { formatarMoedaBRL, pluralizar } from "@/lib/format";
 
 const STATUS_NEGOCIACAO_LABEL: Record<string, string> = {
   em_andamento: "Em andamento",
@@ -34,7 +35,7 @@ export default async function PaginaModeracaoNegociacoes() {
               Moderação de negociações
             </h1>
             <p className="mt-1 text-sm text-stone-500">
-              {negociacoes.length} negociação{negociacoes.length !== 1 ? "ões" : ""} com moderação ativa
+              {pluralizar(negociacoes.length, "negociação com moderação ativa", "negociações com moderação ativa")}
             </p>
           </div>
           <Link
@@ -100,7 +101,7 @@ export default async function PaginaModeracaoNegociacoes() {
                 <div>
                   <span className="text-stone-400">Valor: </span>
                   <span className="font-medium text-stone-800">
-                    R$ {negociacao.valor_negociado.toFixed(2)}
+                    {formatarMoedaBRL(negociacao.valor_negociado)}
                   </span>
                 </div>
                 <div>

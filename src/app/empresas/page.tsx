@@ -3,6 +3,7 @@ import { Building2, Star } from "lucide-react";
 import { listarEmpresasPublicas } from "@/modules/empresas/actions";
 import { ROTAS } from "@/constants/rotas";
 import { AutoRefreshClient } from "@/modules/app/AutoRefreshClient";
+import { formatarDecimalBR, formatarLocalizacao, pluralizar } from "@/lib/format";
 
 function EstrelasResumo({ nota }: { nota: number | null }) {
   if (nota === null) {
@@ -16,7 +17,7 @@ function EstrelasResumo({ nota }: { nota: number | null }) {
           <span key={valor} className={valor <= Math.round(nota) ? "opacity-100" : "opacity-25"}>★</span>
         ))}
       </span>
-      <span className="text-sm font-semibold text-stone-700">{nota.toFixed(1)}</span>
+      <span className="text-sm font-semibold text-stone-700">{formatarDecimalBR(nota)}</span>
     </div>
   );
 }
@@ -42,7 +43,7 @@ export default async function PaginaEmpresas() {
             href={ROTAS.ANUNCIOS}
             className="text-sm font-medium text-stone-600 underline-offset-4 hover:underline"
           >
-            Ver marketplace
+            Ver anúncios
           </Link>
         </div>
 
@@ -79,7 +80,7 @@ export default async function PaginaEmpresas() {
               </div>
 
               <p className="text-sm text-stone-500">
-                {empresa.cidade}, {empresa.estado}
+                {formatarLocalizacao(empresa.cidade, empresa.estado)}
               </p>
 
               <div className="flex flex-col gap-2 rounded-2xl bg-stone-50 px-4 py-3">
@@ -88,8 +89,8 @@ export default async function PaginaEmpresas() {
                   <EstrelasResumo nota={empresa.media_nota} />
                 </div>
                 <div className="flex items-center justify-between text-xs text-stone-500">
-                  <span>{empresa.total_avaliacoes} avaliação{empresa.total_avaliacoes !== 1 ? "ões" : ""}</span>
-                  <span>{empresa.total_negociacoes_concluidas} operação{empresa.total_negociacoes_concluidas !== 1 ? "ões" : ""}</span>
+                  <span>{pluralizar(empresa.total_avaliacoes, "avaliação", "avaliações")}</span>
+                  <span>{pluralizar(empresa.total_negociacoes_concluidas, "operação", "operações")}</span>
                 </div>
               </div>
 

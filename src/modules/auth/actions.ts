@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { getAppUrlObrigatoriaEmProducao } from "@/lib/env";
+import { getSupabaseEnv } from "@/lib/env";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { ROTAS } from "@/constants/rotas";
 
@@ -13,9 +13,9 @@ function validarEmail(email: string) {
 }
 
 async function obterOrigemAtual() {
-  const appUrl = getAppUrlObrigatoriaEmProducao();
+  const { appUrl } = getSupabaseEnv();
 
-  if (appUrl) return appUrl;
+  if (appUrl) return appUrl.replace(/\/$/, "");
 
   const headerStore = await headers();
   const origin = headerStore.get("origin");
@@ -50,20 +50,8 @@ export async function loginAction(
   _estado: { erro?: string } | undefined,
   formData: FormData,
 ) {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  const senha = String(formData.get("senha") ?? "");
-
-  if (!email || !senha) {
-    return { erro: "Informe email e senha." };
-  }
-
-  if (!validarEmail(email)) {
-    return { erro: "Email inválido." };
-  }
-
-  if (senha.length > 128) {
-    return { erro: "Senha inválida." };
-  }
+  const email = formData.get("email") as string;
+  const senha = formData.get("senha") as string;
 
   const supabase = await getSupabaseServerClient();
 
@@ -156,7 +144,7 @@ export async function reenviarConfirmacaoCadastroAction(
       return { erro: "Não foi possível reenviar a confirmação agora." };
     }
 
-    return { sucesso: "Se a conta existir, um novo email de confirmação foi enviado." };
+    return { sucesso: "Se a conta existir, um novo e-mail de confirmação foi enviado." };
   } catch {
     return { erro: "Não foi possível reenviar a confirmação agora." };
   }

@@ -35,7 +35,7 @@ export default async function PaginaStatusCadastral() {
               for concluída.
             </p>
             <p className="text-sm text-stone-500">
-              Enquanto isso, a operação no marketplace está bloqueada.
+              Enquanto isso, o acesso à área operacional permanece bloqueado.
             </p>
             {submissao?.enviada_em && (
               <p className="text-xs text-stone-400">

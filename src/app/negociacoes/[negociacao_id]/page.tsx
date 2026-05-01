@@ -12,6 +12,7 @@ import { AtualizacaoNegociacaoClient } from "@/modules/negociacoes/AtualizacaoNe
 import { ChatMensagensClient } from "@/modules/negociacoes/ChatMensagensClient";
 import { ROTAS } from "@/constants/rotas";
 import { isAdmin } from "@/constants/papeis";
+import { formatarMoedaBRL } from "@/lib/format";
 
 const STATUS_LABEL: Record<string, string> = {
   em_andamento: "Em andamento",
@@ -144,7 +145,7 @@ export default async function PaginaNegociacao({
             <div>
               <p className="text-xs uppercase tracking-wide text-stone-400">Valor acordado</p>
               <p className="text-xl font-bold text-stone-900">
-                R$ {neg.valor_negociado.toFixed(2)}
+                {formatarMoedaBRL(neg.valor_negociado)}
               </p>
             </div>
             <div>

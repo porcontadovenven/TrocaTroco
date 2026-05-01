@@ -16,6 +16,7 @@ import { APP_NAME } from "@/constants/app";
 import { getSessao } from "@/lib/sessao";
 import { isAdmin } from "@/constants/papeis";
 import { AutoRefreshClient } from "@/modules/app/AutoRefreshClient";
+import { formatarMoedaBRL } from "@/lib/format";
 
 const TIPO_LABEL: Record<string, string> = {
   oferta: "Oferta de troco",
@@ -164,7 +165,7 @@ export default async function Home() {
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 shadow-sm">
               <BadgeCheck className="h-3.5 w-3.5 text-emerald-600" />
               <span className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
-                TrocaTroco · Marketplace de Troco B2B
+                TrocaTroco · Plataforma B2B de Troco
               </span>
             </div>
             <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-stone-900 sm:text-5xl lg:text-6xl">
@@ -174,7 +175,7 @@ export default async function Home() {
               </span>
             </h1>
             <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-stone-500">
-              Marketplace B2B para empresas que precisam de troco ou têm troco
+              Plataforma B2B para empresas que precisam de troco ou têm troco
               disponível. Conexão direta entre negócios — sem custódia, sem
               intermediação de pagamento.
             </p>
@@ -238,7 +239,7 @@ export default async function Home() {
                   icon: <ShieldCheck className="h-5 w-5 text-emerald-600" />,
                   titulo: "Moderação e reputação",
                   texto:
-                    "Avaliações públicas, histórico transparente e equipe de moderação ativa 24/7.",
+                    "Avaliações públicas, histórico transparente e moderação disponível conforme a operação da plataforma.",
                 },
               ].map(({ icon, titulo, texto }) => (
                 <div key={titulo} className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
@@ -353,7 +354,7 @@ export default async function Home() {
                 {
                   icon: <ShieldCheck className="h-5 w-5 text-emerald-600" />,
                   titulo: "Moderação ativa",
-                  texto: "Equipe dedicada para resolução de disputas e moderação de avaliações.",
+                  texto: "Canal de moderação para denúncias, disputas e revisão de avaliações quando necessário.",
                 },
                 {
                   icon: <Star className="h-5 w-5 text-emerald-600" />,
@@ -442,7 +443,7 @@ export default async function Home() {
                       <ArrowRight className="h-3.5 w-3.5 text-stone-300 transition-colors group-hover:text-emerald-500" />
                     </div>
                     <p className="text-2xl font-bold tracking-tight text-stone-900">
-                      R$ {anuncio.valor_remanescente.toFixed(2)}
+                      {formatarMoedaBRL(anuncio.valor_remanescente)}
                     </p>
                     {anuncio.rotulo_regiao && (
                       <p className="text-xs text-stone-400">
@@ -450,12 +451,9 @@ export default async function Home() {
                       </p>
                     )}
                     {anuncio.empresa && (
-                      <Link
-                        href={ROTAS.EMPRESA_PERFIL(anuncio.empresa.slug_publico ?? anuncio.empresa.id)}
-                        className="mt-auto text-xs font-medium text-stone-500 underline-offset-4 hover:underline"
-                      >
+                      <div className="mt-auto text-xs font-medium text-stone-500">
                         {anuncio.empresa.razao_social}
-                      </Link>
+                      </div>
                     )}
                   </Link>
                 ))}
@@ -490,7 +488,7 @@ export default async function Home() {
                 Pronto para começar?
               </h2>
               <p className="mb-8 text-stone-400">
-                Cadastre sua empresa e comece a operar. Análise cadastral rápida pela nossa equipe.
+                Cadastre sua empresa, envie suas informações cadastrais e acompanhe a aprovação antes de operar na plataforma.
               </p>
               <Link
                 href={ROTAS.CADASTRO}
@@ -512,7 +510,7 @@ export default async function Home() {
             <div className="flex flex-col gap-4 lg:col-span-2">
               <LogoBranca />
               <p className="max-w-xs text-sm leading-6 text-stone-400">
-                Plataforma B2B de intermediação de troco entre empresas e MEIs
+                Plataforma B2B de conexão entre empresas e MEIs
                 com CNPJ ativo. Conexão direta, sem custódia de valores.
               </p>
               <p className="text-xs text-stone-600">
@@ -565,6 +563,18 @@ export default async function Home() {
                 >
                   Diferenciais
                 </a>
+                <Link
+                  href={ROTAS.SEGURANCA_OPERACOES}
+                  className="text-sm text-stone-400 transition-colors hover:text-white"
+                >
+                  Segurança nas operações
+                </Link>
+                <Link
+                  href={ROTAS.POLITICA_MODERACAO}
+                  className="text-sm text-stone-400 transition-colors hover:text-white"
+                >
+                  Moderação e denúncias
+                </Link>
               </div>
             </div>
           </div>
@@ -573,9 +583,11 @@ export default async function Home() {
             <p className="text-xs text-stone-600">
               © {new Date().getFullYear()} {APP_NAME}. Todos os direitos reservados.
             </p>
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" />
-              <span className="text-xs text-stone-600">Plataforma segura · CNPJs e MEIs</span>
+            <div className="flex flex-wrap items-center gap-3 text-xs text-stone-600">
+              <Link href={ROTAS.TERMOS_USO} className="transition-colors hover:text-white">Termos de Uso</Link>
+              <Link href={ROTAS.POLITICA_PRIVACIDADE} className="transition-colors hover:text-white">Privacidade</Link>
+              <Link href={ROTAS.REGRAS_PLATAFORMA} className="transition-colors hover:text-white">Regras</Link>
+              <Link href={ROTAS.AVISO_RESPONSABILIDADE} className="transition-colors hover:text-white">Responsabilidade</Link>
             </div>
           </div>
         </div>

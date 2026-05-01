@@ -3,6 +3,7 @@ import { MessageSquareText } from "lucide-react";
 import { listarNegociacoesDaEmpresa } from "@/modules/negociacoes/actions";
 import { ROTAS } from "@/constants/rotas";
 import { AutoRefreshClient } from "@/modules/app/AutoRefreshClient";
+import { formatarMoedaBRL } from "@/lib/format";
 
 const STATUS_LABEL: Record<string, string> = {
   em_andamento: "Em andamento",
@@ -103,7 +104,7 @@ function CardNegociacao({
       </div>
 
       <div className="mb-3 flex flex-wrap gap-4 text-sm">
-        <span className="font-semibold text-stone-900">R$ {negociacao.valor_negociado.toFixed(2)}</span>
+        <span className="font-semibold text-stone-900">{formatarMoedaBRL(negociacao.valor_negociado)}</span>
         <span className="text-stone-500">{negociacao.meio_pagamento}</span>
         <span className="text-stone-500">{new Date(negociacao.criada_em).toLocaleDateString("pt-BR")}</span>
       </div>

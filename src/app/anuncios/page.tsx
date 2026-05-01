@@ -5,6 +5,7 @@ import type { StatusAnuncio, TipoAnuncio } from "@/modules/anuncios/actions";
 import { getSessao } from "@/lib/sessao";
 import { isAdmin } from "@/constants/papeis";
 import { AutoRefreshClient } from "@/modules/app/AutoRefreshClient";
+import { formatarLocalizacao, formatarMoedaBRL, pluralizar } from "@/lib/format";
 
 const TIPO_LABEL: Record<TipoAnuncio, string> = {
   oferta: "Oferta",
@@ -50,7 +51,7 @@ export default async function PaginaAnuncios({
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-stone-900">Anúncios</h1>
           <p className="mt-1 text-sm text-stone-500">
-            {total} anúncio{total !== 1 ? "s" : ""} disponíveis na plataforma
+            {pluralizar(total, "anúncio disponível", "anúncios disponíveis")} na plataforma
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {FILTROS_TIPO.map((filtro) => {
@@ -116,7 +117,7 @@ export default async function PaginaAnuncios({
 
                 <div>
                   <p className="text-xl font-bold text-stone-900">
-                    R$ {anuncio.valor_total.toFixed(2)}
+                    {formatarMoedaBRL(anuncio.valor_total)}
                   </p>
                   {anuncio.permite_parcial && (
                     <p className="text-xs text-stone-400">Aceita parcial</p>
@@ -133,7 +134,7 @@ export default async function PaginaAnuncios({
                     </Link>
                     {(empresa.cidade || empresa.estado) && (
                       <p className="text-xs text-stone-400">
-                        {[empresa.cidade, empresa.estado].filter(Boolean).join(", ")}
+                        {formatarLocalizacao(empresa.cidade, empresa.estado)}
                       </p>
                     )}
                   </div>
