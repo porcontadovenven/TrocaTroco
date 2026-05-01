@@ -24,14 +24,14 @@ export function FormReprovacao({
       <input
         name="motivo_codigo"
         placeholder="Código (opcional)"
-        className="rounded-xl border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+        className="rounded-xl border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500"
       />
       <textarea
         name="motivo_texto"
         required
         rows={3}
         placeholder="Descreva o motivo da reprovação (obrigatório)"
-        className="rounded-xl border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+        className="rounded-xl border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500"
       />
 
       {estado && !estado.ok && (
@@ -44,7 +44,7 @@ export function FormReprovacao({
       <button
         type="submit"
         disabled={pendente}
-        className="rounded-xl border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:opacity-60"
+        className="rounded-xl border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:opacity-60 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-400 dark:hover:bg-red-950"
       >
         {pendente ? "Reprovando..." : "Reprovar"}
       </button>

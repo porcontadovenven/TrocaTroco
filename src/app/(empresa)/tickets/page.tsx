@@ -10,9 +10,9 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_COR: Record<string, string> = {
-  aberto: "bg-amber-50 border-amber-200 text-amber-800",
-  em_analise: "bg-blue-50 border-blue-200 text-blue-800",
-  encerrado: "bg-stone-100 border-stone-200 text-stone-600",
+  aberto: "bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950/50 dark:border-amber-900/60 dark:text-amber-300",
+  em_analise: "bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950/50 dark:border-blue-900/60 dark:text-blue-300",
+  encerrado: "bg-stone-100 border-stone-200 text-stone-600 dark:bg-stone-800 dark:border-stone-700 dark:text-stone-400",
 };
 
 const ORIGEM_LABEL: Record<string, string> = {
@@ -32,11 +32,11 @@ export default async function PaginaTicketsEmpresa() {
   const { tickets, error } = await listarTicketsDaEmpresa();
 
   return (
-    <main className="min-h-screen bg-stone-50/50 px-6 py-10">
+    <main className="min-h-screen bg-stone-50/50 px-6 py-10 dark:bg-[#09090f]">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-stone-900">Minhas denúncias</h1>
-          <p className="mt-1 text-sm text-stone-500">
+          <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-50">Minhas denúncias</h1>
+          <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
             Acompanhe status, andamento e mensagens da moderação.
           </p>
         </div>
@@ -48,62 +48,62 @@ export default async function PaginaTicketsEmpresa() {
         )}
 
         {!error && tickets.length === 0 && (
-          <div className="rounded-3xl border border-stone-200 bg-white p-10 text-center">
-            <p className="text-sm text-stone-500">Você ainda não abriu nenhuma denúncia.</p>
+          <div className="rounded-3xl border border-stone-200 bg-white p-10 text-center dark:border-stone-700/60 dark:bg-stone-900">
+            <p className="text-sm text-stone-500 dark:text-stone-400">Você ainda não abriu nenhuma denúncia.</p>
           </div>
         )}
 
         <div className="flex flex-col gap-4">
           {tickets.map((ticket) => (
-            <section key={ticket.id} className="rounded-3xl border border-stone-200 bg-white p-5">
+            <section key={ticket.id} className="rounded-3xl border border-stone-200 bg-white p-5 dark:border-stone-700/60 dark:bg-stone-900">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <span
                   className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${STATUS_COR[ticket.status] ?? ""}`}
                 >
                   {STATUS_LABEL[ticket.status] ?? ticket.status}
                 </span>
-                <span className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-xs text-stone-600">
+                <span className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-xs text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400">
                   {ORIGEM_LABEL[ticket.tipo_origem] ?? ticket.tipo_origem}
                 </span>
-                <span className="ml-auto text-xs text-stone-400">
+                <span className="ml-auto text-xs text-stone-400 dark:text-stone-500">
                   Aberto em {new Date(ticket.aberto_em).toLocaleString("pt-BR")}
                 </span>
               </div>
 
               {ticket.assunto && (
-                <h2 className="text-base font-semibold text-stone-900">{ticket.assunto}</h2>
+                <h2 className="text-base font-semibold text-stone-900 dark:text-stone-50">{ticket.assunto}</h2>
               )}
 
               {ticket.descricao && (
-                <p className="mt-2 text-sm text-stone-600">{ticket.descricao}</p>
+                <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">{ticket.descricao}</p>
               )}
 
               {ticket.resumo_resolucao && (
-                <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 dark:border-emerald-900/50 dark:bg-emerald-950/40">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
                     Resolução registrada
                   </p>
-                  <p className="mt-1 text-sm text-emerald-900">{ticket.resumo_resolucao}</p>
+                  <p className="mt-1 text-sm text-emerald-900 dark:text-emerald-300">{ticket.resumo_resolucao}</p>
                 </div>
               )}
 
-              <div className="mt-4 rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-500">
+              <div className="mt-4 rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 dark:border-stone-800 dark:bg-stone-800/50">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
                   Histórico da denúncia
                 </p>
 
                 {ticket.eventos.length === 0 ? (
-                  <p className="text-sm text-stone-500">Ainda não há atualizações neste ticket.</p>
+                  <p className="text-sm text-stone-500 dark:text-stone-400">Ainda não há atualizações neste ticket.</p>
                 ) : (
                   <div className="flex flex-col gap-3">
                     {ticket.eventos.map((evento) => (
-                      <div key={evento.id} className="border-l-2 border-stone-200 pl-3">
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
-                          <span className="font-medium text-stone-800">
+                      <div key={evento.id} className="border-l-2 border-stone-200 pl-3 dark:border-stone-700">
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
+                          <span className="font-medium text-stone-800 dark:text-stone-200">
                             {evento.ator?.nome_completo ?? "Sistema"}
                           </span>
                           <span>{labelAtor(evento.ator?.papel)}</span>
-                          <span className="rounded-full bg-white px-2 py-0.5 text-[11px] text-stone-500">
+                          <span className="rounded-full bg-white px-2 py-0.5 text-[11px] text-stone-500 dark:bg-stone-900 dark:text-stone-400">
                             {evento.tipo_evento.replaceAll("_", " ")}
                           </span>
                           <span className="ml-auto">
@@ -111,7 +111,7 @@ export default async function PaginaTicketsEmpresa() {
                           </span>
                         </div>
                         {evento.corpo_evento && (
-                          <p className="mt-1 text-sm text-stone-700">{evento.corpo_evento}</p>
+                          <p className="mt-1 text-sm text-stone-700 dark:text-stone-300">{evento.corpo_evento}</p>
                         )}
                       </div>
                     ))}
@@ -120,11 +120,11 @@ export default async function PaginaTicketsEmpresa() {
               </div>
 
               {ticket.status !== "encerrado" && ticket.empresa_pode_responder && (
-                <div className="mt-4 rounded-2xl border border-stone-200 bg-white px-4 py-4">
-                  <p className="mb-2 text-sm font-medium text-stone-800">
+                <div className="mt-4 rounded-2xl border border-stone-200 bg-white px-4 py-4 dark:border-stone-700/60 dark:bg-stone-900">
+                  <p className="mb-2 text-sm font-medium text-stone-800 dark:text-stone-100">
                     Responder à moderação
                   </p>
-                  <p className="mb-3 text-xs text-stone-500">
+                  <p className="mb-3 text-xs text-stone-500 dark:text-stone-400">
                     Quando a equipe pedir mais informações, envie a complementação por aqui.
                   </p>
                   <FormMensagemTicket
@@ -137,11 +137,11 @@ export default async function PaginaTicketsEmpresa() {
               )}
 
               {ticket.status !== "encerrado" && !ticket.empresa_pode_responder && (
-                <div className="mt-4 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
-                  <p className="text-sm font-medium text-stone-700">
+                <div className="mt-4 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4 dark:border-stone-700/60 dark:bg-stone-800/50">
+                  <p className="text-sm font-medium text-stone-700 dark:text-stone-300">
                     Aguardando nova solicitação da moderação
                   </p>
-                  <p className="mt-1 text-xs text-stone-500">
+                  <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
                     Sua resposta fica liberada quando admin ou moderação pedirem informações complementares neste ticket.
                   </p>
                 </div>

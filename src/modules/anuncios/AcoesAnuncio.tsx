@@ -42,7 +42,7 @@ export function AcoesAnuncio({
       <div className="flex flex-wrap items-center gap-2">
         <Link
           href={hrefEditar}
-          className="rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-sm hover:bg-stone-50"
+          className="rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-sm hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
         >
           Editar
         </Link>
@@ -59,7 +59,7 @@ export function AcoesAnuncio({
           <button
             type="submit"
             disabled={pendente}
-            className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 shadow-sm hover:bg-red-100 disabled:opacity-60"
+            className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 shadow-sm hover:bg-red-100 disabled:opacity-60 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-400 dark:hover:bg-red-950"
           >
             {pendente ? "Processando..." : "Excluir"}
           </button>

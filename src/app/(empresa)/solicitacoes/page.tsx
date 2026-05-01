@@ -22,11 +22,11 @@ const STATUS_LABEL: Record<StatusSolicitacao, string> = {
 };
 
 const STATUS_COR: Record<StatusSolicitacao, string> = {
-  pendente: "bg-amber-50 border-amber-200 text-amber-800",
-  aceita: "bg-emerald-50 border-emerald-200 text-emerald-800",
-  recusada: "bg-red-50 border-red-200 text-red-700",
-  cancelada: "bg-stone-100 border-stone-200 text-stone-500",
-  expirada: "bg-stone-50 border-stone-200 text-stone-400",
+  pendente: "bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950/50 dark:border-amber-900/60 dark:text-amber-300",
+  aceita: "bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950/50 dark:border-emerald-900/60 dark:text-emerald-300",
+  recusada: "bg-red-50 border-red-200 text-red-700 dark:bg-red-950/50 dark:border-red-900/60 dark:text-red-400",
+  cancelada: "bg-stone-100 border-stone-200 text-stone-500 dark:bg-stone-800 dark:border-stone-700 dark:text-stone-400",
+  expirada: "bg-stone-50 border-stone-200 text-stone-400 dark:bg-stone-800/50 dark:border-stone-700 dark:text-stone-500",
 };
 
 const LOCAL_LABEL: Record<string, string> = {
@@ -46,25 +46,25 @@ export default async function PaginaSolicitacoes() {
   ]);
 
   return (
-    <main className="min-h-screen bg-stone-50/50 px-6 py-10">
+    <main className="min-h-screen bg-stone-50/50 px-6 py-10 dark:bg-[#09090f]">
       <AutoRefreshClient tabelas={["solicitacoes", "negociacoes"]} intervaloMs={12000} />
       <div className="mx-auto max-w-3xl">
         <div className="mb-8">
-          <div className="mb-1 flex items-center gap-2 text-xs font-medium text-stone-400">
+          <div className="mb-1 flex items-center gap-2 text-xs font-medium text-stone-400 dark:text-stone-500">
             <Bell className="h-3.5 w-3.5" />
             Solicitações
           </div>
-          <h1 className="text-2xl font-bold text-stone-900">Solicitações</h1>
-          <p className="mt-1 text-sm text-stone-500">
+          <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-50">Solicitações</h1>
+          <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
             Gerencie as solicitações que você enviou e recebeu.
           </p>
         </div>
 
         {/* ---- ENVIADAS ---- */}
         <section className="mb-10">
-          <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-stone-800">
+          <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-stone-800 dark:text-stone-100">
             Enviadas
-            <span className="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600">
+            <span className="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600 dark:bg-stone-700 dark:text-stone-300">
               {enviadas.length}
             </span>
           </h2>
@@ -91,11 +91,11 @@ export default async function PaginaSolicitacoes() {
               return (
                 <div
                   key={sol.id}
-                  className="rounded-2xl border border-stone-200 bg-white p-4"
+                  className="rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-700/60 dark:bg-stone-900"
                 >
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     {anuncio && (
-                      <span className="text-xs text-stone-500">
+                      <span className="text-xs text-stone-500 dark:text-stone-400">
                         {TIPO_LABEL[anuncio.tipo]} — {empresa ? (
                           <Link
                             href={ROTAS.EMPRESA_PERFIL(empresa.slug_publico ?? empresa.id)}
@@ -112,16 +112,16 @@ export default async function PaginaSolicitacoes() {
                   </div>
 
                   <div className="mb-2 flex flex-wrap gap-4 text-sm">
-                    <span className="font-semibold text-stone-900">
+                    <span className="font-semibold text-stone-900 dark:text-stone-50">
                       {formatarMoedaBRL(sol.valor_solicitado)}
                     </span>
-                    <span className="text-stone-500">
+                    <span className="text-stone-500 dark:text-stone-400">
                       {LOCAL_LABEL[sol.local_troca] ?? sol.local_troca}
                     </span>
-                    <span className="text-stone-500">{sol.meio_pagamento}</span>
+                    <span className="text-stone-500 dark:text-stone-400">{sol.meio_pagamento}</span>
                   </div>
 
-                  <p className="mb-2 text-xs text-stone-400">
+                  <p className="mb-2 text-xs text-stone-400 dark:text-stone-500">
                     {new Date(sol.criada_em).toLocaleString("pt-BR")}
                   </p>
 
@@ -150,9 +150,9 @@ export default async function PaginaSolicitacoes() {
 
         {/* ---- RECEBIDAS ---- */}
         <section>
-          <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-stone-800">
+          <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-stone-800 dark:text-stone-100">
             Recebidas
-            <span className="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600">
+            <span className="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600 dark:bg-stone-700 dark:text-stone-300">
               {recebidas.length}
             </span>
           </h2>
@@ -181,23 +181,23 @@ export default async function PaginaSolicitacoes() {
               return (
                 <div
                   key={sol.id}
-                  className="rounded-2xl border border-stone-200 bg-white p-4"
+                  className="rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-700/60 dark:bg-stone-900"
                 >
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     {anuncio && (
-                      <span className="text-xs text-stone-500">
+                      <span className="text-xs text-stone-500 dark:text-stone-400">
                         {TIPO_LABEL[anuncio.tipo]}
                       </span>
                     )}
                     {empresaSolicitante ? (
                       <Link
                         href={ROTAS.EMPRESA_PERFIL(empresaSolicitante.slug_publico ?? empresaSolicitante.id)}
-                        className="text-xs font-medium text-stone-700 underline-offset-4 hover:underline"
+                        className="text-xs font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
                       >
                         {nomeEmpresa}
                       </Link>
                     ) : (
-                      <span className="text-xs font-medium text-stone-700">{nomeEmpresa}</span>
+                      <span className="text-xs font-medium text-stone-700 dark:text-stone-300">{nomeEmpresa}</span>
                     )}
                     <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS_COR[status]}`}>
                       {STATUS_LABEL[status]}
@@ -205,21 +205,21 @@ export default async function PaginaSolicitacoes() {
                   </div>
 
                   <div className="mb-2 flex flex-wrap gap-4 text-sm">
-                    <span className="font-semibold text-stone-900">
+                    <span className="font-semibold text-stone-900 dark:text-stone-50">
                       {formatarMoedaBRL(sol.valor_solicitado)}
                     </span>
                     {sol.parcial && (
-                      <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700">
+                      <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
                         Parcial
                       </span>
                     )}
-                    <span className="text-stone-500">
+                    <span className="text-stone-500 dark:text-stone-400">
                       {LOCAL_LABEL[sol.local_troca] ?? sol.local_troca}
                     </span>
-                    <span className="text-stone-500">{sol.meio_pagamento}</span>
+                    <span className="text-stone-500 dark:text-stone-400">{sol.meio_pagamento}</span>
                   </div>
 
-                  <p className="mb-3 text-xs text-stone-400">
+                  <p className="mb-3 text-xs text-stone-400 dark:text-stone-500">
                     {new Date(sol.criada_em).toLocaleString("pt-BR")}
                   </p>
 
@@ -249,7 +249,7 @@ export default async function PaginaSolicitacoes() {
 
 function Empty({ mensagem }: { mensagem: string }) {
   return (
-    <div className="rounded-2xl border border-stone-100 bg-white py-8 text-center text-sm text-stone-400">
+    <div className="rounded-2xl border border-stone-100 bg-white py-8 text-center text-sm text-stone-400 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-500">
       {mensagem}
     </div>
   );

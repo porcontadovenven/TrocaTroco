@@ -42,7 +42,6 @@ export default async function LayoutEmpresa({
         hrefArea={ROTAS.DASHBOARD}
         rotuloArea="Dashboard"
         navItems={[
-          { href: ROTAS.DASHBOARD, label: "Dashboard" },
           { href: ROTAS.ANUNCIAR, label: "Anunciar" },
           { href: ROTAS.MEUS_ANUNCIOS, label: "Meus anúncios" },
           { href: ROTAS.SOLICITACOES, label: "Solicitações" },

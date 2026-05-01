@@ -11,18 +11,18 @@ export default async function PaginaCadastro() {
   } = await supabase.auth.getUser();
 
   return (
-    <main className="flex min-h-screen items-start justify-center bg-[linear-gradient(135deg,#f7f1e7_0%,#fffdf7_45%,#e8f1ea_100%)] px-4 py-12">
+    <main className="flex min-h-screen items-start justify-center bg-[linear-gradient(135deg,#f7f1e7_0%,#fffdf7_45%,#e8f1ea_100%)] px-4 py-12 dark:bg-none dark:bg-[#09090f]">
       <div className="w-full max-w-xl">
         <div className="mb-8 text-center">
-          <span className="text-2xl font-bold tracking-tight text-stone-900">
+          <span className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-50">
             {APP_NAME}
           </span>
-          <p className="mt-1 text-sm text-stone-500">
+          <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
             Cadastre sua empresa, aguarde a análise cadastral e só então libere sua operação na plataforma.
           </p>
         </div>
 
-        <div className="rounded-3xl border border-stone-900/10 bg-white/90 p-8 shadow-[0_16px_48px_rgba(29,29,27,0.08)] backdrop-blur">
+        <div className="rounded-3xl border border-stone-900/10 bg-white/90 p-8 shadow-[0_16px_48px_rgba(29,29,27,0.08)] backdrop-blur dark:border-stone-700/60 dark:bg-stone-900 dark:shadow-none">
           <FormCadastro requerCredenciais={!user} />
         </div>
 

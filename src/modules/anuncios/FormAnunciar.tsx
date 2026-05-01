@@ -127,8 +127,8 @@ export function FormAnunciar({
     return (
       <div className="flex flex-col gap-6">
         <div>
-          <h1 className="text-xl font-semibold text-stone-900">Criar anúncio</h1>
-          <p className="mt-1 text-sm text-stone-500">
+          <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-50">Criar anúncio</h1>
+          <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
             Selecione o tipo de anúncio que deseja publicar.
           </p>
         </div>
@@ -137,11 +137,11 @@ export function FormAnunciar({
           <button
             type="button"
             onClick={() => escolherTipo("oferta")}
-            className="flex flex-col gap-2 rounded-3xl border-2 border-stone-200 bg-white p-6 text-left transition hover:border-emerald-500 hover:shadow-md"
+            className="flex flex-col gap-2 rounded-3xl border-2 border-stone-200 bg-white p-6 text-left transition hover:border-emerald-500 hover:shadow-md dark:border-stone-700/60 dark:bg-stone-900 dark:hover:border-emerald-600"
           >
             <span className="text-2xl">💵</span>
-            <span className="font-semibold text-stone-900">Oferta de troco</span>
-            <span className="text-sm leading-relaxed text-stone-500">
+            <span className="font-semibold text-stone-900 dark:text-stone-50">Oferta de troco</span>
+            <span className="text-sm leading-relaxed text-stone-500 dark:text-stone-400">
               Você tem troco disponível e quer colocá-lo à disposição de outras empresas.
             </span>
           </button>
@@ -149,11 +149,11 @@ export function FormAnunciar({
           <button
             type="button"
             onClick={() => escolherTipo("necessidade")}
-            className="flex flex-col gap-2 rounded-3xl border-2 border-stone-200 bg-white p-6 text-left transition hover:border-amber-500 hover:shadow-md"
+            className="flex flex-col gap-2 rounded-3xl border-2 border-stone-200 bg-white p-6 text-left transition hover:border-amber-500 hover:shadow-md dark:border-stone-700/60 dark:bg-stone-900 dark:hover:border-amber-500"
           >
             <span className="text-2xl">🔄</span>
-            <span className="font-semibold text-stone-900">Necessidade de troco</span>
-            <span className="text-sm leading-relaxed text-stone-500">
+            <span className="font-semibold text-stone-900 dark:text-stone-50">Necessidade de troco</span>
+            <span className="text-sm leading-relaxed text-stone-500 dark:text-stone-400">
               Você precisa de troco e quer encontrar uma empresa que possa te ajudar.
             </span>
           </button>
@@ -182,7 +182,7 @@ export function FormAnunciar({
             ← Voltar
           </button>
         )}
-        <h1 className="text-xl font-semibold text-stone-900">
+        <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-50">
           {editando
             ? "Editar anúncio"
             : tipo === "oferta"
@@ -201,14 +201,14 @@ export function FormAnunciar({
         <input type="hidden" name="itens_composicao" value={JSON.stringify(itens)} />
 
         {/* Composição */}
-        <section className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-          <h2 className="mb-4 text-sm font-semibold text-stone-800">
+        <section className="rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-700/60 dark:bg-stone-900">
+          <h2 className="mb-4 text-sm font-semibold text-stone-800 dark:text-stone-100">
             Composição do valor
           </h2>
 
           {/* Grade de cédulas */}
           <div className="mb-3">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-stone-500">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">
               Cédulas (R$)
             </p>
             <div className="flex flex-wrap gap-2">
@@ -217,7 +217,7 @@ export function FormAnunciar({
                   key={v}
                   type="button"
                   onClick={() => adicionarItem("cedula", v)}
-                  className="rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 hover:bg-emerald-50 hover:border-emerald-400"
+                  className="rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 hover:border-emerald-400 hover:bg-emerald-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:border-emerald-600 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300"
                 >
                   + R$ {v}
                 </button>
@@ -227,7 +227,7 @@ export function FormAnunciar({
 
           {/* Grade de moedas */}
           <div className="mb-4">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-stone-500">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">
               Moedas (R$)
             </p>
             <div className="flex flex-wrap gap-2">
@@ -236,7 +236,7 @@ export function FormAnunciar({
                   key={v}
                   type="button"
                   onClick={() => adicionarItem("moeda", v)}
-                  className="rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 hover:bg-amber-50 hover:border-amber-400"
+                  className="rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 hover:border-amber-400 hover:bg-amber-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:border-amber-500 dark:hover:bg-amber-950/40 dark:hover:text-amber-300"
                 >
                   + {formatarMoedaBRL(v)}
                 </button>
@@ -247,37 +247,37 @@ export function FormAnunciar({
           {/* Itens selecionados */}
           {itens.length > 0 ? (
             <div className="flex flex-col gap-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-stone-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">
                 Selecionados
               </p>
               {itens.map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm"
+                  className="flex items-center justify-between rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm dark:border-stone-700/60 dark:bg-stone-800"
                 >
-                  <span className="text-stone-700">
+                  <span className="text-stone-700 dark:text-stone-200">
                     {LABELS_TIPO_ITEM[item.tipo_item]} {formatarMoedaBRL(item.valor_unitario)}
                   </span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => ajustarQuantidade(idx, -1)}
-                      className="flex h-6 w-6 items-center justify-center rounded-full border border-stone-300 text-stone-600 hover:bg-stone-100"
+                      className="flex h-6 w-6 items-center justify-center rounded-full border border-stone-300 text-stone-600 hover:bg-stone-100 dark:border-stone-600 dark:text-stone-400 dark:hover:bg-stone-700"
                     >
                       −
                     </button>
-                    <span className="w-6 text-center font-medium">{item.quantidade}</span>
+                    <span className="w-6 text-center font-medium dark:text-stone-200">{item.quantidade}</span>
                     <button
                       type="button"
                       onClick={() => ajustarQuantidade(idx, 1)}
-                      className="flex h-6 w-6 items-center justify-center rounded-full border border-stone-300 text-stone-600 hover:bg-stone-100"
+                      className="flex h-6 w-6 items-center justify-center rounded-full border border-stone-300 text-stone-600 hover:bg-stone-100 dark:border-stone-600 dark:text-stone-400 dark:hover:bg-stone-700"
                     >
                       +
                     </button>
                     <button
                       type="button"
                       onClick={() => removerItem(idx)}
-                      className="ml-2 text-xs text-red-400 hover:text-red-600"
+                      className="ml-2 text-xs text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-400"
                     >
                       remover
                     </button>
@@ -285,7 +285,7 @@ export function FormAnunciar({
                 </div>
               ))}
 
-              <div className="mt-2 flex items-center justify-between rounded-xl bg-stone-900 px-4 py-2 text-sm text-white">
+              <div className="mt-2 flex items-center justify-between rounded-xl bg-stone-900 px-4 py-2 text-sm text-white dark:bg-emerald-950 dark:ring-1 dark:ring-emerald-900">
                 <span className="font-medium">Total</span>
                 <span className="font-bold">
                   {formatarMoedaBRL(valorTotal)}
@@ -293,7 +293,7 @@ export function FormAnunciar({
               </div>
             </div>
           ) : (
-            <p className="text-sm text-stone-400">
+            <p className="text-sm text-stone-400 dark:text-stone-500">
               Adicione itens clicando nos botões acima.
             </p>
           )}
@@ -302,26 +302,26 @@ export function FormAnunciar({
         {/* Opções específicas por tipo */}
         {tipo === "oferta" && (
           <section className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-stone-800">
+            <h2 className="text-sm font-semibold text-stone-800 dark:text-stone-100">
               Regras da oferta
             </h2>
-            <label className="flex items-center gap-3 text-sm text-stone-700">
+            <label className="flex items-center gap-3 text-sm text-stone-700 dark:text-stone-300">
               <input
                 type="checkbox"
                 name="permite_parcial"
                 value="true"
                 defaultChecked={valoresIniciais?.permite_parcial ?? false}
-                className="h-4 w-4 rounded border-stone-300"
+                className="h-4 w-4 rounded border-stone-300 dark:border-stone-600"
               />
               Aceito solicitações de valor parcial
             </label>
-            <label className="flex items-center gap-3 text-sm text-stone-700">
+            <label className="flex items-center gap-3 text-sm text-stone-700 dark:text-stone-300">
               <input
                 type="checkbox"
                 name="aceita_local_proprio"
                 value="true"
                 defaultChecked={valoresIniciais?.aceita_local_proprio ?? false}
-                className="h-4 w-4 rounded border-stone-300"
+                className="h-4 w-4 rounded border-stone-300 dark:border-stone-600"
               />
               A troca pode ocorrer na minha empresa
             </label>
@@ -330,16 +330,16 @@ export function FormAnunciar({
 
         {tipo === "necessidade" && (
           <section className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-stone-800">
+            <h2 className="text-sm font-semibold text-stone-800 dark:text-stone-100">
               Regras da necessidade
             </h2>
-            <label className="flex items-center gap-3 text-sm text-stone-700">
+            <label className="flex items-center gap-3 text-sm text-stone-700 dark:text-stone-300">
               <input
                 type="checkbox"
                 name="permite_parcial"
                 value="true"
                 defaultChecked={valoresIniciais?.permite_parcial ?? false}
-                className="h-4 w-4 rounded border-stone-300"
+                className="h-4 w-4 rounded border-stone-300 dark:border-stone-600"
               />
               Aceito atendimentos parciais
             </label>
@@ -378,7 +378,7 @@ export function FormAnunciar({
         <button
           type="submit"
           disabled={pendente}
-          className="rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-60"
+          className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm shadow-emerald-600/25 hover:bg-emerald-500 disabled:opacity-60"
         >
           {pendente ? (editando ? "Salvando..." : "Publicando...") : (editando ? "Salvar alterações" : "Publicar anúncio")}
         </button>
@@ -402,7 +402,7 @@ function CampoTexto({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={name} className="text-sm font-medium text-stone-700">
+      <label htmlFor={name} className="text-sm font-medium text-stone-700 dark:text-stone-300">
         {label}
       </label>
       <input
@@ -411,7 +411,7 @@ function CampoTexto({
         type={type}
         placeholder={placeholder}
         defaultValue={defaultValue}
-        className="rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+        className="rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-emerald-600 dark:focus:ring-emerald-900/40"
       />
     </div>
   );

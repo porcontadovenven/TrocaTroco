@@ -43,7 +43,7 @@ export function FormLogin({
         )}
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="email" className="text-sm font-medium text-stone-700">
+          <label htmlFor="email" className="text-sm font-medium text-stone-700 dark:text-stone-300">
             Email
           </label>
           <input
@@ -53,13 +53,13 @@ export function FormLogin({
             required
             defaultValue={emailPreenchido ?? ""}
             autoComplete="email"
-            className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+            className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-stone-500"
             placeholder="empresa@exemplo.com.br"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="senha" className="text-sm font-medium text-stone-700">
+          <label htmlFor="senha" className="text-sm font-medium text-stone-700 dark:text-stone-300">
             Senha
           </label>
           <input
@@ -68,14 +68,14 @@ export function FormLogin({
             type="password"
             required
             autoComplete="current-password"
-            className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+            className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-stone-500"
             placeholder="••••••••"
           />
 
           <div className="pt-1 text-right">
             <Link
               href={ROTAS.RECUPERAR_SENHA}
-              className="text-xs font-medium text-stone-600 underline-offset-4 hover:text-stone-900 hover:underline"
+              className="text-xs font-medium text-stone-600 underline-offset-4 hover:text-stone-900 hover:underline dark:text-stone-400 dark:hover:text-stone-200"
             >
               Esqueci minha senha
             </Link>
@@ -91,22 +91,22 @@ export function FormLogin({
         <button
           type="submit"
           disabled={pendente}
-          className="mt-1 rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-700 disabled:opacity-60"
+          className="mt-1 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-60"
         >
           {pendente ? "Entrando..." : "Entrar"}
         </button>
 
-        <p className="text-center text-sm text-stone-500">
+        <p className="text-center text-sm text-stone-500 dark:text-stone-400">
           Ainda não tem conta?{" "}
           <Link
             href={ROTAS.CADASTRO}
-            className="font-medium text-stone-800 underline-offset-4 hover:underline"
+            className="font-medium text-stone-800 underline-offset-4 hover:underline dark:text-stone-200"
           >
             Cadastre sua empresa
           </Link>
         </p>
 
-        <p className="text-center text-xs text-stone-400">
+        <p className="text-center text-xs text-stone-400 dark:text-stone-500">
           Acesso restrito a empresas com CNPJ ativo.
           <br />
           {APP_NAME} é uma plataforma B2B.
@@ -114,9 +114,9 @@ export function FormLogin({
       </form>
 
       {avisoCadastro && (
-        <form id="reenviar-confirmacao" action={actionConfirmacao} className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
+        <form id="reenviar-confirmacao" action={actionConfirmacao} className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 dark:border-stone-700 dark:bg-stone-800">
           <input type="hidden" name="email" value={emailPreenchido ?? ""} />
-          <p className="text-xs leading-5 text-stone-600">
+          <p className="text-xs leading-5 text-stone-600 dark:text-stone-400">
             Não recebeu o email? Você pode pedir um novo link de confirmação.
           </p>
           <div className="mt-3 flex flex-col gap-3">
@@ -129,7 +129,7 @@ export function FormLogin({
             <button
               type="submit"
               disabled={pendenteConfirmacao || !emailPreenchido}
-              className="self-start rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-60"
+              className="self-start rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-60 dark:border-stone-600 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600"
             >
               {pendenteConfirmacao ? "Reenviando..." : "Reenviar confirmação"}
             </button>

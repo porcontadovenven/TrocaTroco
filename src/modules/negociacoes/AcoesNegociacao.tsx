@@ -34,12 +34,12 @@ export function ChatInput({ negociacaoId }: { negociacaoId: string }) {
         placeholder="Digite sua mensagem..."
         autoComplete="off"
         required
-        className="flex-1 rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+        className="flex-1 rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500"
       />
       <button
         type="submit"
         disabled={pendente}
-        className="rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-60"
+        className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-60"
       >
         {pendente ? "..." : "Enviar"}
       </button>
@@ -72,7 +72,7 @@ export function BotaoChamarModerador({ negociacaoId }: { negociacaoId: string })
       <button
         type="submit"
         disabled={pendente}
-        className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-60"
+        className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-60 dark:border-amber-900/60 dark:bg-amber-950/50 dark:text-amber-300 dark:hover:bg-amber-950"
       >
         {pendente ? "Acionando..." : "Chamar moderador"}
       </button>
@@ -128,7 +128,7 @@ export function BotaoEncerrarModeracao({ negociacaoId }: { negociacaoId: string 
       <button
         type="submit"
         disabled={pendente}
-        className="rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-60"
+        className="rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-60 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
       >
         {pendente ? "Encerrando..." : "Encerrar moderação"}
       </button>
@@ -157,7 +157,7 @@ export function FormAvaliacao({ negociacaoId }: { negociacaoId: string }) {
       <input type="hidden" name="negociacao_id" value={negociacaoId} />
 
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-stone-700">Nota (obrigatório)</p>
+        <p className="text-sm font-medium text-stone-700 dark:text-stone-300">Nota (obrigatório)</p>
         <div className="flex gap-3">
           {estrelas.map((n) => (
             <label key={n} className="flex cursor-pointer flex-col items-center gap-1">
@@ -168,7 +168,7 @@ export function FormAvaliacao({ negociacaoId }: { negociacaoId: string }) {
                 required
                 className="sr-only"
               />
-              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-lg font-bold text-stone-600 hover:bg-amber-50 hover:border-amber-300 [input:checked+&]:bg-amber-400 [input:checked+&]:text-white [input:checked+&]:border-amber-500">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-lg font-bold text-stone-600 hover:bg-amber-50 hover:border-amber-300 [input:checked+&]:bg-amber-400 [input:checked+&]:text-white [input:checked+&]:border-amber-500 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400">
                 {n}
               </span>
             </label>
@@ -177,7 +177,7 @@ export function FormAvaliacao({ negociacaoId }: { negociacaoId: string }) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="texto_comentario" className="text-sm font-medium text-stone-700">
+        <label htmlFor="texto_comentario" className="text-sm font-medium text-stone-700 dark:text-stone-300">
           Comentário (opcional)
         </label>
         <textarea
@@ -185,9 +185,9 @@ export function FormAvaliacao({ negociacaoId }: { negociacaoId: string }) {
           name="texto_comentario"
           rows={3}
           placeholder="Descreva sua experiência com esta empresa..."
-          className="rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+          className="rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500"
         />
-        <p className="text-xs text-stone-400">
+        <p className="text-xs text-stone-400 dark:text-stone-500">
           Comentários passam por moderação antes de serem publicados.
         </p>
       </div>

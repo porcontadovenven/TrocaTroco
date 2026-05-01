@@ -120,10 +120,10 @@ export function FormSolicitacao({
       <input type="hidden" name="valor_solicitado" value={valorSolicitado.toFixed(2)} />
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-stone-700">Tipo da solicitação</label>
+        <label className="text-sm font-medium text-stone-700 dark:text-stone-300">Tipo da solicitação</label>
         {permiteParcial ? (
-          <div className="flex flex-col gap-2 rounded-2xl border border-stone-200 bg-stone-50 p-4">
-            <label className="flex items-start gap-2 text-sm text-stone-700">
+          <div className="flex flex-col gap-2 rounded-2xl border border-stone-200 bg-stone-50 p-4 dark:border-stone-700 dark:bg-stone-800/50">
+            <label className="flex items-start gap-2 text-sm text-stone-700 dark:text-stone-300">
               <input
                 type="radio"
                 name="tipo_solicitacao_ui"
@@ -132,11 +132,11 @@ export function FormSolicitacao({
                 className="mt-0.5 accent-stone-900"
               />
               <span>
-                <span className="block font-medium text-stone-800">Integral</span>
-                <span className="text-xs text-stone-500">Solicita o valor total disponível de {formatarMoedaBRL(valorMaximo)}.</span>
+                <span className="block font-medium text-stone-800 dark:text-stone-200">Integral</span>
+                <span className="text-xs text-stone-500 dark:text-stone-400">Solicita o valor total disponível de {formatarMoedaBRL(valorMaximo)}.</span>
               </span>
             </label>
-            <label className="flex items-start gap-2 text-sm text-stone-700">
+            <label className="flex items-start gap-2 text-sm text-stone-700 dark:text-stone-300">
               <input
                 type="radio"
                 name="tipo_solicitacao_ui"
@@ -145,33 +145,33 @@ export function FormSolicitacao({
                 className="mt-0.5 accent-stone-900"
               />
               <span>
-                <span className="block font-medium text-stone-800">Parcial por composição</span>
-                <span className="text-xs text-stone-500">Selecione a composição e o valor será calculado automaticamente.</span>
+                <span className="block font-medium text-stone-800 dark:text-stone-200">Parcial por composição</span>
+                <span className="text-xs text-stone-500 dark:text-stone-400">Selecione a composição e o valor será calculado automaticamente.</span>
               </span>
             </label>
           </div>
         ) : (
-          <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700">
-            Somente valor integral disponível: <span className="font-semibold text-stone-900">{formatarMoedaBRL(valorMaximo)}</span>
+          <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700 dark:border-stone-700 dark:bg-stone-800/50 dark:text-stone-300">
+            Somente valor integral disponível: <span className="font-semibold text-stone-900 dark:text-stone-50">{formatarMoedaBRL(valorMaximo)}</span>
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3">
+      <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 dark:border-stone-700 dark:bg-stone-900">
         <div>
-          <p className="text-sm font-medium text-stone-700">Valor solicitado</p>
-          <p className="text-xs text-stone-400">
+          <p className="text-sm font-medium text-stone-700 dark:text-stone-300">Valor solicitado</p>
+          <p className="text-xs text-stone-400 dark:text-stone-500">
             {parcial ? "Calculado a partir da composição selecionada" : "Valor integral do anúncio"}
           </p>
         </div>
-        <p className="text-lg font-bold text-stone-900">{formatarMoedaBRL(valorSolicitado)}</p>
+        <p className="text-lg font-bold text-stone-900 dark:text-stone-50">{formatarMoedaBRL(valorSolicitado)}</p>
       </div>
 
       {permiteParcial && parcial && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4">
+        <div className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4 dark:border-stone-700 dark:bg-stone-800/50">
           <div>
-            <p className="text-sm font-semibold text-stone-800">Composição desejada</p>
-            <p className="text-xs text-stone-500">
+            <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">Composição desejada</p>
+            <p className="text-xs text-stone-500 dark:text-stone-400">
               Escolha as quantidades desejadas. O subtotal precisa bater com o valor solicitado.
             </p>
           </div>
@@ -184,19 +184,19 @@ export function FormSolicitacao({
               return (
                 <div
                   key={item.id}
-                  className="grid grid-cols-[1fr_auto] gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3"
+                  className="grid grid-cols-[1fr_auto] gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3 dark:border-stone-700 dark:bg-stone-900"
                 >
                   <div>
-                    <p className="text-sm font-medium text-stone-800">
+                    <p className="text-sm font-medium text-stone-800 dark:text-stone-200">
                       {ITEM_LABEL[item.tipo_item]} {formatarMoedaBRL(item.valor_unitario)}
                     </p>
-                    <p className="text-xs text-stone-500">
+                    <p className="text-xs text-stone-500 dark:text-stone-400">
                       Disponível: {item.quantidade}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <label className="text-xs text-stone-500">
+                    <label className="text-xs text-stone-500 dark:text-stone-400">
                       Qtd.
                       <input
                         type="number"
@@ -205,10 +205,10 @@ export function FormSolicitacao({
                         step={1}
                         value={quantidadeSelecionada}
                         onChange={(e) => atualizarQuantidade(item.id, Number(e.target.value), item.quantidade)}
-                        className="mt-1 block w-20 rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-800 outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+                        className="mt-1 block w-20 rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-800 outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100"
                       />
                     </label>
-                    <div className="min-w-20 text-right text-sm font-medium text-stone-700">
+                    <div className="min-w-20 text-right text-sm font-medium text-stone-700 dark:text-stone-300">
                       {formatarMoedaBRL(subtotal)}
                     </div>
                   </div>
@@ -217,21 +217,21 @@ export function FormSolicitacao({
             })}
           </div>
 
-          <div className="flex items-center justify-between rounded-xl bg-white px-4 py-3 text-sm">
-            <span className="text-stone-500">Total da composição</span>
-            <span className="font-semibold text-stone-900">{formatarMoedaBRL(totalSelecionado)}</span>
+          <div className="flex items-center justify-between rounded-xl bg-white px-4 py-3 text-sm dark:bg-stone-900">
+            <span className="text-stone-500 dark:text-stone-400">Total da composição</span>
+            <span className="font-semibold text-stone-900 dark:text-stone-50">{formatarMoedaBRL(totalSelecionado)}</span>
           </div>
         </div>
       )}
 
       {/* Meio de pagamento */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-stone-700">
+        <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
           Meio de pagamento
         </label>
         <div className="flex flex-wrap gap-2">
           {MEIOS_PAGAMENTO.map((m) => (
-            <label key={m} className="flex items-center gap-1.5 text-sm text-stone-700">
+            <label key={m} className="flex items-center gap-1.5 text-sm text-stone-700 dark:text-stone-300">
               <input
                 type="radio"
                 name="meio_pagamento"
@@ -248,12 +248,12 @@ export function FormSolicitacao({
 
       {/* Local da troca */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-stone-700">
+        <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
           Local da troca
         </label>
         <div className="flex flex-col gap-1.5">
           {locaisDisponiveis.map((l) => (
-            <label key={l.valor} className="flex items-center gap-2 text-sm text-stone-700">
+            <label key={l.valor} className="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-300">
               <input
                 type="radio"
                 name="local_troca"
@@ -278,7 +278,7 @@ export function FormSolicitacao({
       <button
         type="submit"
         disabled={pendente}
-        className="rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-60"
+        className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-60"
       >
         {pendente ? "Enviando..." : "Enviar solicitação"}
       </button>

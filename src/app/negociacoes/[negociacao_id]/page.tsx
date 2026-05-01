@@ -111,50 +111,50 @@ export default async function PaginaNegociacao({
   const podeAvaliar = (status === "operacao_encerrada" || status === "finalizada") && !jaAvaliou;
 
   return (
-    <main className="min-h-screen bg-stone-50 px-4 py-8">
+    <main className="min-h-screen bg-stone-50/50 px-4 py-8 dark:bg-[#09090f]">
       <AtualizacaoNegociacaoClient negociacaoId={neg.id} />
       <div className="mx-auto max-w-2xl">
         {/* Nav */}
         <Link
           href={ROTAS.SOLICITACOES}
-          className="mb-6 inline-block text-sm text-stone-500 underline-offset-4 hover:underline"
+          className="mb-6 inline-block text-sm text-stone-500 underline-offset-4 hover:underline dark:text-stone-400"
         >
           ← Solicitações
         </Link>
 
         {/* Contexto da negociação */}
-        <div className="mb-5 rounded-3xl border border-stone-200 bg-white p-5">
+        <div className="mb-5 rounded-3xl border border-stone-200 bg-white p-5 dark:border-stone-700/60 dark:bg-stone-900">
           <div className="mb-3 flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
+            <span className="rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300">
               {STATUS_LABEL[status] ?? status}
             </span>
             {statusMod !== "nao_acionada" && (
-              <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/50 dark:text-amber-300">
                 {STATUS_MOD_LABEL[statusMod]}
               </span>
             )}
           </div>
 
           {anuncio && (
-            <p className="mb-1 text-xs text-stone-500">
+            <p className="mb-1 text-xs text-stone-500 dark:text-stone-400">
               {TIPO_LABEL[anuncio.tipo] ?? anuncio.tipo}
             </p>
           )}
 
           <div className="mb-3 flex flex-wrap gap-4">
             <div>
-              <p className="text-xs uppercase tracking-wide text-stone-400">Valor acordado</p>
-              <p className="text-xl font-bold text-stone-900">
+              <p className="text-xs uppercase tracking-wide text-stone-400 dark:text-stone-500">Valor acordado</p>
+              <p className="text-xl font-bold text-stone-900 dark:text-stone-50">
                 {formatarMoedaBRL(neg.valor_negociado)}
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-stone-400">Pagamento</p>
-              <p className="text-sm font-medium text-stone-700">{neg.meio_pagamento}</p>
+              <p className="text-xs uppercase tracking-wide text-stone-400 dark:text-stone-500">Pagamento</p>
+              <p className="text-sm font-medium text-stone-700 dark:text-stone-300">{neg.meio_pagamento}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-stone-400">Local</p>
-              <p className="text-sm font-medium text-stone-700">
+              <p className="text-xs uppercase tracking-wide text-stone-400 dark:text-stone-500">Local</p>
+              <p className="text-sm font-medium text-stone-700 dark:text-stone-300">
                 {LOCAL_LABEL[neg.local_troca] ?? neg.local_troca}
               </p>
             </div>
@@ -162,38 +162,38 @@ export default async function PaginaNegociacao({
 
           <div className="flex flex-wrap gap-4 text-sm">
             <div>
-              <span className="text-stone-400">Anunciante: </span>
+              <span className="text-stone-400 dark:text-stone-500">Anunciante: </span>
               {empresaAutora ? (
                 <Link
                   href={ROTAS.EMPRESA_PERFIL(empresaAutora.slug_publico ?? empresaAutora.id)}
-                  className="font-medium text-stone-700 underline-offset-4 hover:underline"
+                  className="font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
                 >
                   {empresaAutora.razao_social}
                 </Link>
               ) : (
-                <span className="font-medium text-stone-700">—</span>
+                <span className="font-medium text-stone-700 dark:text-stone-300">—</span>
               )}
             </div>
             <div>
-              <span className="text-stone-400">Solicitante: </span>
+              <span className="text-stone-400 dark:text-stone-500">Solicitante: </span>
               {empresaContraparte ? (
                 <Link
                   href={ROTAS.EMPRESA_PERFIL(empresaContraparte.slug_publico ?? empresaContraparte.id)}
-                  className="font-medium text-stone-700 underline-offset-4 hover:underline"
+                  className="font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
                 >
                   {empresaContraparte.razao_social}
                 </Link>
               ) : (
-                <span className="font-medium text-stone-700">—</span>
+                <span className="font-medium text-stone-700 dark:text-stone-300">—</span>
               )}
             </div>
           </div>
         </div>
 
         {/* Chat */}
-        <div className="mb-4 rounded-3xl border border-stone-200 bg-white">
-          <div className="border-b border-stone-100 px-5 py-3">
-            <h2 className="text-sm font-semibold text-stone-800">Chat da negociação</h2>
+        <div className="mb-4 rounded-3xl border border-stone-200 bg-white dark:border-stone-700/60 dark:bg-stone-900">
+          <div className="border-b border-stone-100 px-5 py-3 dark:border-stone-800">
+            <h2 className="text-sm font-semibold text-stone-800 dark:text-stone-100">Chat da negociação</h2>
           </div>
 
           <div className="flex max-h-[400px] flex-col gap-3 overflow-y-auto px-5 py-4">
@@ -206,7 +206,7 @@ export default async function PaginaNegociacao({
 
           {/* Input de mensagem — apenas se negociação ativa */}
           {(status === "em_andamento" || status === "operacao_encerrada") && (
-            <div className="border-t border-stone-100 px-5 py-4">
+            <div className="border-t border-stone-100 px-5 py-4 dark:border-stone-800">
               <ChatInput negociacaoId={neg.id} />
             </div>
           )}
@@ -217,8 +217,8 @@ export default async function PaginaNegociacao({
           <div className="flex flex-col gap-3">
             {/* Encerrar operação */}
             {status === "em_andamento" && (
-              <div className="rounded-2xl border border-stone-200 bg-white p-4">
-                <p className="mb-3 text-sm text-stone-600">
+              <div className="rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-700/60 dark:bg-stone-900">
+                <p className="mb-3 text-sm text-stone-600 dark:text-stone-400">
                   A operação foi realizada? Conclua para liberar a avaliação.
                 </p>
                 <BotaoEncerrarOperacao negociacaoId={neg.id} />
@@ -227,8 +227,8 @@ export default async function PaginaNegociacao({
 
             {/* Chamar moderador */}
             {status === "em_andamento" && statusMod === "nao_acionada" && (
-              <div className="rounded-2xl border border-amber-100 bg-white p-4">
-                <p className="mb-3 text-sm text-stone-500">
+              <div className="rounded-2xl border border-amber-100 bg-white p-4 dark:border-amber-900/30 dark:bg-stone-900">
+                <p className="mb-3 text-sm text-stone-500 dark:text-stone-400">
                   Está tendo algum problema com a outra parte?
                 </p>
                 <BotaoChamarModerador negociacaoId={neg.id} />
@@ -237,11 +237,11 @@ export default async function PaginaNegociacao({
 
             {/* Avaliação */}
             {podeAvaliar && (
-              <div className="rounded-2xl border border-stone-200 bg-white p-5">
-                <h3 className="mb-4 text-base font-semibold text-stone-900">
+              <div className="rounded-2xl border border-stone-200 bg-white p-5 dark:border-stone-700/60 dark:bg-stone-900">
+                <h3 className="mb-4 text-base font-semibold text-stone-900 dark:text-stone-50">
                   Avalie a outra parte
                 </h3>
-                <p className="mb-4 text-sm text-stone-500">
+                <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">
                   {status === "finalizada"
                     ? "A negociação já foi concluída e o chat está em modo leitura. Sua avaliação ainda pode ser enviada."
                     : "Envie sua avaliação para concluir este ciclo da negociação."}
@@ -251,8 +251,8 @@ export default async function PaginaNegociacao({
             )}
 
             {(status === "operacao_encerrada" || status === "finalizada") && jaAvaliou && (
-              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4">
-                <p className="text-sm text-emerald-700">
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4 dark:border-emerald-900/50 dark:bg-emerald-950/40">
+                <p className="text-sm text-emerald-700 dark:text-emerald-300">
                   {status === "finalizada"
                     ? "Você já enviou sua avaliação. O histórico da negociação segue disponível no chat em modo leitura."
                     : "Você já enviou sua avaliação. Aguardando avaliação da outra parte."}
@@ -261,13 +261,13 @@ export default async function PaginaNegociacao({
             )}
 
             {status === "finalizada" && (
-              <div className="rounded-2xl border border-stone-100 bg-stone-50 px-5 py-4">
-                <p className="text-sm text-stone-500">
+              <div className="rounded-2xl border border-stone-100 bg-stone-50 px-5 py-4 dark:border-stone-800 dark:bg-stone-800/50">
+                <p className="text-sm text-stone-500 dark:text-stone-400">
                   Negociação concluída. O chat permanece disponível apenas para consulta.
                 </p>
                 <Link
                   href={ROTAS.MEUS_ANUNCIOS}
-                  className="mt-2 inline-block text-sm font-medium text-stone-700 underline-offset-4 hover:underline"
+                  className="mt-2 inline-block text-sm font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
                 >
                   Ir para meus anúncios →
                 </Link>
@@ -277,16 +277,16 @@ export default async function PaginaNegociacao({
         )}
 
         {!participa && isAdmin(sessao.papel) && statusMod === "acionada" && (
-          <div className="mt-4 rounded-2xl border border-amber-100 bg-amber-50 p-4">
-            <p className="text-sm text-amber-800">
+          <div className="mt-4 rounded-2xl border border-amber-100 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/40">
+            <p className="text-sm text-amber-800 dark:text-amber-300">
               A moderação foi acionada. Envie uma mensagem no chat para iniciar o acompanhamento.
             </p>
           </div>
         )}
 
         {!participa && isAdmin(sessao.papel) && statusMod === "em_acompanhamento" && (
-          <div className="mt-4 rounded-2xl border border-stone-200 bg-white p-4">
-            <p className="mb-3 text-sm text-stone-600">
+          <div className="mt-4 rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-700/60 dark:bg-stone-900">
+            <p className="mb-3 text-sm text-stone-600 dark:text-stone-400">
               Encerrar o acompanhamento administrativo remove esta negociação das pendências do painel.
             </p>
             <BotaoEncerrarModeracao negociacaoId={neg.id} />

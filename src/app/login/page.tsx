@@ -73,7 +73,7 @@ export default async function PaginaLogin({
       </aside>
 
       {/* Formulário */}
-      <div className="flex flex-1 items-center justify-center bg-stone-50 px-6 py-12">
+      <div className="flex flex-1 items-center justify-center bg-stone-50 px-6 py-12 dark:bg-[#09090f]">
         <div className="w-full max-w-sm">
           {/* Logo mobile */}
           <div className="mb-8 flex flex-col items-center gap-2 lg:hidden">
@@ -83,15 +83,15 @@ export default async function PaginaLogin({
                 <path d="M16 12H5L8 9M5 12L8 15" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <span className="text-xl font-bold tracking-tight text-stone-900">{APP_NAME}</span>
+            <span className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-50">{APP_NAME}</span>
           </div>
 
           <div className="mb-6">
-            <h1 className="text-xl font-bold text-stone-900">Entrar na plataforma</h1>
-            <p className="mt-1 text-sm text-stone-500">Acesse sua conta empresarial</p>
+            <h1 className="text-xl font-bold text-stone-900 dark:text-stone-50">Entrar na plataforma</h1>
+            <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">Acesse sua conta empresarial</p>
           </div>
 
-          <div className="rounded-2xl border border-stone-200 bg-white p-7 shadow-sm">
+          <div className="rounded-2xl border border-stone-200 bg-white p-7 shadow-sm dark:border-stone-700/60 dark:bg-stone-900">
             <FormLogin
               avisoCadastro={cadastro === "confirmar-email"}
               emailPreenchido={email}

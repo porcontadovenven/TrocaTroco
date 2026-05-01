@@ -27,34 +27,34 @@ export default async function PaginaModeracaoNegociacoes() {
   const { negociacoes, error } = await listarNegociacoesModeracao();
 
   return (
-    <main className="min-h-screen bg-stone-50 px-6 py-10">
+    <main className="min-h-screen bg-stone-50/50 px-6 py-10 dark:bg-[#09090f]">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-stone-900">
+            <h1 className="text-2xl font-semibold text-stone-900 dark:text-stone-50">
               Moderação de negociações
             </h1>
-            <p className="mt-1 text-sm text-stone-500">
+            <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
               {pluralizar(negociacoes.length, "negociação com moderação ativa", "negociações com moderação ativa")}
             </p>
           </div>
           <Link
             href={ROTAS.ADMIN}
-            className="text-sm text-stone-500 underline-offset-4 hover:underline"
+            className="text-sm text-stone-500 underline-offset-4 hover:underline dark:text-stone-400"
           >
             ← Painel admin
           </Link>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-400">
             {error}
           </div>
         )}
 
         {negociacoes.length === 0 && (
-          <div className="rounded-3xl border border-stone-200 bg-white p-10 text-center">
-            <p className="text-sm text-stone-400">
+          <div className="rounded-3xl border border-stone-200 bg-white p-10 text-center dark:border-stone-700/60 dark:bg-stone-900">
+            <p className="text-sm text-stone-400 dark:text-stone-500">
               Nenhuma negociação com moderação acionada.
             </p>
           </div>
@@ -64,66 +64,66 @@ export default async function PaginaModeracaoNegociacoes() {
           {negociacoes.map((negociacao) => (
             <li
               key={negociacao.id}
-              className="rounded-2xl border border-stone-200 bg-white p-5"
+              className="rounded-2xl border border-stone-200 bg-white p-5 dark:border-stone-700/60 dark:bg-stone-900"
             >
               <div className="mb-4 flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/50 dark:text-amber-300">
                   {STATUS_MODERACAO_LABEL[negociacao.status_moderacao] ?? negociacao.status_moderacao}
                 </span>
-                <span className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-xs text-stone-600">
+                <span className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-xs text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400">
                   {STATUS_NEGOCIACAO_LABEL[negociacao.status] ?? negociacao.status}
                 </span>
-                <span className="ml-auto text-xs text-stone-400">
+                <span className="ml-auto text-xs text-stone-400 dark:text-stone-500">
                   {new Date(negociacao.criada_em).toLocaleDateString("pt-BR")}
                 </span>
               </div>
 
               <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div className="rounded-xl border border-stone-100 bg-stone-50 px-3 py-2">
-                  <p className="text-[10px] uppercase tracking-wide text-stone-400">
+                <div className="rounded-xl border border-stone-100 bg-stone-50 px-3 py-2 dark:border-stone-800 dark:bg-stone-800/50">
+                  <p className="text-[10px] uppercase tracking-wide text-stone-400 dark:text-stone-500">
                     Empresa autora
                   </p>
-                  <p className="mt-0.5 text-sm font-medium text-stone-700">
+                  <p className="mt-0.5 text-sm font-medium text-stone-700 dark:text-stone-200">
                     {negociacao.empresa_autora?.razao_social ?? "—"}
                   </p>
                 </div>
-                <div className="rounded-xl border border-stone-100 bg-stone-50 px-3 py-2">
-                  <p className="text-[10px] uppercase tracking-wide text-stone-400">
+                <div className="rounded-xl border border-stone-100 bg-stone-50 px-3 py-2 dark:border-stone-800 dark:bg-stone-800/50">
+                  <p className="text-[10px] uppercase tracking-wide text-stone-400 dark:text-stone-500">
                     Empresa contraparte
                   </p>
-                  <p className="mt-0.5 text-sm font-medium text-stone-700">
+                  <p className="mt-0.5 text-sm font-medium text-stone-700 dark:text-stone-200">
                     {negociacao.empresa_contraparte?.razao_social ?? "—"}
                   </p>
                 </div>
               </div>
 
-              <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-stone-600">
+              <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-stone-600 dark:text-stone-400">
                 <div>
-                  <span className="text-stone-400">Valor: </span>
-                  <span className="font-medium text-stone-800">
+                  <span className="text-stone-400 dark:text-stone-500">Valor: </span>
+                  <span className="font-medium text-stone-800 dark:text-stone-200">
                     {formatarMoedaBRL(negociacao.valor_negociado)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-stone-400">Pagamento: </span>
-                  <span className="font-medium text-stone-800">{negociacao.meio_pagamento}</span>
+                  <span className="text-stone-400 dark:text-stone-500">Pagamento: </span>
+                  <span className="font-medium text-stone-800 dark:text-stone-200">{negociacao.meio_pagamento}</span>
                 </div>
                 <div>
-                  <span className="text-stone-400">Local: </span>
-                  <span className="font-medium text-stone-800">{negociacao.local_troca}</span>
+                  <span className="text-stone-400 dark:text-stone-500">Local: </span>
+                  <span className="font-medium text-stone-800 dark:text-stone-200">{negociacao.local_troca}</span>
                 </div>
               </div>
 
               <Link
                 href={ROTAS.NEGOCIACAO(negociacao.id)}
-                className="text-sm text-stone-500 underline-offset-4 hover:text-stone-700 hover:underline"
+                className="text-sm text-stone-500 underline-offset-4 hover:text-stone-700 hover:underline dark:text-stone-400 dark:hover:text-stone-200"
               >
                 Abrir negociação →
               </Link>
 
               <div className="mt-4">
                 {negociacao.status_moderacao === "acionada" ? (
-                  <p className="text-sm text-amber-700">
+                  <p className="text-sm text-amber-700 dark:text-amber-400">
                     Abra a negociação e envie uma mensagem no chat para iniciar o acompanhamento.
                   </p>
                 ) : (

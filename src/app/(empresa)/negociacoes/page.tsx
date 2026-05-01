@@ -21,7 +21,7 @@ const STATUS_MOD_LABEL: Record<string, string> = {
 
 function BlocoVazio({ mensagem }: { mensagem: string }) {
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white px-5 py-8 text-center text-sm text-stone-400">
+    <div className="rounded-2xl border border-stone-200 bg-white px-5 py-8 text-center text-sm text-stone-400 dark:border-stone-700/60 dark:bg-stone-900 dark:text-stone-500">
       {mensagem}
     </div>
   );
@@ -34,16 +34,16 @@ export default async function PaginaNegociacoes() {
   const concluidas = negociacoes.filter((negociacao) => negociacao.status === "finalizada" || negociacao.status === "cancelada");
 
   return (
-    <main className="min-h-screen bg-stone-50/50 px-6 py-10">
+    <main className="min-h-screen bg-stone-50/50 px-6 py-10 dark:bg-[#09090f]">
       <AutoRefreshClient tabelas={["negociacoes", "avaliacoes", "solicitacoes"]} intervaloMs={12000} />
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
-          <div className="mb-1 flex items-center gap-2 text-xs font-medium text-stone-400">
+          <div className="mb-1 flex items-center gap-2 text-xs font-medium text-stone-400 dark:text-stone-500">
             <MessageSquareText className="h-3.5 w-3.5" />
             Negociações
           </div>
-          <h1 className="text-2xl font-bold text-stone-900">Minhas negociações</h1>
-          <p className="mt-1 text-sm text-stone-500">
+          <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-50">Minhas negociações</h1>
+          <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
             Acompanhe negociações ativas e consulte o histórico das concluídas. Após concluir, o chat fica somente para leitura.
           </p>
         </div>
@@ -55,7 +55,7 @@ export default async function PaginaNegociacoes() {
         )}
 
         <section className="mb-10">
-          <h2 className="mb-4 text-base font-semibold text-stone-800">Em andamento</h2>
+          <h2 className="mb-4 text-base font-semibold text-stone-800 dark:text-stone-100">Em andamento</h2>
           {abertas.length === 0 ? (
             <BlocoVazio mensagem="Nenhuma negociação ativa no momento." />
           ) : (
@@ -68,7 +68,7 @@ export default async function PaginaNegociacoes() {
         </section>
 
         <section>
-          <h2 className="mb-4 text-base font-semibold text-stone-800">Concluídas e arquivadas</h2>
+          <h2 className="mb-4 text-base font-semibold text-stone-800 dark:text-stone-100">Concluídas e arquivadas</h2>
           {concluidas.length === 0 ? (
             <BlocoVazio mensagem="Nenhuma negociação concluída ainda." />
           ) : (
@@ -93,23 +93,23 @@ function CardNegociacao({
   const contraparte = negociacao.empresa_contraparte;
 
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white p-4">
+    <div className="rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-700/60 dark:bg-stone-900">
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-xs font-semibold text-stone-700">
+        <span className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-xs font-semibold text-stone-700 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300">
           {STATUS_LABEL[negociacao.status] ?? negociacao.status}
         </span>
-        <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-0.5 text-xs font-medium text-sky-700">
+        <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-0.5 text-xs font-medium text-sky-700 dark:border-sky-900/50 dark:bg-sky-950/50 dark:text-sky-300">
           {STATUS_MOD_LABEL[negociacao.status_moderacao] ?? negociacao.status_moderacao}
         </span>
       </div>
 
       <div className="mb-3 flex flex-wrap gap-4 text-sm">
-        <span className="font-semibold text-stone-900">{formatarMoedaBRL(negociacao.valor_negociado)}</span>
-        <span className="text-stone-500">{negociacao.meio_pagamento}</span>
-        <span className="text-stone-500">{new Date(negociacao.criada_em).toLocaleDateString("pt-BR")}</span>
+        <span className="font-semibold text-stone-900 dark:text-stone-50">{formatarMoedaBRL(negociacao.valor_negociado)}</span>
+        <span className="text-stone-500 dark:text-stone-400">{negociacao.meio_pagamento}</span>
+        <span className="text-stone-500 dark:text-stone-400">{new Date(negociacao.criada_em).toLocaleDateString("pt-BR")}</span>
       </div>
 
-      <div className="mb-3 flex flex-wrap gap-4 text-sm text-stone-600">
+      <div className="mb-3 flex flex-wrap gap-4 text-sm text-stone-600 dark:text-stone-400">
         {autora && (
           <Link
             href={ROTAS.EMPRESA_PERFIL(autora.slug_publico ?? autora.id)}
@@ -130,7 +130,7 @@ function CardNegociacao({
 
       <Link
         href={ROTAS.NEGOCIACAO(negociacao.id)}
-        className="inline-flex rounded-xl bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-stone-700"
+        className="inline-flex rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500"
       >
         Abrir histórico da negociação
       </Link>

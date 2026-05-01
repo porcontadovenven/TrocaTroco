@@ -219,15 +219,15 @@ export function FormCadastro({ requerCredenciais }: { requerCredenciais: boolean
             <div
               className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
                 n === etapa
-                  ? "bg-stone-900 text-white"
+                  ? "bg-emerald-600 text-white"
                   : n < etapa
                   ? "bg-emerald-600 text-white"
-                  : "bg-stone-200 text-stone-500"
+                  : "bg-stone-200 text-stone-500 dark:bg-stone-700 dark:text-stone-400"
               }`}
             >
               {n}
             </div>
-            <span className={`hidden text-xs sm:inline ${n === etapa ? "font-semibold text-stone-800" : "text-stone-400"}`}>
+            <span className={`hidden text-xs sm:inline ${n === etapa ? "font-semibold text-stone-800 dark:text-stone-200" : "text-stone-400 dark:text-stone-500"}`}>
               {ETAPAS[n]}
             </span>
             {n < 3 && <div className="h-px w-6 bg-stone-200" />}
@@ -345,7 +345,7 @@ export function FormCadastro({ requerCredenciais }: { requerCredenciais: boolean
             <button
               type="button"
               onClick={voltar}
-              className="rounded-xl border border-stone-300 px-5 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50"
+              className="rounded-xl border border-stone-300 px-5 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-300 dark:hover:bg-stone-800"
             >
               Voltar
             </button>
@@ -362,7 +362,7 @@ export function FormCadastro({ requerCredenciais }: { requerCredenciais: boolean
             <button
               type="button"
               onClick={avancar}
-              className="rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-stone-700"
+              className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500"
             >
               Continuar
             </button>
@@ -406,7 +406,7 @@ function Campo({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={name} className="text-sm font-medium text-stone-700">
+      <label htmlFor={name} className="text-sm font-medium text-stone-700 dark:text-stone-300">
         {label}
       </label>
       <input
@@ -418,7 +418,7 @@ function Campo({
         placeholder={placeholder}
         inputMode={inputMode}
         maxLength={maxLength}
-        className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+        className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-500 focus:ring-2 focus:ring-stone-200 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500"
       />
     </div>
   );
@@ -441,7 +441,7 @@ function CampoSelect({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={name} className="text-sm font-medium text-stone-700">
+      <label htmlFor={name} className="text-sm font-medium text-stone-700 dark:text-stone-300">
         {label}
       </label>
       <select
@@ -449,7 +449,7 @@ function CampoSelect({
         name={name}
         value={value}
         onChange={onChange}
-        className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+        className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100"
       >
         <option value="">{placeholder ?? "Selecione"}</option>
         {options.map((option) => (
@@ -470,13 +470,13 @@ function Revisao({
   itens: [string, string][];
 }) {
   return (
-    <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-      <h3 className="mb-3 text-sm font-semibold text-stone-800">{titulo}</h3>
+    <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-700 dark:bg-stone-800/50">
+      <h3 className="mb-3 text-sm font-semibold text-stone-800 dark:text-stone-200">{titulo}</h3>
       <dl className="flex flex-col gap-2">
         {itens.map(([chave, valor]) => (
           <div key={chave} className="grid grid-cols-2 gap-2 text-sm">
-            <dt className="text-stone-500">{chave}</dt>
-            <dd className="font-medium text-stone-800">{valor || "—"}</dd>
+            <dt className="text-stone-500 dark:text-stone-400">{chave}</dt>
+            <dd className="font-medium text-stone-800 dark:text-stone-200">{valor || "—"}</dd>
           </div>
         ))}
       </dl>

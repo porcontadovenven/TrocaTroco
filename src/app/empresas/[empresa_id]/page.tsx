@@ -16,7 +16,7 @@ function Estrelas({ nota }: { nota: number }) {
   return (
     <span className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={n <= Math.round(nota) ? "text-amber-400" : "text-stone-200"}>
+        <span key={n} className={n <= Math.round(nota) ? "text-amber-400" : "text-stone-200 dark:text-stone-700"}>
           ★
         </span>
       ))}
@@ -56,10 +56,10 @@ export default async function PaginaPerfilEmpresa({
   });
 
   return (
-    <main className="min-h-screen bg-stone-50 px-4 py-10">
+    <main className="min-h-screen bg-stone-50/50 px-4 py-10 dark:bg-[#09090f]">
       <div className="mx-auto max-w-2xl">
         {/* Cabeçalho do perfil */}
-        <div className="mb-6 rounded-3xl border border-stone-200 bg-white p-6">
+        <div className="mb-6 rounded-3xl border border-stone-200 bg-white p-6 dark:border-stone-700/60 dark:bg-stone-900">
           <div className="flex items-start gap-4">
             {perfil.foto_perfil_url ? (
               <Image
@@ -67,51 +67,51 @@ export default async function PaginaPerfilEmpresa({
                 alt={perfil.razao_social}
                 width={64}
                 height={64}
-                className="h-16 w-16 rounded-2xl border border-stone-100 object-cover"
+                className="h-16 w-16 rounded-2xl border border-stone-100 object-cover dark:border-stone-700"
               />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-stone-200 bg-stone-100 text-2xl font-bold text-stone-400">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-stone-200 bg-stone-100 text-2xl font-bold text-stone-400 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-500">
                 {perfil.razao_social.charAt(0)}
               </div>
             )}
 
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-stone-900 truncate">
+              <h1 className="text-xl font-bold text-stone-900 truncate dark:text-stone-50">
                 {perfil.nome_fantasia ?? perfil.razao_social}
               </h1>
               {perfil.nome_fantasia && (
-                <p className="text-sm text-stone-400">{perfil.razao_social}</p>
+                <p className="text-sm text-stone-400 dark:text-stone-500">{perfil.razao_social}</p>
               )}
-              <p className="mt-1 text-sm text-stone-500">
+              <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
                 {formatarLocalizacao(perfil.cidade, perfil.estado)}
               </p>
             </div>
           </div>
 
           {/* Estatísticas */}
-          <div className="mt-5 flex flex-wrap gap-5 border-t border-stone-100 pt-5">
+          <div className="mt-5 flex flex-wrap gap-5 border-t border-stone-100 pt-5 dark:border-stone-800">
             <div>
-              <p className="text-xs uppercase tracking-wide text-stone-400">Reputação</p>
+              <p className="text-xs uppercase tracking-wide text-stone-400 dark:text-stone-500">Reputação</p>
               {perfil.media_nota !== null ? (
                 <div className="mt-1 flex items-center gap-2">
                   <Estrelas nota={perfil.media_nota} />
-                  <span className="text-sm font-semibold text-stone-700">
+                  <span className="text-sm font-semibold text-stone-700 dark:text-stone-200">
                     {formatarDecimalBR(perfil.media_nota)}
                   </span>
-                  <span className="text-xs text-stone-400">
+                  <span className="text-xs text-stone-400 dark:text-stone-500">
                     ({pluralizar(perfil.total_avaliacoes, "avaliação", "avaliações")})
                   </span>
                 </div>
               ) : (
-                <p className="mt-1 text-sm text-stone-400">Sem avaliações</p>
+                <p className="mt-1 text-sm text-stone-400 dark:text-stone-500">Sem avaliações</p>
               )}
             </div>
 
             <div>
-              <p className="text-xs uppercase tracking-wide text-stone-400">
+              <p className="text-xs uppercase tracking-wide text-stone-400 dark:text-stone-500">
                 Operações concluídas
               </p>
-              <p className="mt-1 text-lg font-bold text-stone-900">
+              <p className="mt-1 text-lg font-bold text-stone-900 dark:text-stone-50">
                 {perfil.total_negociacoes_concluidas}
               </p>
             </div>
@@ -120,13 +120,13 @@ export default async function PaginaPerfilEmpresa({
 
         {/* Anúncios ativos */}
         <section className="mb-6">
-          <h2 className="mb-3 text-base font-semibold text-stone-800">
+          <h2 className="mb-3 text-base font-semibold text-stone-800 dark:text-stone-100">
             Anúncios ativos ({perfil.anuncios.length})
           </h2>
 
           {perfil.anuncios.length === 0 ? (
-            <div className="rounded-2xl border border-stone-200 bg-white px-5 py-8 text-center">
-              <p className="text-sm text-stone-400">Nenhum anúncio ativo no momento.</p>
+            <div className="rounded-2xl border border-stone-200 bg-white px-5 py-8 text-center dark:border-stone-700/60 dark:bg-stone-900">
+              <p className="text-sm text-stone-400 dark:text-stone-500">Nenhum anúncio ativo no momento.</p>
             </div>
           ) : (
             <ul className="flex flex-col gap-3">
@@ -134,27 +134,27 @@ export default async function PaginaPerfilEmpresa({
                 <li key={anuncio.id}>
                   <Link
                     href={ROTAS.ANUNCIO_DETALHE(anuncio.id)}
-                    className="flex items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-white px-5 py-4 hover:border-stone-300 hover:bg-stone-50 transition-colors"
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-white px-5 py-4 hover:border-stone-300 hover:bg-stone-50 transition-colors dark:border-stone-700/60 dark:bg-stone-900 dark:hover:border-stone-600 dark:hover:bg-stone-800"
                   >
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-stone-700">
+                      <p className="text-sm font-medium text-stone-700 dark:text-stone-300">
                         {TIPO_LABEL[anuncio.tipo] ?? anuncio.tipo}
                       </p>
                       {anuncio.rotulo_regiao && (
-                        <p className="text-xs text-stone-400">{anuncio.rotulo_regiao}</p>
+                        <p className="text-xs text-stone-400 dark:text-stone-500">{anuncio.rotulo_regiao}</p>
                       )}
                       {anuncio.permite_parcial && (
-                        <span className="mt-1 inline-block rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-500">
+                        <span className="mt-1 inline-block rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-500 dark:bg-stone-800 dark:text-stone-400">
                           Aceita parcial
                         </span>
                       )}
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-lg font-bold text-stone-900">
+                      <p className="text-lg font-bold text-stone-900 dark:text-stone-50">
                         {formatarMoedaBRL(anuncio.valor_remanescente)}
                       </p>
                       {anuncio.valor_remanescente !== anuncio.valor_total && (
-                        <p className="text-xs text-stone-400">
+                        <p className="text-xs text-stone-400 dark:text-stone-500">
                           de {formatarMoedaBRL(anuncio.valor_total)}
                         </p>
                       )}
@@ -168,7 +168,7 @@ export default async function PaginaPerfilEmpresa({
 
         {/* Avaliações */}
         <section>
-          <h2 className="mb-3 text-base font-semibold text-stone-800">
+          <h2 className="mb-3 text-base font-semibold text-stone-800 dark:text-stone-100">
             Avaliações recebidas
           </h2>
 
@@ -191,8 +191,8 @@ export default async function PaginaPerfilEmpresa({
                   href={href}
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     ativo
-                      ? "border-stone-900 bg-stone-900 text-white"
-                      : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+                      ? "border-stone-900 bg-stone-900 text-white dark:border-emerald-600 dark:bg-emerald-600"
+                      : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700"
                   }`}
                 >
                   {filtro.label}
@@ -202,8 +202,8 @@ export default async function PaginaPerfilEmpresa({
           </div>
 
           {avaliacoesFiltradas.length === 0 ? (
-            <div className="rounded-2xl border border-stone-200 bg-white px-5 py-8 text-center">
-              <p className="text-sm text-stone-400">
+            <div className="rounded-2xl border border-stone-200 bg-white px-5 py-8 text-center dark:border-stone-700/60 dark:bg-stone-900">
+              <p className="text-sm text-stone-400 dark:text-stone-500">
                 {perfil.avaliacoes.length === 0
                   ? "Nenhuma avaliação ainda."
                   : "Nenhuma avaliação encontrada para este filtro."}
@@ -214,27 +214,27 @@ export default async function PaginaPerfilEmpresa({
               {avaliacoesFiltradas.map((av) => (
                 <li
                   key={av.id}
-                  className="rounded-2xl border border-stone-200 bg-white px-5 py-4"
+                  className="rounded-2xl border border-stone-200 bg-white px-5 py-4 dark:border-stone-700/60 dark:bg-stone-900"
                 >
                   <div className="mb-1 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <Estrelas nota={av.nota} />
-                      <span className="text-xs font-medium text-stone-600">
+                      <span className="text-xs font-medium text-stone-600 dark:text-stone-300">
                         {av.nota}/5
                       </span>
                     </div>
-                    <span className="text-xs text-stone-400">
+                    <span className="text-xs text-stone-400 dark:text-stone-500">
                       {new Date(av.criada_em).toLocaleDateString("pt-BR")}
                     </span>
                   </div>
-                  <p className="text-xs text-stone-400">
+                  <p className="text-xs text-stone-400 dark:text-stone-500">
                     por {av.empresa_avaliadora?.razao_social ?? "—"}
                   </p>
                   {av.texto_comentario && (
-                    <p className="mt-2 text-sm text-stone-600">{av.texto_comentario}</p>
+                    <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">{av.texto_comentario}</p>
                   )}
                   {!av.texto_comentario && !av.comentario_publico && (
-                    <p className="mt-2 text-sm text-stone-400">
+                    <p className="mt-2 text-sm text-stone-400 dark:text-stone-500">
                       Comentário em moderação. A nota já compõe a reputação pública.
                     </p>
                   )}
@@ -247,12 +247,12 @@ export default async function PaginaPerfilEmpresa({
         {/* Denúncia — só para empresa autenticada e diferente do perfil */}
         {sessao?.empresa_id && sessao.empresa_id !== perfil.id && (
           <section className="mt-8">
-            <details className="rounded-2xl border border-stone-200 bg-white">
-              <summary className="cursor-pointer px-5 py-4 text-sm font-medium text-stone-500 hover:text-stone-700 select-none">
+            <details className="rounded-2xl border border-stone-200 bg-white dark:border-stone-700/60 dark:bg-stone-900">
+              <summary className="cursor-pointer px-5 py-4 text-sm font-medium text-stone-500 hover:text-stone-700 select-none dark:text-stone-400 dark:hover:text-stone-300">
                 Denunciar esta empresa
               </summary>
-              <div className="border-t border-stone-100 px-5 pb-5 pt-4">
-                <p className="mb-4 text-xs text-stone-400">
+              <div className="border-t border-stone-100 px-5 pb-5 pt-4 dark:border-stone-800">
+                <p className="mb-4 text-xs text-stone-400 dark:text-stone-500">
                   Use apenas para casos reais. Denúncias falsas podem resultar em suspensão.
                 </p>
                 <FormDenuncia origemId={perfil.id} tipoOrigem="perfil_empresa" />

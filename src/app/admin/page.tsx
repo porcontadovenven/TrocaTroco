@@ -29,24 +29,24 @@ function Contador({
     <div
       className={`flex flex-col gap-3 rounded-2xl border p-5 ${
         alerta && valor > 0
-          ? "border-amber-200 bg-amber-50"
-          : "border-stone-200 bg-white"
+          ? "border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/40"
+          : "border-stone-200 bg-white dark:border-stone-700/60 dark:bg-stone-900"
       }`}
     >
       {icon && (
-        <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${alerta && valor > 0 ? "bg-amber-100" : "bg-stone-100"}`}>
-          <span className={alerta && valor > 0 ? "text-amber-600" : "text-stone-500"}>{icon}</span>
+        <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${alerta && valor > 0 ? "bg-amber-100 dark:bg-amber-950/60" : "bg-stone-100 dark:bg-stone-800"}`}>
+          <span className={alerta && valor > 0 ? "text-amber-600 dark:text-amber-400" : "text-stone-500 dark:text-stone-400"}>{icon}</span>
         </div>
       )}
       <div>
         <p
           className={`text-3xl font-bold tracking-tight ${
-            alerta && valor > 0 ? "text-amber-700" : "text-stone-900"
+            alerta && valor > 0 ? "text-amber-700 dark:text-amber-400" : "text-stone-900 dark:text-stone-50"
           }`}
         >
           {valor}
         </p>
-        <p className="mt-1 text-xs text-stone-500">{label}</p>
+        <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{label}</p>
       </div>
     </div>
   );
@@ -64,13 +64,13 @@ function LinkAdmin({
   return (
     <Link
       href={href}
-      className="group flex items-start justify-between gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-4 transition-all hover:border-stone-300 hover:bg-stone-50"
+      className="group flex items-start justify-between gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-4 transition-all hover:border-stone-300 hover:bg-stone-50 dark:border-stone-700/60 dark:bg-stone-900 dark:hover:border-stone-600 dark:hover:bg-stone-800"
     >
       <div>
-        <span className="text-sm font-semibold text-stone-800">{titulo}</span>
-        <p className="mt-0.5 text-xs text-stone-400">{descricao}</p>
+        <span className="text-sm font-semibold text-stone-800 dark:text-stone-100">{titulo}</span>
+        <p className="mt-0.5 text-xs text-stone-400 dark:text-stone-500">{descricao}</p>
       </div>
-      <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-stone-300 opacity-0 transition-opacity group-hover:opacity-100" />
+      <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-stone-300 opacity-0 transition-opacity group-hover:opacity-100 dark:text-stone-600" />
     </Link>
   );
 }
@@ -82,24 +82,24 @@ export default async function PaginaAdmin() {
   const contadores = await obterContadoresAdmin();
 
   return (
-    <main className="min-h-screen bg-stone-50/50 px-6 py-10">
+    <main className="min-h-screen bg-stone-50/50 px-6 py-10 dark:bg-[#09090f]">
       <div className="mx-auto max-w-5xl">
         <div className="mb-8">
-          <div className="mb-1 flex items-center gap-2 text-xs font-medium text-stone-400">
+          <div className="mb-1 flex items-center gap-2 text-xs font-medium text-stone-400 dark:text-stone-500">
             <LayoutDashboard className="h-3.5 w-3.5" />
             Painel administrativo
           </div>
-          <h1 className="text-2xl font-bold text-stone-900">
+          <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-50">
             Painel administrativo
           </h1>
-          <p className="mt-1 text-sm text-stone-500">
+          <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
             Área restrita a administradores e moderadores.
           </p>
         </div>
 
         {/* Contadores de atenção */}
         <section className="mb-8">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-400">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500">
             Pendências
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -132,7 +132,7 @@ export default async function PaginaAdmin() {
 
         {/* Módulos principais */}
         <section className="mb-8">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-400">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500">
             Módulos administrativos
           </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -166,7 +166,7 @@ export default async function PaginaAdmin() {
 
         {/* Acesso complementar */}
         <section>
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-400">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500">
             Acesso complementar
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
